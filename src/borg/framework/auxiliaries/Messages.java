@@ -1,9 +1,11 @@
 package borg.framework.auxiliaries;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public final class Messages
 {
+	@Contract(pure = true)
 	private Messages()
 	{
 		// private constructor to avoid instantiation
@@ -14,7 +16,8 @@ public final class Messages
 	 *
 	 * @return message.
 	 */
-	@NonNull
+	@Contract(pure = true)
+	@NotNull
 	public static String exceptionAlreadyReleased()
 	{
 		return "the singleton already released";
@@ -25,7 +28,8 @@ public final class Messages
 	 *
 	 * @return message.
 	 */
-	@NonNull
+	@Contract(pure = true)
+	@NotNull
 	public static String exceptionCannotCreateDirectory()
 	{
 		return "unable to create directory";
@@ -36,7 +40,8 @@ public final class Messages
 	 *
 	 * @return message.
 	 */
-	@NonNull
+	@Contract(pure = true)
+	@NotNull
 	public static String exceptionConnectionFailed()
 	{
 		return "connection failed";
@@ -47,7 +52,8 @@ public final class Messages
 	 *
 	 * @return message.
 	 */
-	@NonNull
+	@Contract(pure = true)
+	@NotNull
 	public static String exceptionOnlyMainThread()
 	{
 		return "shall be called only on main thread";
@@ -58,7 +64,8 @@ public final class Messages
 	 *
 	 * @return message.
 	 */
-	@NonNull
+	@Contract(pure = true)
+	@NotNull
 	public static String exceptionInvalidArgument()
 	{
 		return "invalid argument";

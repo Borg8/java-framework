@@ -1,16 +1,15 @@
 package borg.framework.collections;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 import borg.framework.resources.Constants;
 
@@ -44,7 +43,7 @@ public final class ThreadMap<K, V> implements Serializable
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public ThreadMap(@NonNull Map<K, V> map_)
+	public ThreadMap(@NotNull Map<K, V> map_)
 	{
 		mMaps = Collections.synchronizedMap(new HashMap<>());
 		mMap = map_;
@@ -55,23 +54,24 @@ public final class ThreadMap<K, V> implements Serializable
 		getMap().clear();
 	}
 
-	public boolean containsKey(@NonNull K key_)
+	public boolean containsKey(@NotNull K key_)
 	{
 		return getMap().containsKey(key_);
 	}
 
-	public boolean containsValue(@NonNull V value_)
+	public boolean containsValue(@NotNull V value_)
 	{
 		return getMap().containsValue(value_);
 	}
 
-	public Set<Entry<K, V>> entrySet()
+	@NotNull
+	public Set<Map.Entry<K, V>> entrySet()
 	{
 		return getMap().entrySet();
 	}
 
 	@Nullable
-	public V get(@NonNull Object value_)
+	public V get(@NotNull K value_)
 	{
 		return getMap().get(value_);
 	}
@@ -81,25 +81,25 @@ public final class ThreadMap<K, V> implements Serializable
 		return getMap().isEmpty();
 	}
 
-	@NonNull
+	@NotNull
 	public Set<K> keySet()
 	{
 		return getMap().keySet();
 	}
 
 	@Nullable
-	public V put(@NonNull K key_, @NonNull V value_)
+	public V put(@NotNull K key_, @NotNull V value_)
 	{
 		return getMap().put(key_, value_);
 	}
 
-	public void putAll(@NonNull Map<? extends K, ? extends V> map_)
+	public void putAll(@NotNull Map<? extends K, ? extends V> map_)
 	{
 		getMap().putAll(map_);
 	}
 
 	@Nullable
-	public V remove(@NonNull Object value_)
+	public V remove(@NotNull K value_)
 	{
 		return getMap().remove(value_);
 	}
@@ -109,14 +109,14 @@ public final class ThreadMap<K, V> implements Serializable
 		return getMap().size();
 	}
 
-	@NonNull
+	@NotNull
 	public Collection<V> values()
 	{
 		return getMap().values();
 	}
 
 	@SuppressWarnings("unchecked")
-	@NonNull
+	@NotNull
 	public Map<K, V> getMap()
 	{
 		long thread = Thread.currentThread().getId();

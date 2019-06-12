@@ -1,9 +1,9 @@
 package borg.framework.structures;
 
-import java.text.MessageFormat;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import java.text.MessageFormat;
 
 public class Result<T extends Enum<T>> extends TypedEntity<T>
 {
@@ -24,7 +24,7 @@ public class Result<T extends Enum<T>> extends TypedEntity<T>
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** object that create the result **/
-	@NonNull
+	@NotNull
 	public final Object actor;
 
 	/** result free text **/
@@ -39,25 +39,25 @@ public class Result<T extends Enum<T>> extends TypedEntity<T>
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public Result(@NonNull Object actor_, @NonNull T type_)
+	public Result(@NotNull Object actor_, @NotNull T type_)
 	{
 		this(actor_, type_, null, null);
 	}
 
-	public Result(@NonNull Object actor_, @NonNull T type_, @Nullable String message_)
+	public Result(@NotNull Object actor_, @NotNull T type_, @Nullable String message_)
 	{
 		this(actor_, type_, message_, null);
 	}
 
-	public Result(@NonNull Object actor_,
-		@NonNull T type_,
+	public Result(@NotNull Object actor_,
+		@NotNull T type_,
 		@Nullable Result<? extends Enum<?>> cause_)
 	{
 		this(actor_, type_, null, cause_);
 	}
 
-	public Result(@NonNull Object actor_,
-		@NonNull T type_,
+	public Result(@NotNull Object actor_,
+		@NotNull T type_,
 		@Nullable String message_,
 		@Nullable Result<? extends Enum<?>> cause_)
 	{
@@ -70,7 +70,7 @@ public class Result<T extends Enum<T>> extends TypedEntity<T>
 
 	@SuppressWarnings("null") // compiler issue
 	@Override
-	@NonNull
+	@NotNull
 	public String toString()
 	{
 		StringBuilder builder = new StringBuilder();

@@ -1,20 +1,19 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import org.eclipse.jdt.annotation.Nullable;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import borg.framework.auxiliaries.Logging;
-import borg.framework.compability.Contract;
 
 public final class EntityParser
 {
@@ -56,7 +55,7 @@ public final class EntityParser
 		if (map_ != null)
 		{
 			JSONObject json = new JSONObject();
-			for (Entry<String, Object> entry : map_.entrySet())
+			for (Map.Entry<String, Object> entry : map_.entrySet())
 			{
 				try
 				{

@@ -1,6 +1,6 @@
 package borg.framework.serializers;
 
-import borg.framework.compability.Contract;
+import org.jetbrains.annotations.Contract;
 
 public interface Typed<T extends REntity>
 {

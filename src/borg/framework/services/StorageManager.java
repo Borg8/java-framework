@@ -1,18 +1,20 @@
 package borg.framework.services;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.logging.Level;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 import borg.framework.auxiliaries.Logging;
 import borg.framework.auxiliaries.Messages;
-import borg.framework.compability.Contract;
+
 
 public final class StorageManager
 {
@@ -39,6 +41,7 @@ public final class StorageManager
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Contract(pure = true)
 	private StorageManager()
 	{
 		// private constructor to prevent instantiation
@@ -53,9 +56,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception if file name is not valid.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static File getFile(@NonNull String name_) throws Exception
+	public static File getFile(@NotNull String name_) throws Exception
 	{
 		// if file path is an absolute
 		if (name_.charAt(0) == File.separatorChar)
@@ -84,7 +87,7 @@ public final class StorageManager
 	 *
 	 * @param directory_ directory to create.
 	 */
-	public static void createDirectory(@NonNull File directory_) throws Exception
+	public static void createDirectory(@NotNull File directory_) throws Exception
 	{
 		// if directory is not exists
 		if (directory_.isDirectory() == false)
@@ -109,13 +112,13 @@ public final class StorageManager
 	 * @return {@code true} if the file or whole directory was deleted, {@code false} otherwise, but
 	 *         if the file is directory, then it possible than some files were deleted.
 	 */
-	public static boolean delete(@NonNull File file_)
+	public static boolean delete(@NotNull File file_)
 	{
 		// if file is directory
 		if (file_.isDirectory() == true)
 		{
 			// delete all its files
-			for (File file: file_.listFiles())
+			for (File file: Objects.requireNonNull(file_.listFiles()))
 			{
 				if (delete(file) == false)
 				{
@@ -137,8 +140,8 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	@NonNull
-	public static File createFile(@NonNull String name_, @NonNull byte[] content_) throws Exception
+	@NotNull
+	public static File createFile(@NotNull String name_, @NotNull byte[] content_) throws Exception
 	{
 		File file = getFile(name_);
 		createFile(file, content_);
@@ -154,7 +157,7 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	public static void createFile(@NonNull File file_, @NonNull byte[] content_) throws Exception
+	public static void createFile(@NotNull File file_, @NotNull byte[] content_) throws Exception
 	{
 		writeFile(file_, content_, false);
 	}
@@ -169,8 +172,8 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	@NonNull
-	public static File createFile(@NonNull String name_, @NonNull InputStream stream_)
+	@NotNull
+	public static File createFile(@NotNull String name_, @NotNull InputStream stream_)
 		throws Exception
 	{
 		File file = getFile(name_);
@@ -187,7 +190,7 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	public static void createFile(@NonNull File file_, @NonNull InputStream stream_)
+	public static void createFile(@NotNull File file_, @NotNull InputStream stream_)
 		throws Exception
 	{
 		writeFile(file_, stream_, false);
@@ -203,8 +206,8 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	@NonNull
-	public static File appendFile(@NonNull String name_, @NonNull byte[] content_) throws Exception
+	@NotNull
+	public static File appendFile(@NotNull String name_, @NotNull byte[] content_) throws Exception
 	{
 		File file = getFile(name_);
 		appendFile(file, content_);
@@ -220,7 +223,7 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	public static void appendFile(@NonNull File file_, @NonNull byte[] content_) throws Exception
+	public static void appendFile(@NotNull File file_, @NotNull byte[] content_) throws Exception
 	{
 		writeFile(file_, content_, true);
 	}
@@ -235,8 +238,8 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	@NonNull
-	public static File appendFile(@NonNull String name_, @NonNull InputStream stream_)
+	@NotNull
+	public static File appendFile(@NotNull String name_, @NotNull InputStream stream_)
 		throws Exception
 	{
 		File file = getFile(name_);
@@ -253,7 +256,7 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	public static void appendFile(@NonNull File file_, @NonNull InputStream stream_) throws Exception
+	public static void appendFile(@NotNull File file_, @NotNull InputStream stream_) throws Exception
 	{
 		writeFile(file_, stream_, true);
 	}
@@ -267,9 +270,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static byte[] readFile(@NonNull String name_) throws Exception
+	public static byte[] readFile(@NotNull String name_) throws Exception
 	{
 		return readFile(getFile(name_));
 	}
@@ -283,9 +286,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static byte[] readFile(@NonNull File file_) throws Exception
+	public static byte[] readFile(@NotNull File file_) throws Exception
 	{
 		FileInputStream stream = getFileInputStream(file_);
 		try
@@ -314,9 +317,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static byte[] readFile(@NonNull final InputStream stream_) throws Exception
+	public static byte[] readFile(@NotNull final InputStream stream_) throws Exception
 	{
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		byte[] buffer = new byte[SIZE_CHUNK];
@@ -356,9 +359,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception some IO exception.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static FileOutputStream getFileOutputStream(@NonNull String name_, boolean append_)
+	public static FileOutputStream getFileOutputStream(@NotNull String name_, boolean append_)
 		throws Exception
 	{
 		return getFileOutputStream(getFile(name_), append_);
@@ -374,9 +377,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception some IO exception.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static FileOutputStream getFileOutputStream(@NonNull File file_, boolean append_)
+	public static FileOutputStream getFileOutputStream(@NotNull File file_, boolean append_)
 		throws Exception
 	{
 		// create directory for file
@@ -394,9 +397,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception some IO exception.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static FileInputStream getFileInputStream(@NonNull String name_) throws Exception
+	public static FileInputStream getFileInputStream(@NotNull String name_) throws Exception
 	{
 		return getFileInputStream(getFile(name_));
 	}
@@ -410,9 +413,9 @@ public final class StorageManager
 	 *
 	 * @throws Exception some IO exception.
 	 */
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
-	public static FileInputStream getFileInputStream(@NonNull File file_) throws Exception
+	public static FileInputStream getFileInputStream(@NotNull File file_) throws Exception
 	{
 		// create at the external storage
 		return new FileInputStream(file_);
@@ -426,7 +429,7 @@ public final class StorageManager
 	 * @return true if string is valid filename, false otherwise.
 	 */
 	@Contract(pure = true)
-	public static boolean isValidFilename(@NonNull String name_)
+	public static boolean isValidFilename(@NotNull String name_)
 	{
 		if (name_.isEmpty() == false)
 		{
@@ -438,7 +441,7 @@ public final class StorageManager
 		return false;
 	}
 
-	private static void writeFile(@NonNull File file_, @NonNull byte[] content_, boolean append_)
+	private static void writeFile(@NotNull File file_, @NotNull byte[] content_, boolean append_)
 		throws Exception
 	{
 		OutputStream stream = getFileOutputStream(file_, append_);
@@ -460,8 +463,8 @@ public final class StorageManager
 		}
 	}
 
-	private static void writeFile(@NonNull File file_,
-		@NonNull InputStream stream_,
+	private static void writeFile(@NotNull File file_,
+		@NotNull InputStream stream_,
 		boolean append_) throws Exception
 	{
 		FileOutputStream outputStream = getFileOutputStream(file_, append_);

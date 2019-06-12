@@ -1,12 +1,13 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.logging.Level;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 import borg.framework.auxiliaries.Logging;
 import borg.framework.resources.Constants;
@@ -35,14 +36,14 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @param object_ object to prepare.
 		 */
-		void prepare(@NonNull Serialized object_);
+		void prepare(@NotNull Serialized object_);
 
 		/**
 		 * finish object after deserialization.
 		 *
 		 * @param object_ object to finish.
 		 */
-		void finish(@NonNull Serialized object_);
+		void finish(@NotNull Serialized object_);
 	}
 
 	public interface Encryptor
@@ -55,7 +56,7 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @return encrypted object to store.
 		 */
-		byte[] encrypt(@NonNull Serialized object_, @NonNull byte[] data_);
+		byte[] encrypt(@NotNull Serialized object_, @NotNull byte[] data_);
 
 		/**
 		 * decrypt serialized object.
@@ -65,7 +66,7 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @return decrypted object to deserialize.
 		 */
-		byte[] decrypt(@NonNull Serialized object_, @NonNull byte[] data_);
+		byte[] decrypt(@NotNull Serialized object_, @NotNull byte[] data_);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +74,7 @@ public abstract class Serialized implements Serializable
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** tag represents the instance. Have to be valid filename **/
-	@NonNull
+	@NotNull
 	public final String tag;
 
 	/** file encryptor **/
@@ -99,7 +100,8 @@ public abstract class Serialized implements Serializable
 	 * @param encryptor_ encryptor to set.
 	 * @param serliazer_ serializer to set.
 	 */
-	protected Serialized(@NonNull String tag_,
+	@Contract(pure = true)
+	protected Serialized(@NotNull String tag_,
 		@Nullable Encryptor encryptor_,
 		@Nullable Serializer serliazer_)
 	{
@@ -114,7 +116,8 @@ public abstract class Serialized implements Serializable
 	/**
 	 * @param tag_ unique tag of the state. Have to be valid filename.
 	 */
-	protected Serialized(@NonNull String tag_)
+	@Contract(pure = true)
+	protected Serialized(@NotNull String tag_)
 	{
 		this(tag_, null, null);
 	}
@@ -300,5 +303,5 @@ public abstract class Serialized implements Serializable
 
 	protected abstract byte[] serialize();
 
-	protected abstract Serialized deserialize(@NonNull byte[] data_);
+	protected abstract Serialized deserialize(@NotNull byte[] data_);
 }

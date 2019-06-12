@@ -1,8 +1,9 @@
 package borg.framework.structures;
 
-import java.io.Serializable;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
-import org.eclipse.jdt.annotation.NonNull;
+import java.io.Serializable;
 
 import borg.framework.resources.Constants;
 
@@ -14,13 +15,15 @@ public final class Pair<T extends Serializable, S extends Serializable> implemen
 
 	public S el2;
 
+	@Contract(pure = true)
 	public Pair(T element1_, S element2_)
 	{
 		el1 = element1_;
 		el2 = element2_;
 	}
 
-	@NonNull
+	@Contract(pure = true)
+	@NotNull
 	@Override
 	public String toString()
 	{

@@ -1,9 +1,10 @@
 package borg.framework.auxiliaries;
 
-import java.util.HashSet;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import java.util.HashSet;
 
 /**
  * @author Borg
@@ -20,7 +21,7 @@ public final class Event<T>
 
 	public static abstract class Observer<T>
 	{
-		@NonNull
+		@NotNull
 		public final Object owner;
 
 		private boolean isOnetime;
@@ -28,7 +29,8 @@ public final class Event<T>
 		/**
 		 * @param owner_ instance where Observer was instantiated (usual it will be 'this').
 		 */
-		public Observer(@NonNull Object owner_)
+		@Contract(pure = true)
+		public Observer(@NotNull Object owner_)
 		{
 			owner = owner_;
 		}
@@ -82,7 +84,7 @@ public final class Event<T>
 	 *
 	 * @param observer_ the attached observer.
 	 */
-	public void attach(@NonNull Observer<T> observer_)
+	public void attach(@NotNull Observer<T> observer_)
 	{
 		attach(observer_, false);
 	}
@@ -92,13 +94,13 @@ public final class Event<T>
 	 *
 	 * @param observer_ the attached observer.
 	 */
-	public void attachOnce(@NonNull Observer<T> observer_)
+	public void attachOnce(@NotNull Observer<T> observer_)
 	{
 		// if observer was attached
 		attach(observer_, true);
 	}
 
-	private void attach(@NonNull Observer<T> observer_, boolean isOnetime_)
+	private void attach(@NotNull Observer<T> observer_, boolean isOnetime_)
 	{
 		synchronized (this)
 		{
@@ -127,7 +129,7 @@ public final class Event<T>
 	 *
 	 * @param observer_ detached observer.
 	 */
-	public void detach(@NonNull Observer<T> observer_)
+	public void detach(@NotNull Observer<T> observer_)
 	{
 		synchronized (this)
 		{
@@ -155,7 +157,7 @@ public final class Event<T>
 	 * @param owner_ instance of object that owned the removed observers.
 	 */
 	@SuppressWarnings("unchecked")
-	public void detach(@NonNull Object owner_)
+	public void detach(@NotNull Object owner_)
 	{
 		synchronized (this)
 		{
@@ -243,10 +245,7 @@ public final class Event<T>
 				mObserversClone.clear();
 
 				// build new observer clone list
-				for (Observer<T> observer: mObservers)
-				{
-					mObserversClone.add(observer);
-				}
+				mObserversClone.addAll(mObservers);
 			}
 
 			// roll back during invocation flag

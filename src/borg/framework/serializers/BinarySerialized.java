@@ -1,13 +1,13 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 import borg.framework.auxiliaries.Logging;
 import borg.framework.resources.Constants;
@@ -36,24 +36,24 @@ public class BinarySerialized extends Serialized
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	protected BinarySerialized(@NonNull String tag_,
+	protected BinarySerialized(@NotNull String tag_,
 		@Nullable Encryptor encryptor_,
 		@Nullable Serializer serializer_)
 	{
 		super(tag_, encryptor_, serializer_);
 	}
 
-	protected BinarySerialized(@NonNull String tag_, @Nullable Encryptor encryptor_)
+	protected BinarySerialized(@NotNull String tag_, @Nullable Encryptor encryptor_)
 	{
 		this(tag_, encryptor_, null);
 	}
 
-	protected BinarySerialized(@NonNull String tag_, @Nullable Serializer serializer_)
+	protected BinarySerialized(@NotNull String tag_, @Nullable Serializer serializer_)
 	{
 		this(tag_, null, serializer_);
 	}
 
-	protected BinarySerialized(@NonNull String tag_)
+	protected BinarySerialized(@NotNull String tag_)
 	{
 		this(tag_, null, null);
 	}
@@ -85,7 +85,7 @@ public class BinarySerialized extends Serialized
 	}
 
 	@Override
-	protected Serialized deserialize(@NonNull byte[] data_)
+	protected Serialized deserialize(@NotNull byte[] data_)
 	{
 		try
 		{

@@ -1,11 +1,12 @@
 package borg.framework.auxiliaries;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 public final class Auxiliary
 {
@@ -40,6 +41,7 @@ public final class Auxiliary
 		resetRandom(System.currentTimeMillis());
 	}
 
+	@Contract(pure = true)
 	private Auxiliary()
 	{
 		// private constructor to prevent instantiation
@@ -96,7 +98,7 @@ public final class Auxiliary
 	 * @return read bytes or {@code null} if the stream is not readable.
 	 */
 	@Nullable
-	public static byte[] readFromStream(@NonNull InputStream stream_)
+	public static byte[] readFromStream(@NotNull InputStream stream_)
 	{
 		ByteArrayOutputStream arrayStream = new ByteArrayOutputStream();
 

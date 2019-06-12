@@ -1,13 +1,13 @@
 package borg.framework.auxiliaries;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 public final class TextParser
 {
@@ -59,7 +59,7 @@ public final class TextParser
 	 *
 	 * @return string represents the given timestamp in human representation.
 	 */
-	@NonNull
+	@NotNull
 	public static String timestampToTime(long timestamp_)
 	{
 		if (timestamp_ < 0)
@@ -132,7 +132,7 @@ public final class TextParser
 	 *
 	 * @return date in human representation.
 	 */
-	@NonNull
+	@NotNull
 	public static synchronized String getHumanDate(long timestamp_,
 		char timeSeparator_,
 		char dateSeparator_,
@@ -165,7 +165,7 @@ public final class TextParser
 				builder.append(month);
 				builder.append(dateSeparator_);
 			}
-			builder.append(Integer.toString(sCalendar.get(Calendar.YEAR)));
+			builder.append(sCalendar.get(Calendar.YEAR));
 			if (timeSeparator_ != '\0')
 			{
 				builder.append(' ');
@@ -230,7 +230,7 @@ public final class TextParser
 	 *
 	 * @return string represents the double.
 	 */
-	@NonNull
+	@NotNull
 	public static String toString(double d_)
 	{
 		return sDecimalFormat.format(d_);
@@ -244,7 +244,7 @@ public final class TextParser
 	 * @return string represents the long in hexadecimal base. The value can be parsed by
 	 *         {@link Long#parseLong(String)}.
 	 */
-	@NonNull
+	@NotNull
 	public static String toHexString(long l_)
 	{
 		// if long is negative
@@ -264,7 +264,7 @@ public final class TextParser
 	 * @return integer, if parsed.
 	 */
 	@Nullable
-	public static Long parseInteger(@NonNull String string_)
+	public static Long parseInteger(@NotNull String string_)
 	{
 		// is string is empty
 		int n = string_.length();

@@ -1,5 +1,9 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -11,12 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
 import borg.framework.auxiliaries.Logging;
-import borg.framework.compability.CallSuper;
-import borg.framework.compability.Contract;
 import borg.framework.resources.Constants;
 import borg.framework.services.ArraysManager;
 
@@ -47,7 +46,7 @@ public abstract class REntity implements Serializable
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	@NonNull
+	@NotNull
 	@Contract(pure = true)
 	public final HashMap<String, Object> toMap()
 	{
@@ -59,7 +58,7 @@ public abstract class REntity implements Serializable
 	}
 
 	@Override
-	@NonNull
+	@NotNull
 	public final String toString()
 	{
 		return EntityParser.buildJson(toMap()).toString();
@@ -80,7 +79,7 @@ public abstract class REntity implements Serializable
 	@SuppressWarnings("unchecked")
 	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> T buildTypedEntity(
 		@Nullable HashMap<String, Object> map_,
-		@NonNull Class<E> types_,
+		@NotNull Class<E> types_,
 		@Nullable T default_)
 	{
 		if (map_ != null)
@@ -120,7 +119,7 @@ public abstract class REntity implements Serializable
 	 */
 	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> ArrayList<T> buildTypedList(
 		@Nullable ArrayList<HashMap<String, Object>> maps_,
-		@NonNull Class<E> types_,
+		@NotNull Class<E> types_,
 		@Nullable ArrayList<T> default_)
 	{
 		if (maps_ != null)
@@ -154,7 +153,7 @@ public abstract class REntity implements Serializable
 	 */
 	@Contract("null, _, _ -> param3")
 	public static <T extends REntity> T buildEntity(@Nullable HashMap<String, Object> map_,
-		@NonNull Class<T> type_,
+		@NotNull Class<T> type_,
 		@Nullable T default_)
 	{
 		if (map_ != null)
@@ -231,7 +230,6 @@ public abstract class REntity implements Serializable
 		// if object is map
 		if (object_ instanceof Map)
 		{
-			//noinspection unchecked
 			return serialize(object_);
 		}
 
@@ -271,6 +269,7 @@ public abstract class REntity implements Serializable
 	@SuppressWarnings("null")
 	protected static long serialize(boolean boolean_)
 	{
+		//noinspection ConstantConditions
 		return serialize(BooleanType.fromBoolean(boolean_).ordinal());
 	}
 
@@ -349,7 +348,7 @@ public abstract class REntity implements Serializable
 	@SuppressWarnings("unchecked")
 	@Contract(pure = true)
 	protected static <T> T readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
+		@NotNull String key_,
 		@Nullable T default_)
 	{
 		if (map_ != null)
@@ -366,7 +365,7 @@ public abstract class REntity implements Serializable
 
 	@Contract(pure = true)
 	protected static double readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
+		@NotNull String key_,
 		double default_)
 	{
 		if (map_ != null)
@@ -383,7 +382,7 @@ public abstract class REntity implements Serializable
 
 	@Contract(pure = true)
 	protected static long readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
+		@NotNull String key_,
 		long default_)
 	{
 		if (map_ != null)
@@ -400,7 +399,7 @@ public abstract class REntity implements Serializable
 
 	@Contract(pure = true)
 	protected static Boolean readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
+		@NotNull String key_,
 		@Nullable Boolean default_)
 	{
 		if (map_ != null)
@@ -417,7 +416,7 @@ public abstract class REntity implements Serializable
 
 	@Contract(pure = true)
 	protected static byte[] readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
+		@NotNull String key_,
 		@Nullable byte[] default_)
 	{
 		if (map_ != null)
@@ -435,8 +434,8 @@ public abstract class REntity implements Serializable
 	@Nullable
 	@Contract(pure = true)
 	protected static <T extends REntity> T readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
-		@NonNull Class<T> class_)
+		@NotNull String key_,
+		@NotNull Class<T> class_)
 	{
 		if (map_ != null)
 		{
@@ -467,7 +466,7 @@ public abstract class REntity implements Serializable
 	@SuppressWarnings("unchecked")
 	@Nullable
 	@Contract(pure = true)
-	protected static <T> T readField(@Nullable HashMap<String, Object> map_, @NonNull String key_)
+	protected static <T> T readField(@Nullable HashMap<String, Object> map_, @NotNull String key_)
 	{
 		if (map_ != null)
 		{
@@ -484,7 +483,7 @@ public abstract class REntity implements Serializable
 	@SuppressWarnings("unchecked") // exception will be thrown
 	@Contract(pure = true)
 	protected static <T> ArrayList<T> readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
+		@NotNull String key_,
 		@Nullable ArrayList<T> default_)
 	{
 		if (map_ != null)
@@ -503,8 +502,8 @@ public abstract class REntity implements Serializable
 	@Contract(pure = true)
 	protected static <T extends REntity> ArrayList<T> readField(
 		@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
-		@NonNull Class<T> class_,
+		@NotNull String key_,
+		@NotNull Class<T> class_,
 		@Nullable ArrayList<T> default_)
 	{
 		if (map_ != null)
@@ -540,10 +539,10 @@ public abstract class REntity implements Serializable
 	}
 
 	@Contract(pure = true)
-	@NonNull
+	@NotNull
 	protected static <T extends Enum<T>> T readField(@Nullable HashMap<String, Object> map_,
-		@NonNull String key_,
-		@NonNull T default_)
+		@NotNull String key_,
+		@NotNull T default_)
 	{
 		try
 		{
@@ -562,8 +561,7 @@ public abstract class REntity implements Serializable
 		return default_;
 	}
 
-	@CallSuper
-	protected void buildMap(@SuppressWarnings("unused") @NonNull HashMap<String, Object> map_)
+	protected void buildMap(@SuppressWarnings("unused") @NotNull HashMap<String, Object> map_)
 	{
 		// nothing to do here
 	}

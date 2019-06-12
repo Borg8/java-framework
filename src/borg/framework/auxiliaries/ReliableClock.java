@@ -1,5 +1,7 @@
 package borg.framework.auxiliaries;
 
+import org.jetbrains.annotations.Contract;
+
 public final class ReliableClock
 {
 	/** second duration **/
@@ -17,6 +19,7 @@ public final class ReliableClock
 	/** week duration **/
 	public static final long WEEK = DAY * 7;
 
+	@Contract(pure = true)
 	private ReliableClock()
 	{
 		// private constructor to prevent instantiation

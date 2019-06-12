@@ -1,5 +1,7 @@
 package borg.framework.collections;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -7,8 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 import borg.framework.resources.Constants;
 
@@ -42,19 +42,19 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public ThreadCollection(@NonNull Collection<E> collection_)
+	public ThreadCollection(@NotNull Collection<E> collection_)
 	{
 		mCollections = Collections.synchronizedMap(new HashMap<>());
 
 		mCollection = collection_;
 	}
 
-	public boolean add(@NonNull E object_)
+	public boolean add(@NotNull E object_)
 	{
 		return getCollection().add(object_);
 	}
 
-	public boolean addAll(@NonNull Collection<? extends E> collection_)
+	public boolean addAll(@NotNull Collection<? extends E> collection_)
 	{
 		return getCollection().addAll(collection_);
 	}
@@ -64,12 +64,12 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 		getCollection().clear();
 	}
 
-	public boolean contains(@NonNull E object_)
+	public boolean contains(@NotNull E object_)
 	{
 		return getCollection().contains(object_);
 	}
 
-	public boolean containsAll(@NonNull Collection<?> map_)
+	public boolean containsAll(@NotNull Collection<?> map_)
 	{
 		return getCollection().containsAll(map_);
 	}
@@ -79,24 +79,24 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 		return getCollection().isEmpty();
 	}
 
-	@NonNull
+	@NotNull
 	@Override
 	public Iterator<E> iterator()
 	{
 		return getCollection().iterator();
 	}
 
-	public boolean remove(@NonNull E object_)
+	public boolean remove(@NotNull E object_)
 	{
 		return getCollection().remove(object_);
 	}
 
-	public boolean removeAll(@NonNull Collection<?> collection_)
+	public boolean removeAll(@NotNull Collection<E> collection_)
 	{
 		return getCollection().removeAll(collection_);
 	}
 
-	public boolean retainAll(@NonNull Collection<?> collection_)
+	public boolean retainAll(@NotNull Collection<E> collection_)
 	{
 		return getCollection().retainAll(collection_);
 	}
@@ -106,20 +106,20 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 		return getCollection().size();
 	}
 
-	@NonNull
+	@NotNull
 	@SuppressWarnings("unchecked")
 	public E[] toArray()
 	{
 		return (E[])getCollection().toArray();
 	}
 
-	@NonNull
-	public E[] toArray(@NonNull E[] array_)
+	@NotNull
+	public E[] toArray(@NotNull E[] array_)
 	{
 		return getCollection().toArray(array_);
 	}
 
-	@NonNull
+	@NotNull
 	public Collection<E> getCollection()
 	{
 		return getCollection(Thread.currentThread().getId());
@@ -127,7 +127,7 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 	
 	
 	@SuppressWarnings("unchecked")
-	@NonNull
+	@NotNull
 	public Collection<E> getCollection(long thread_)
 	{
 		Collection<E> collection = mCollections.get(thread_);

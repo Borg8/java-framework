@@ -1,5 +1,9 @@
 package borg.framework.services;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -8,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
@@ -62,11 +63,11 @@ public final class HttpPoster
 	public static final class Response
 	{
 		/** communication result **/
-		@NonNull
+		@NotNull
 		public final ResultType result;
 
 		/** final ULR from where the response received **/
-		@NonNull
+		@NotNull
 		public final String url;
 
 		/** communication response **/
@@ -80,8 +81,9 @@ public final class HttpPoster
 		/** response code according {@link HttpURLConnection} constants **/
 		public final int code;
 
-		public Response(@NonNull ResultType result_,
-			@NonNull String url_,
+		@Contract(pure = true)
+		public Response(@NotNull ResultType result_,
+			@NotNull String url_,
 			@Nullable byte[] response_,
 			@Nullable Map<String, String> headers_,
 			int code_)
@@ -93,8 +95,9 @@ public final class HttpPoster
 			code = code_;
 		}
 
+		@Contract(" -> new")
 		@Override
-		@NonNull
+		@NotNull
 		public String toString()
 		{
 			StringBuilder builder = new StringBuilder();
@@ -130,6 +133,7 @@ public final class HttpPoster
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Contract(pure = true)
 	private HttpPoster()
 	{
 		// private constructor to prevent instantiation
@@ -138,7 +142,7 @@ public final class HttpPoster
 	/**
 	 * @return single instance of HttpPoster.
 	 */
-	@NonNull
+	@NotNull
 	public static synchronized HttpPoster getInstance()
 	{
 		if (sInstance == null)
@@ -160,8 +164,8 @@ public final class HttpPoster
 	 *          protocols).
 	 * @return response on HTTP request.
 	 */
-	@NonNull
-	public Response post(@NonNull String url_,
+	@NotNull
+	public Response post(@NotNull String url_,
 		@Nullable Map<String, String> headers_,
 		@Nullable byte[] content_,
 		boolean redirect_)
@@ -176,6 +180,7 @@ public final class HttpPoster
 		HttpURLConnection connection;
 		OutputStream out = null;
 		InputStream in = null;
+		//noinspection ConstantConditions
 		do
 		{
 			// create connection
@@ -296,7 +301,6 @@ public final class HttpPoster
 					}
 				}
 			}
-
 		} while (false);
 
 		// free resources
@@ -339,7 +343,7 @@ public final class HttpPoster
 	 *
 	 */
 	@Nullable
-	public HttpURLConnection createConnection(@NonNull String url_)
+	public HttpURLConnection createConnection(@NotNull String url_)
 	{
 		try
 		{

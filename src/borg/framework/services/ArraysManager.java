@@ -1,12 +1,12 @@
 package borg.framework.services;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import org.eclipse.jdt.annotation.NonNull;
 
 import borg.framework.auxiliaries.Logging;
 
@@ -67,8 +67,8 @@ public final class ArraysManager
 	 *
 	 * @return string of hex representation of array.
 	 */
-	@NonNull
-	public static String getArrayAsHex(@NonNull byte[] array_)
+	@NotNull
+	public static String getArrayAsHex(@NotNull byte[] array_)
 	{
 		StringBuilder builder = new StringBuilder();
 
@@ -109,7 +109,7 @@ public final class ArraysManager
 	 *
 	 * @return array from given hex representation.
 	 */
-	public static byte[] buildArrayFromHex(@NonNull String hex_)
+	public static byte[] buildArrayFromHex(@NotNull String hex_)
 	{
 		// create array
 		int n = hex_.length();
@@ -176,8 +176,8 @@ public final class ArraysManager
 	 *
 	 * @return list of bytes from given hex representation.
 	 */
-	@NonNull
-	public static ArrayList<Byte> buildListFromHex(@NonNull String hex_)
+	@NotNull
+	public static ArrayList<Byte> buildListFromHex(@NotNull String hex_)
 	{
 		// create array
 		int n = hex_.length();
@@ -243,7 +243,7 @@ public final class ArraysManager
 	 *
 	 * @return true if first collection contain second collection. False otherwise.
 	 */
-	public static <T> boolean isContain(@NonNull Collection<T> first_, @NonNull Collection<T> second_)
+	public static <T> boolean isContain(@NotNull Collection<T> first_, @NotNull Collection<T> second_)
 	{
 		// if size of first collection smaller than second
 		if (first_.size() < second_.size())
@@ -271,8 +271,8 @@ public final class ArraysManager
 	 *
 	 * @return true if both collection contains same elements, false otherwise.
 	 */
-	public static <T> boolean areEqual(@NonNull Collection<T> first_,
-		@NonNull Collection<T> second_)
+	public static <T> boolean areEqual(@NotNull Collection<T> first_,
+		@NotNull Collection<T> second_)
 	{
 		// if both collection is same size
 		if (first_.size() == second_.size())
@@ -292,7 +292,7 @@ public final class ArraysManager
 	 *
 	 * @return true if both lists contains same elements in same order, false otherwise.
 	 */
-	public static <T> boolean areEqual(@NonNull List<T> first_, @NonNull List<T> second_)
+	public static <T> boolean areEqual(@NotNull List<T> first_, @NotNull List<T> second_)
 	{
 		// if both lists is same size
 		if (first_.size() == second_.size())
@@ -336,7 +336,7 @@ public final class ArraysManager
 	 *
 	 * @return computed hash.
 	 */
-	public synchronized static @NonNull byte[] getArraySha256(@NonNull byte[] array_)
+	public synchronized static @NotNull byte[] getArraySha256(@NotNull byte[] array_)
 	{
 		byte[] sha256 = new byte[sSha256Digest.getDigestLength()];
 

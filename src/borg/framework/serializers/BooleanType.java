@@ -1,9 +1,8 @@
 package borg.framework.serializers;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-
-import borg.framework.compability.Contract;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum BooleanType
 {
@@ -19,13 +18,14 @@ public enum BooleanType
 	@Nullable
 	public final Boolean bool;
 
+	@Contract(pure = true)
 	BooleanType(@Nullable Boolean bool_)
 	{
 		bool = bool_;
 	}
 
 	@Contract(pure = true)
-	@NonNull
+	@NotNull
 	public static BooleanType fromBoolean(@Nullable Boolean bool_)
 	{
 		if (bool_ != null)

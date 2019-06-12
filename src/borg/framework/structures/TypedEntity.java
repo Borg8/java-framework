@@ -1,6 +1,7 @@
 package borg.framework.structures;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public class TypedEntity<T extends Enum<T>>
 {
@@ -17,18 +18,20 @@ public class TypedEntity<T extends Enum<T>>
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** entity type **/
-	@NonNull
+	@NotNull
 	public final T type;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public TypedEntity(@NonNull T type_)
+	@Contract(pure = true)
+	public TypedEntity(@NotNull T type_)
 	{
 		type = type_;
 	}
 
+	@Contract(value = "null -> false", pure = true)
 	@Override
 	public boolean equals(Object object_)
 	{

@@ -1,11 +1,12 @@
 package borg.framework.auxiliaries;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 
 public final class Logging
 {
@@ -35,6 +36,7 @@ public final class Logging
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Contract(pure = true)
 	private Logging()
 	{
 		// private constructor to avoid instantiation
@@ -46,7 +48,7 @@ public final class Logging
 	 * @param root_ root class to log.
 	 * @param depth_ exceptions depth.
 	 */
-	public static void configure(@NonNull Class<?> root_, int depth_)
+	public static void configure(@NotNull Class<?> root_, int depth_)
 	{
 		sRoot = root_.getName();
 		sDepth = depth_;
@@ -59,8 +61,9 @@ public final class Logging
 	 * @param start_ number of elements to skip.
 	 * @return built string.
 	 */
-	@NonNull
-	public static String buildStackTrace(@NonNull StackTraceElement[] traceElements_, int start_)
+	@Contract("_, _ -> new")
+	@NotNull
+	public static String buildStackTrace(@NotNull StackTraceElement[] traceElements_, int start_)
 	{
 		StringBuilder builder = new StringBuilder();
 
@@ -94,8 +97,8 @@ public final class Logging
 	 *
 	 * @return built string.
 	 */
-	@NonNull
-	public static String buildExceptionReport(@NonNull Throwable e_)
+	@NotNull
+	public static String buildExceptionReport(@NotNull Throwable e_)
 	{
 		return buildExceptionReport(Thread.currentThread(), e_);
 	}
@@ -108,8 +111,8 @@ public final class Logging
 	 *
 	 * @return built string.
 	 */
-	@NonNull
-	public static String buildExceptionReport(@NonNull Thread thread_, @NonNull Throwable e_)
+	@NotNull
+	public static String buildExceptionReport(@NotNull Thread thread_, @NotNull Throwable e_)
 	{
 		StringBuilder builder = new StringBuilder();
 
@@ -152,7 +155,7 @@ public final class Logging
 	 * @param state_ snapshot variables state. Every odd object is an variable name, following even
 	 *          object is the variable value.
 	 */
-	public static void snapshot(@NonNull Level level_, @Nullable String message_, Object... state_)
+	public static void snapshot(@NotNull Level level_, @Nullable String message_, Object... state_)
 	{
 		// build stack trace
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -200,7 +203,7 @@ public final class Logging
 	 * 
 	 * @param message_ message to log.
 	 */
-	public static void logging(@NonNull Object message_)
+	public static void logging(@NotNull Object message_)
 	{
 		logging(Level.INFO, message_);
 	}
@@ -211,7 +214,7 @@ public final class Logging
 	 * @param level_ log level.
 	 * @param message_ message to log.
 	 */
-	public static void logging(@NonNull Level level_, @NonNull Object message_)
+	public static void logging(@NotNull Level level_, @NotNull Object message_)
 	{
 		sLogger.log(level_, "\n" + message_.toString());
 	}
@@ -221,7 +224,7 @@ public final class Logging
 	 * 
 	 * @param e_ exception to log.
 	 */
-	public static void logging(@NonNull Throwable e_)
+	public static void logging(@NotNull Throwable e_)
 	{
 		logging((String)null, e_);
 	}
@@ -232,7 +235,7 @@ public final class Logging
 	 * @param message_ message to log.
 	 * @param e_ exception to log.
 	 */
-	public static void logging(@Nullable String message_, @NonNull Throwable e_)
+	public static void logging(@Nullable String message_, @NotNull Throwable e_)
 	{
 		sLogger.log(Level.SEVERE, "\n" + message_, e_);
 	}
