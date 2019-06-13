@@ -117,6 +117,7 @@ public abstract class REntity implements Serializable
 	 *
 	 * @return built entity list.
 	 */
+	@Contract("null, _, _ -> param3")
 	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> ArrayList<T> buildTypedList(
 		@Nullable ArrayList<HashMap<String, Object>> maps_,
 		@NotNull Class<E> types_,

@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 import borg.framework.resources.Constants;
 
-public final class Pair<T extends Serializable, S extends Serializable> implements Serializable
+public final class Pair<T, S> implements Serializable
 {
 	private static final long serialVersionUID = Constants.VERSION_FRAMEWORK;
 
