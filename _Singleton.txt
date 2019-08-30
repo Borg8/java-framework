@@ -1,6 +1,7 @@
 package borg;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public final class _Singleton 
 {
@@ -27,6 +28,7 @@ public final class _Singleton
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Contract(pure = true)
 	private _Singleton()
 	{
 		// private constructor to prevent instantiation
@@ -35,7 +37,7 @@ public final class _Singleton
 	/**
 	 * @return single instance of _Singleton.
 	 */
-	@NonNull
+	@NotNull
 	public static _Singleton getInstance()
 	{
 		if (sInstance == null)
