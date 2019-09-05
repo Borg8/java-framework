@@ -37,6 +37,7 @@ public final class EntityParser
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Contract(pure = true)
 	private EntityParser()
 	{
 		// private constructor to prevent instantiation.

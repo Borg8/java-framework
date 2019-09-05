@@ -311,7 +311,7 @@ public final class TextParser
 		int birthDays = calendar.get(Calendar.DAY_OF_YEAR);
 
 		// get current date
-		calendar.setTimeInMillis(ReliableClock.getRealTime());
+		calendar.setTimeInMillis(TimeManager.getRealTime());
 		int year = calendar.get(Calendar.YEAR);
 		int days = calendar.get(Calendar.DAY_OF_YEAR);
 

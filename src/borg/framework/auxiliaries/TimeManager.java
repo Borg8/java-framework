@@ -2,7 +2,7 @@ package borg.framework.auxiliaries;
 
 import org.jetbrains.annotations.Contract;
 
-public final class ReliableClock
+public final class TimeManager
 {
 	/** second duration **/
 	public static final long SECOND = 1000;
@@ -20,7 +20,7 @@ public final class ReliableClock
 	public static final long WEEK = DAY * 7;
 
 	@Contract(pure = true)
-	private ReliableClock()
+	private TimeManager()
 	{
 		// private constructor to prevent instantiation
 	}
