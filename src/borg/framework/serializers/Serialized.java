@@ -56,6 +56,8 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @return encrypted object to store.
 		 */
+		@Contract(pure = true)
+		@Nullable
 		byte[] encrypt(@NotNull Serialized object_, @NotNull byte[] data_);
 
 		/**
@@ -66,6 +68,8 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @return decrypted object to deserialize.
 		 */
+		@Contract(pure = true)
+		@Nullable
 		byte[] decrypt(@NotNull Serialized object_, @NotNull byte[] data_);
 	}
 
@@ -198,7 +202,7 @@ public abstract class Serialized implements Serializable
 
 			return false;
 		}
-		
+
 		mIsSaved = true;
 
 		return true;
@@ -256,7 +260,7 @@ public abstract class Serialized implements Serializable
 						for (Field field : fields)
 						{
 							// if field serializable
-							if((field.getModifiers() & modifiers) == 0)
+							if ((field.getModifiers() & modifiers) == 0)
 							{
 								field.setAccessible(true);
 								field.set(this, field.get(object));
@@ -265,12 +269,12 @@ public abstract class Serialized implements Serializable
 
 						// pass to object father
 						objectClass = objectClass.getSuperclass();
+					}
 
-						// if serializer is defined
-						if (mSerializer != null)
-						{
-							mSerializer.finish(this);
-						}
+					// if serializer is defined
+					if (mSerializer != null)
+					{
+						mSerializer.finish(this);
 					}
 
 					return true;
@@ -301,7 +305,11 @@ public abstract class Serialized implements Serializable
 		}
 	}
 
+	@Contract(pure = true)
+	@Nullable
 	protected abstract byte[] serialize();
 
+	@Contract(pure = true)
+	@Nullable
 	protected abstract Serialized deserialize(@NotNull byte[] data_);
 }

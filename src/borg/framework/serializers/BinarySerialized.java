@@ -1,5 +1,6 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logging;
@@ -58,23 +60,76 @@ public class BinarySerialized extends Serialized
 		this(tag_, null, null);
 	}
 
-	@Override
-	protected byte[] serialize()
+	/**
+	 * serialize object to array.
+	 *
+	 * @param object_ object to serialize.
+	 *
+	 * @return serialized object.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static byte[] write(@NotNull Serializable object_)
 	{
+		// serialize code
 		try
 		{
-			// try to serialize object
+			// create streams
 			ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 			ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
 
 			// write the object
-			objectStream.writeObject(this);
+			objectStream.writeObject(object_);
 			objectStream.flush();
+
+			// close streams
 			objectStream.close();
 			byteStream.close();
 
 			// return serialized object
 			return byteStream.toByteArray();
+		}
+		catch (Exception e)
+		{
+			throw new Error(e);
+		}
+	}
+
+	/**
+	 * deserialize object from array.
+	 *
+	 * @param array_ array to deserialize from.
+	 *
+	 * @return deserialized object.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static <T extends Serializable> T read(@NotNull byte[] array_)
+	{
+		try
+		{
+			// deserialize object
+			ByteArrayInputStream stream = new ByteArrayInputStream(array_);
+			//noinspection unchecked
+			T object = (T)new ObjectInputStream(stream).readObject();
+			stream.close();
+
+			return object;
+		}
+		catch (Exception e)
+		{
+			throw new Error(e);
+		}
+	}
+
+	@Override
+	@Contract(pure = true)
+	@Nullable
+	protected byte[] serialize()
+	{
+		try
+		{
+			return write(this);
 		}
 		catch (Exception e)
 		{
@@ -85,16 +140,13 @@ public class BinarySerialized extends Serialized
 	}
 
 	@Override
+	@Contract(pure = true)
+	@Nullable
 	protected Serialized deserialize(@NotNull byte[] data_)
 	{
 		try
 		{
-			// deserialize object
-			ByteArrayInputStream stream = new ByteArrayInputStream(data_);
-			Object object = new ObjectInputStream(stream).readObject();
-			stream.close();
-
-			return (BinarySerialized)object;
+			return (Serialized)read(data_);
 		}
 		catch (Exception e)
 		{
