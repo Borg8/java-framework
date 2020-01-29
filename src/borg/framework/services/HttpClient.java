@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
 
-public final class HttpPoster
+public final class HttpClient
 {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Public Constants
@@ -41,10 +41,10 @@ public final class HttpPoster
 		/** unknown result **/
 		UNKNOWN,
 
-		/** operation was succeeded **/
+		/** operation succeeded **/
 		SUCCESS,
 
-		/** no Internet connection **/
+		/** no network connection **/
 		NOT_CONNECTED,
 
 		/** unable to connect to the host **/
@@ -127,14 +127,14 @@ public final class HttpPoster
 	private int mReadTimeout;
 
 	/** single instance of HttpPoster */
-	private static HttpPoster sInstance = null;
+	private static HttpClient sInstance = null;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Contract(pure = true)
-	private HttpPoster()
+	private HttpClient()
 	{
 		// private constructor to prevent instantiation
 	}
@@ -143,12 +143,12 @@ public final class HttpPoster
 	 * @return single instance of HttpPoster.
 	 */
 	@NotNull
-	public static synchronized HttpPoster getInstance()
+	public static synchronized HttpClient getInstance()
 	{
 		if (sInstance == null)
 		{
 			// create single instance of HttpPoster
-			sInstance = new HttpPoster();
+			sInstance = new HttpClient();
 		}
 
 		return sInstance;
@@ -158,6 +158,7 @@ public final class HttpPoster
 	 * send HTTP POST (blocking operation).
 	 * 
 	 * @param url_ URL to send to post.
+	 * @param method_ request method.
 	 * @param headers_ request headers.
 	 * @param content_ request content.
 	 * @param redirect_ if {@code true} then redirection will be followed (even between different
@@ -165,7 +166,8 @@ public final class HttpPoster
 	 * @return response on HTTP request.
 	 */
 	@NotNull
-	public Response post(@NotNull String url_,
+	public Response sendRequest(@NotNull String url_,
+		@NotNull String method_,
 		@Nullable Map<String, String> headers_,
 		@Nullable byte[] content_,
 		boolean redirect_)
@@ -201,6 +203,7 @@ public final class HttpPoster
 				// connect
 				try
 				{
+					connection.setRequestMethod(method_);
 					connection.connect();
 				}
 				catch (Exception e)
@@ -254,7 +257,7 @@ public final class HttpPoster
 								url_ = respHeaders.get(0);
 
 								// redirect
-								return post(url_, headers_, content_, redirect_);
+								return sendRequest(url_, method_, headers_, content_, redirect_);
 							}
 
 							in = connection.getInputStream();

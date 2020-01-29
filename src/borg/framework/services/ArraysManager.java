@@ -1,5 +1,6 @@
 package borg.framework.services;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.MessageDigest;
@@ -60,20 +61,64 @@ public final class ArraysManager
 	}
 
 	/**
-	 * convert byte array to it hex representation. After conversion all byte in array will be
-	 * represented as two digit hexadecimal number, when all byte in array is an unsigned byte.
+	 * convert byte array to it hex representation. After conversion each byte in the array will be
+	 * represented as two digit hexadecimal number, when each byte in the array is an unsigned byte.
 	 *
 	 * @param array_ given array.
 	 *
 	 * @return string of hex representation of array.
 	 */
 	@NotNull
+	@Contract(pure = true)
 	public static String getArrayAsHex(@NotNull byte[] array_)
 	{
 		StringBuilder builder = new StringBuilder();
 
 		// convert to string
-		for (byte b: array_)
+		for (byte b : array_)
+		{
+			// append 4 MSB
+			int i = (b & 0xf0) >> 4;
+			if (i < 10)
+			{
+				builder.append((char)('0' + i));
+			}
+			else
+			{
+				builder.append((char)('a' + i - 10));
+			}
+
+			// append 4 LSB
+			i = b & 0xf;
+			if (i < 10)
+			{
+				builder.append((char)('0' + i));
+			}
+			else
+			{
+				builder.append((char)('a' + i - 10));
+			}
+		}
+
+		return builder.toString();
+	}
+
+	/**
+	 * convert list of Bytes to it hex representation. After conversion each Byte in the list will be
+	 * represented as two digit hexadecimal number, when each Byte in the list is an unsigned byte.
+	 *
+	 * @param list_ given list.
+	 *
+	 * @return string of hex representation of the list.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String getListAsHex(@NotNull List<Byte> list_)
+	{
+		StringBuilder builder = new StringBuilder();
+
+		// convert to string
+		for (byte b : list_)
 		{
 			// append 4 MSB
 			int i = (b & 0xf0) >> 4;
@@ -109,6 +154,8 @@ public final class ArraysManager
 	 *
 	 * @return array from given hex representation.
 	 */
+	@NotNull
+	@Contract(pure = true)
 	public static byte[] buildArrayFromHex(@NotNull String hex_)
 	{
 		// create array
@@ -238,11 +285,12 @@ public final class ArraysManager
 	/**
 	 * check whether first collection contains second collection.
 	 *
-	 * @param first_ first collection.
+	 * @param first_  first collection.
 	 * @param second_ second collection.
 	 *
 	 * @return true if first collection contain second collection. False otherwise.
 	 */
+	@Contract(pure = true)
 	public static <T> boolean isContain(@NotNull Collection<T> first_, @NotNull Collection<T> second_)
 	{
 		// if size of first collection smaller than second
@@ -252,7 +300,7 @@ public final class ArraysManager
 		}
 
 		// check if every element from second exists in first
-		for (T element: second_)
+		for (T element : second_)
 		{
 			if (first_.contains(element) == false)
 			{
@@ -266,11 +314,12 @@ public final class ArraysManager
 	/**
 	 * check whether two collections are equal.
 	 *
-	 * @param first_ first collection.
+	 * @param first_  first collection.
 	 * @param second_ second collection.
 	 *
 	 * @return true if both collection contains same elements, false otherwise.
 	 */
+	@Contract(pure = true)
 	public static <T> boolean areEqual(@NotNull Collection<T> first_,
 		@NotNull Collection<T> second_)
 	{
@@ -287,11 +336,12 @@ public final class ArraysManager
 	/**
 	 * check whether two lists are equal.
 	 *
-	 * @param first_ first collection.
+	 * @param first_  first collection.
 	 * @param second_ second collection.
 	 *
 	 * @return true if both lists contains same elements in same order, false otherwise.
 	 */
+	@Contract(pure = true)
 	public static <T> boolean areEqual(@NotNull List<T> first_, @NotNull List<T> second_)
 	{
 		// if both lists is same size
@@ -336,7 +386,8 @@ public final class ArraysManager
 	 *
 	 * @return computed hash.
 	 */
-	public synchronized static @NotNull byte[] getArraySha256(@NotNull byte[] array_)
+	@NotNull
+	public synchronized static byte[] getArraySha256(@NotNull byte[] array_)
 	{
 		byte[] sha256 = new byte[sSha256Digest.getDigestLength()];
 
@@ -353,5 +404,46 @@ public final class ArraysManager
 		}
 
 		return sha256;
+	}
+
+	/**
+	 * build bytes array from list of Bytes.
+	 *
+	 * @param data_ list to build from.
+	 *
+	 * @return built array.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static byte[] bytesFromList(@NotNull List<Byte> data_)
+	{
+		int n = data_.size();
+		byte[] array = new byte[n];
+		for (int i = 0; i < n; ++i)
+		{
+			array[i] = data_.get(i);
+		}
+
+		return array;
+	}
+
+	/**
+	 * build list of Bytes from bytes array.
+	 *
+	 * @param data_ array to build from.
+	 *
+	 * @return built list.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static List<Byte> listFromBytes(@NotNull byte[] data_)
+	{
+		ArrayList<Byte> list = new ArrayList<>(data_.length);
+		for (byte b : data_)
+		{
+			list.add(b);
+		}
+
+		return list;
 	}
 }

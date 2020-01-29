@@ -117,7 +117,7 @@ public final class Auxiliary
 			}
 			catch (IOException e1)
 			{
-				Logging.logging(e);
+				Logging.logging(e1);
 			}
 			return null;
 		}
