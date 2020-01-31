@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import borg.framework.services.TimeManager;
+
 public final class TextParser
 {
 

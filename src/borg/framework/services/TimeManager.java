@@ -1,4 +1,4 @@
-package borg.framework.auxiliaries;
+package borg.framework.services;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +39,12 @@ public final class TimeManager
 	@FunctionalInterface
 	public interface Handler<T>
 	{
+		/**
+		 * handle timer.
+		 *
+		 * @param time_  ID of the time.
+		 * @param param_ timer parameter.
+		 */
 		void handle(int time_, T param_);
 	}
 
@@ -92,9 +98,6 @@ public final class TimeManager
 	/** list of timeouts **/
 	private final static LinkedList sTimeouts = new LinkedList();
 
-	/** last free timer ID **/
-	private static int sLastId = 0;
-
 	/** active asynchronous executor timers. Map from timer handler to the timer descriptor **/
 	private static final Map<Handler<?>, Timer<?>> sAsyncExecutors = new HashMap<>();
 
@@ -106,6 +109,9 @@ public final class TimeManager
 
 	/** system real time **/
 	private static long sRealTime = 0;
+
+	/** last free timer ID **/
+	private static int sLastId = 0;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods

@@ -1,4 +1,4 @@
-package borg.framework.auxiliaries;
+package borg.framework.services;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import borg.framework.auxiliaries.Logging;
 
 public class TasksManager
 {

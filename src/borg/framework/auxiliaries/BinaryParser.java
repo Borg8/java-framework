@@ -134,9 +134,9 @@ public final class BinaryParser
 	 *
 	 * @param data_ data to calculate crc32
 	 *
-	 * @return crc32 value
+	 * @return crc32 value.
 	 */
-	public static long crcValue(List<Byte> data_)
+	public static long crcValue(@NotNull List<Byte> data_)
 	{
 		// reset last value
 		crc32.reset();
@@ -255,7 +255,7 @@ public final class BinaryParser
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static long readInteger(byte[] source_, int size_, int offset_)
+	public static long readInteger(@NotNull byte[] source_, int size_, int offset_)
 	{
 		long value = 0;
 		for (--size_; size_ >= 0; --size_)

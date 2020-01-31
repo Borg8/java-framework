@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
+import borg.framework.resources.HttpResponse;
+import borg.framework.resources.NetworkResult;
 
 public final class HttpClient
 {
@@ -35,86 +37,6 @@ public final class HttpClient
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public enum ResultType
-	{
-		/** unknown result **/
-		UNKNOWN,
-
-		/** operation succeeded **/
-		SUCCESS,
-
-		/** no network connection **/
-		NOT_CONNECTED,
-
-		/** unable to connect to the host **/
-		UNABLE_TO_CONNECT,
-
-		/** unable to send data **/
-		UNABLE_TO_SEND,
-
-		/** unable to read data **/
-		UNABLE_TO_READ,
-
-		/** unexpected server response **/
-		UNEXPECTED_RESPONSE
-	}
-
-	public static final class Response
-	{
-		/** communication result **/
-		@NotNull
-		public final ResultType result;
-
-		/** final ULR from where the response received **/
-		@NotNull
-		public final String url;
-
-		/** communication response **/
-		@Nullable
-		public final byte[] response;
-
-		/** response headers **/
-		@Nullable
-		public final Map<String, String> headers;
-
-		/** response code according {@link HttpURLConnection} constants **/
-		public final int code;
-
-		@Contract(pure = true)
-		public Response(@NotNull ResultType result_,
-			@NotNull String url_,
-			@Nullable byte[] response_,
-			@Nullable Map<String, String> headers_,
-			int code_)
-		{
-			result = result_;
-			url = url_;
-			response = response_;
-			headers = headers_;
-			code = code_;
-		}
-
-		@Contract(" -> new")
-		@Override
-		@NotNull
-		public String toString()
-		{
-			StringBuilder builder = new StringBuilder();
-			builder.append("result: ");
-			builder.append(result);
-			builder.append(" (");
-			builder.append(code);
-			builder.append(')');
-			if (response != null)
-			{
-				builder.append(": ");
-				builder.append(new String(response));
-			}
-
-			return new String(builder);
-		}
-	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Fields
@@ -156,24 +78,25 @@ public final class HttpClient
 
 	/**
 	 * send HTTP POST (blocking operation).
-	 * 
-	 * @param url_ URL to send to post.
-	 * @param method_ request method.
-	 * @param headers_ request headers.
-	 * @param content_ request content.
+	 *
+	 * @param url_      URL to send to post.
+	 * @param method_   request method.
+	 * @param headers_  request headers.
+	 * @param content_  request content.
 	 * @param redirect_ if {@code true} then redirection will be followed (even between different
-	 *          protocols).
+	 *                  protocols).
+	 *
 	 * @return response on HTTP request.
 	 */
 	@NotNull
-	public Response sendRequest(@NotNull String url_,
+	public HttpResponse sendRequest(@NotNull String url_,
 		@NotNull String method_,
 		@Nullable Map<String, String> headers_,
 		@Nullable byte[] content_,
 		boolean redirect_)
 	{
 		// initiate pessimistic response parameters
-		ResultType result = ResultType.NOT_CONNECTED;
+		NetworkResult result = NetworkResult.NOT_CONNECTED;
 		byte[] response = null;
 		HashMap<String, String> headers = null;
 		int code = -1;
@@ -194,7 +117,7 @@ public final class HttpClient
 				// add headers
 				if (headers_ != null)
 				{
-					for (Entry<String, String> entry: headers_.entrySet())
+					for (Entry<String, String> entry : headers_.entrySet())
 					{
 						connection.setRequestProperty(entry.getKey(), entry.getValue());
 					}
@@ -225,7 +148,7 @@ public final class HttpClient
 						Logging.logging(e);
 
 						// unable to send
-						result = ResultType.UNABLE_TO_SEND;
+						result = NetworkResult.UNABLE_TO_SEND;
 						break;
 					}
 				}
@@ -261,18 +184,18 @@ public final class HttpClient
 							}
 
 							in = connection.getInputStream();
-							result = ResultType.UNEXPECTED_RESPONSE;
+							result = NetworkResult.UNEXPECTED_RESPONSE;
 						}
 						else
 						{
 							in = connection.getInputStream();
-							result = ResultType.SUCCESS;
+							result = NetworkResult.SUCCESS;
 						}
 					}
 					else
 					{
 						in = connection.getErrorStream();
-						result = ResultType.UNEXPECTED_RESPONSE;
+						result = NetworkResult.UNEXPECTED_RESPONSE;
 					}
 					if (in != null)
 					{
@@ -284,7 +207,7 @@ public final class HttpClient
 					Logging.logging(e);
 
 					// unable to read
-					result = ResultType.UNABLE_TO_READ;
+					result = NetworkResult.UNABLE_TO_READ;
 					break;
 				}
 
@@ -293,7 +216,7 @@ public final class HttpClient
 				if (respHeaders != null)
 				{
 					headers = new HashMap<>();
-					for (Entry<String, List<String>> entry: respHeaders.entrySet())
+					for (Entry<String, List<String>> entry : respHeaders.entrySet())
 					{
 						String key = entry.getKey();
 						if (key != null)
@@ -334,7 +257,7 @@ public final class HttpClient
 			connection.disconnect();
 		}
 
-		return new Response(result, url_, response, headers, code);
+		return new HttpResponse(result, url_, response, headers, code);
 	}
 
 	/**
@@ -343,7 +266,6 @@ public final class HttpClient
 	 * @param url_ URL to create connection to.
 	 *
 	 * @return created connection to URL or {@code null} if connection cannot be created.
-	 *
 	 */
 	@Nullable
 	public HttpURLConnection createConnection(@NotNull String url_)
@@ -375,7 +297,7 @@ public final class HttpClient
 	 * set timeout rules to network process.
 	 *
 	 * @param connection_ connection timeout.
-	 * @param read_ read timeout.
+	 * @param read_       read timeout.
 	 */
 	public void setTimeouts(int connection_, int read_)
 	{

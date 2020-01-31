@@ -78,7 +78,7 @@ public final class Auxiliary
 	/**
 	 * read bytes from input stream.
 	 *
-	 * @param stream_ stream to read from.
+	 * @param stream_ stream to read from. Blocking operation.
 	 *
 	 * @return read bytes or {@code null} if the stream is not readable.
 	 */
