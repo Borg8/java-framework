@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.resources.HttpResponse;
 import borg.framework.resources.NetworkResult;
 
@@ -23,12 +23,6 @@ public final class HttpClient
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Public Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/** connection timeout **/
-	public static final int TIMEOUT_CONNECTION = 10 * 1000;
-
-	/** read timeout **/
-	public static final int TIMEOUT_READ = 30 * 1000;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
@@ -199,7 +193,7 @@ public final class HttpClient
 					}
 					if (in != null)
 					{
-						response = Auxiliary.readFromStream(in);
+						response = NetworkTools.readBytes(in, NetworkTools.TIMEOUT_READ);
 					}
 				}
 				catch (Exception e)

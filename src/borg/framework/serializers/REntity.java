@@ -12,10 +12,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logging;
+import borg.framework.compability.CallSuper;
 import borg.framework.resources.Constants;
 import borg.framework.services.ArraysManager;
 
@@ -46,6 +45,16 @@ public abstract class REntity implements Serializable
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	protected REntity()
+	{
+		// nothing to do here
+	}
+
+	protected REntity(@SuppressWarnings("unused") @Nullable HashMap<String, Object> map_)
+	{
+		// nothing to do here
+	}
+
 	@NotNull
 	@Contract(pure = true)
 	public final HashMap<String, Object> toMap()
@@ -75,7 +84,7 @@ public abstract class REntity implements Serializable
 	 *
 	 * @return built entity.
 	 */
-	@Contract("null, _, _ -> param3")
+	@Contract(value = "null, _, _ -> param3", pure = true)
 	@SuppressWarnings("unchecked")
 	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> T buildTypedEntity(
 		@Nullable HashMap<String, Object> map_,
@@ -92,7 +101,8 @@ public abstract class REntity implements Serializable
 				{
 					// get entity class
 					Method method = types_.getMethod("values");
-					Typed<T>[] values = (Typed[])method.invoke(null);
+					Typed<T>[] values = (Typed<T>[])method.invoke(null);
+					assert values != null;
 					Class<T> entityClass = (Class<T>)values[((Number)type).intValue()].entityClass();
 
 					return buildEntity(map_, entityClass, default_);
@@ -100,7 +110,7 @@ public abstract class REntity implements Serializable
 			}
 			catch (Exception e)
 			{
-				Logging.logging(Level.WARNING, e);
+				Logging.logging(e);
 			}
 		}
 
@@ -117,7 +127,7 @@ public abstract class REntity implements Serializable
 	 *
 	 * @return built entity list.
 	 */
-	@Contract("null, _, _ -> param3")
+	@Contract(pure = true)
 	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> ArrayList<T> buildTypedList(
 		@Nullable ArrayList<HashMap<String, Object>> maps_,
 		@NotNull Class<E> types_,
@@ -152,7 +162,7 @@ public abstract class REntity implements Serializable
 	 *
 	 * @return built entity.
 	 */
-	@Contract("null, _, _ -> param3")
+	@Contract(value = "null, _, _ -> param3", pure = true)
 	public static <T extends REntity> T buildEntity(@Nullable HashMap<String, Object> map_,
 		@NotNull Class<T> type_,
 		@Nullable T default_)
@@ -168,7 +178,7 @@ public abstract class REntity implements Serializable
 			}
 			catch (Exception e)
 			{
-				Logging.logging(Level.WARNING, e);
+				Logging.logging(e);
 			}
 		}
 
@@ -182,14 +192,14 @@ public abstract class REntity implements Serializable
 	 *
 	 * @return object serialization.
 	 */
-	@Contract("null->null")
+	@Contract(value = "null->null", pure = true)
 	@Nullable
 	public static Object serializeObject(@Nullable Object object_)
 	{
-		// if object is integer
+		// if object is real
 		if (object_ instanceof Integer)
 		{
-			return serialize(((Integer)object_).longValue());
+			return serialize((long)(int)object_);
 		}
 
 		// if object is real
@@ -231,31 +241,20 @@ public abstract class REntity implements Serializable
 		// if object is map
 		if (object_ instanceof Map)
 		{
-			return serialize(object_);
+			//noinspection unchecked
+			return serialize((Map<String, ?>)object_);
 		}
 
 		return serialize(object_);
 	}
 
-	@Contract("null->null")
-	protected static Object serialize(@Nullable Object object_)
+	@Contract(value = "null->null", pure = true)
+	protected static <T> T serialize(@Nullable T object_)
 	{
 		return object_;
 	}
 
-	@Contract("null->null")
-	@Nullable
-	protected static Long serialize(@Nullable Integer number_)
-	{
-		if (number_ != null)
-		{
-			return number_.longValue();
-		}
-
-		return null;
-	}
-
-	@Contract("null->null")
+	@Contract(value = "null->null", pure = true)
 	@Nullable
 	protected static Double serialize(@Nullable Float number_)
 	{
@@ -267,16 +266,15 @@ public abstract class REntity implements Serializable
 		return null;
 	}
 
-	@SuppressWarnings("null")
-	protected static long serialize(boolean boolean_)
+	@Contract(pure = true)
+	protected static int serialize(boolean boolean_)
 	{
-		//noinspection ConstantConditions
 		return serialize(BooleanType.fromBoolean(boolean_).ordinal());
 	}
 
 	@Nullable
-	@Contract("null->null")
-	protected static Long serialize(@Nullable Enum<?> enum_)
+	@Contract(value = "null->null", pure = true)
+	protected static Integer serialize(@Nullable Enum<?> enum_)
 	{
 		if (enum_ != null)
 		{
@@ -287,7 +285,7 @@ public abstract class REntity implements Serializable
 	}
 
 	@Nullable
-	@Contract("null->null")
+	@Contract(value = "null->null", pure = true)
 	protected static <T extends REntity> HashMap<String, Object> serialize(@Nullable T entity_)
 	{
 		if (entity_ != null)
@@ -299,7 +297,7 @@ public abstract class REntity implements Serializable
 	}
 
 	@Nullable
-	@Contract("null->null")
+	@Contract(value = "null->null", pure = true)
 	protected static String serialize(@Nullable byte[] array_)
 	{
 		if ((array_ != null) && (array_.length > 0))
@@ -311,7 +309,7 @@ public abstract class REntity implements Serializable
 	}
 
 	@Nullable
-	@Contract("null->null")
+	@Contract(value = "null->null", pure = true)
 	protected static ArrayList<Object> serialize(@Nullable Collection<?> list_)
 	{
 		if ((list_ != null) && (list_.isEmpty() == false))
@@ -329,13 +327,13 @@ public abstract class REntity implements Serializable
 	}
 
 	@Nullable
-	@Contract("null->null")
+	@Contract(value = "null->null", pure = true)
 	protected static HashMap<String, Object> serialize(@Nullable Map<String, ?> map_)
 	{
 		if ((map_ != null) && (map_.isEmpty() == false))
 		{
 			HashMap<String, Object> map = new HashMap<>(map_.size());
-			for (Entry<String, ?> entry : map_.entrySet())
+			for (Map.Entry<String, ?> entry : map_.entrySet())
 			{
 				map.put(entry.getKey(), serializeObject(entry.getValue()));
 			}
@@ -346,7 +344,6 @@ public abstract class REntity implements Serializable
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Contract(pure = true)
 	protected static <T> T readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
@@ -357,6 +354,7 @@ public abstract class REntity implements Serializable
 			Object field = map_.get(key_);
 			if (field != null)
 			{
+				//noinspection unchecked
 				return (T)field;
 			}
 		}
@@ -456,7 +454,7 @@ public abstract class REntity implements Serializable
 				}
 				catch (Exception e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logging.logging(e);
 				}
 			}
 		}
@@ -464,7 +462,6 @@ public abstract class REntity implements Serializable
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Nullable
 	@Contract(pure = true)
 	protected static <T> T readField(@Nullable HashMap<String, Object> map_, @NotNull String key_)
@@ -474,6 +471,7 @@ public abstract class REntity implements Serializable
 			Object field = map_.get(key_);
 			if (field != null)
 			{
+				//noinspection unchecked
 				return (T)field;
 			}
 		}
@@ -499,7 +497,6 @@ public abstract class REntity implements Serializable
 		return default_;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Contract(pure = true)
 	protected static <T extends REntity> ArrayList<T> readField(
 		@Nullable HashMap<String, Object> map_,
@@ -510,6 +507,7 @@ public abstract class REntity implements Serializable
 		if (map_ != null)
 		{
 			ArrayList<HashMap<String, Object>> maps;
+			//noinspection unchecked
 			maps = (ArrayList<HashMap<String, Object>>)map_.get(key_);
 			if (maps != null)
 			{
@@ -529,7 +527,7 @@ public abstract class REntity implements Serializable
 				}
 				catch (Exception e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logging.logging(e);
 				}
 
 				return objects;
@@ -549,19 +547,37 @@ public abstract class REntity implements Serializable
 		{
 			// get values
 			Method method = default_.getClass().getMethod("values");
-			@SuppressWarnings("unchecked")
+			//noinspection unchecked
 			T[] values = (T[])method.invoke(null);
 
+			assert values != null;
 			return values[(int)readField(map_, key_, default_.ordinal())];
 		}
 		catch (Exception e)
 		{
-			Logging.logging(Level.WARNING, e);
+			Logging.logging(e);
 		}
 
 		return default_;
 	}
 
+	@Contract(pure = true)
+	@NotNull
+	public static List<Integer> readIntegers(@Nullable HashMap<String, Object> map_,
+		@NotNull String key_)
+	{
+		List<Long> list = readField(map_, key_, new ArrayList<>());
+
+		List<Integer> integers = new ArrayList<>(list.size());
+		for (long l : list)
+		{
+			integers.add((int)l);
+		}
+
+		return integers;
+	}
+
+	@CallSuper
 	protected void buildMap(@SuppressWarnings("unused") @NotNull HashMap<String, Object> map_)
 	{
 		// nothing to do here

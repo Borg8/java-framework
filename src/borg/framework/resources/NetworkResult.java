@@ -14,21 +14,24 @@ public enum NetworkResult
 	/** 3: busy **/
 	BUSY,
 
-	/** 4: no network connection **/
+	/** 4: operation timeout **/
+	TIMEOUT,
+
+	/** 5: not connected to the host **/
 	NOT_CONNECTED,
 
-	/** 5: unable to connect to the host **/
+	/** 6: unable to connect to the host **/
 	UNABLE_TO_CONNECT,
 
-	/** 6: unable to send data **/
+	/** 7: unable to send data **/
 	UNABLE_TO_SEND,
 
-	/** 7: unable to read data **/
+	/** 8: unable to read data **/
 	UNABLE_TO_READ,
 
-	/** 8: unexpected server response **/
+	/** 9: unexpected server response **/
 	UNEXPECTED_RESPONSE,
 
-	/** 9: disconnect occurred **/
-	DISCONNECT
+	/** 10: disconnect occurred **/
+	DISCONNECT;
 }

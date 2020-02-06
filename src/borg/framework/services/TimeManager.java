@@ -191,11 +191,26 @@ public final class TimeManager
 	 *
 	 * @param delay_   delay after which the timer will be executed.
 	 * @param handler_ timer execution handler.
+	 *
+	 * @return return ID of created timer.
+	 */
+	public synchronized static int create(long delay_, @NotNull Handler<Void> handler_)
+	{
+		return _create(delay_, handler_, null).id;
+	}
+
+	/**
+	 * create timer.
+	 *
+	 * @param delay_   delay after which the timer will be executed.
+	 * @param handler_ timer execution handler.
 	 * @param param_   parameter that will be passed to the handler during the execution.
 	 *
 	 * @return return ID of created timer.
 	 */
-	public static <T> int create(long delay_, @NotNull Handler<T> handler_, @Nullable T param_)
+	public synchronized static <T> int create(long delay_,
+		@NotNull Handler<T> handler_,
+		@Nullable T param_)
 	{
 		return _create(delay_, handler_, param_).id;
 	}
@@ -208,7 +223,7 @@ public final class TimeManager
 	 * @return provided timer parameters, if found.
 	 */
 	@Nullable
-	public static <T> T remove(int timer_)
+	public synchronized static <T> T remove(int timer_)
 	{
 		// remove timer
 		Timer<?> timer = sTimers.remove(timer_);
@@ -237,9 +252,22 @@ public final class TimeManager
 	 *
 	 * @param delay_   delay before execution.
 	 * @param handler_ handler to execute.
+	 */
+	public static void asyncExecute(long delay_, @NotNull Handler<Void> handler_)
+	{
+		asyncExecute(delay_, handler_, null);
+	}
+
+	/**
+	 * execute handler asynchronously.
+	 *
+	 * @param delay_   delay before execution.
+	 * @param handler_ handler to execute.
 	 * @param param_   parameter that will be passed to the handler during the execution.
 	 */
-	public static <T> void asyncExecute(int delay_, @NotNull Handler<T> handler_, @Nullable T param_)
+	public synchronized static <T> void asyncExecute(long delay_,
+		@NotNull Handler<T> handler_,
+		@Nullable T param_)
 	{
 		// remove previous executor
 		_cancelExecution(handler_);
@@ -256,7 +284,7 @@ public final class TimeManager
 	 *
 	 * @param handler_ handler to cancel.
 	 */
-	public static void cancel(@NotNull Handler<?> handler_)
+	public synchronized static void cancel(@NotNull Handler<?> handler_)
 	{
 		_cancelExecution(handler_);
 	}
@@ -264,7 +292,7 @@ public final class TimeManager
 	/**
 	 * timer loop.
 	 */
-	public static void loop()
+	public synchronized static void loop()
 	{
 		sTick = getTime();
 

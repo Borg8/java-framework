@@ -1,12 +1,7 @@
 package borg.framework.auxiliaries;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Random;
 
 public final class Auxiliary
@@ -18,8 +13,6 @@ public final class Auxiliary
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private static final int SIZE_CHUNK = 8192;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
@@ -73,67 +66,6 @@ public final class Auxiliary
 		}
 
 		return random;
-	}
-
-	/**
-	 * read bytes from input stream.
-	 *
-	 * @param stream_ stream to read from. Blocking operation.
-	 *
-	 * @return read bytes or {@code null} if the stream is not readable.
-	 */
-	@Nullable
-	public static byte[] readFromStream(@NotNull InputStream stream_)
-	{
-		ByteArrayOutputStream arrayStream = new ByteArrayOutputStream();
-
-		// read from stream
-		byte[] buffer = new byte[SIZE_CHUNK];
-
-		try
-		{
-			for (; ; )
-			{
-				// read chunk
-				int len;
-				len = stream_.read(buffer, 0, buffer.length);
-
-				// if last chunk was read
-				if (len < 0)
-				{
-					break;
-				}
-
-				// write chunk
-				arrayStream.write(buffer, 0, len);
-			}
-		}
-		catch (Exception e)
-		{
-			Logging.logging(arrayStream.size() + " bytes read", e);
-			try
-			{
-				arrayStream.close();
-			}
-			catch (IOException e1)
-			{
-				Logging.logging(e1);
-			}
-			return null;
-		}
-
-		// read stream and close
-		buffer = arrayStream.toByteArray();
-		try
-		{
-			arrayStream.close();
-		}
-		catch (IOException e)
-		{
-			Logging.logging(e);
-		}
-
-		return buffer;
 	}
 
 	/**

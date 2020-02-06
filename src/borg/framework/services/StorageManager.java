@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logging;
-import borg.framework.auxiliaries.Messages;
 
 
 public final class StorageManager
@@ -98,7 +97,7 @@ public final class StorageManager
 				// if fail to recreate directory
 				if ((directory_.delete() == false) || (directory_.mkdirs() == false))
 				{
-					throw new Exception(Messages.exceptionCannotCreateDirectory());
+					throw new Exception("unable to create directory");
 				}
 			}
 		}

@@ -6,8 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +18,10 @@ import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.resources.HttpResponse;
 import borg.framework.resources.NetworkResult;
+import borg.framework.structures.Pair;
 
 public class WebSocket
 {
@@ -118,8 +121,8 @@ public class WebSocket
 	/** socket events listener **/
 	private final Listener mListener;
 
-	/** current connection **/
-	private HttpURLConnection mConnection;
+	/** communication socket **/
+	private Socket mSocket;
 
 	/** current socket key **/
 	private String mKey;
@@ -142,10 +145,7 @@ public class WebSocket
 
 		mListener = listener_;
 
-		mConnection = null;
-
-		// allow restricted headers
-		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+		mSocket = null;
 	}
 
 	/**
@@ -154,18 +154,18 @@ public class WebSocket
 	@Contract(pure = true)
 	public boolean isConnected()
 	{
-		return mConnection != null;
+		return mSocket != null;
 	}
 
 	/**
 	 * connect websocket. Blocking operation.
 	 *
-	 * @param timeout_ connection timeout.
+	 * @param timeout_ connection timeout, 0 for infinite.
 	 *
 	 * @return operation response.
 	 */
 	@NotNull
-	public HttpResponse connect(long timeout_)
+	public synchronized HttpResponse connect(long timeout_)
 	{
 		// set default parameters
 		int code = -1;
@@ -179,61 +179,75 @@ public class WebSocket
 			try
 			{
 				// create connection
-				mConnection = (HttpURLConnection)url.openConnection();
-				mConnection.setDoInput(true);
-				mConnection.setDoOutput(true);
-				mConnection.setConnectTimeout((int)timeout_);
+				mSocket = new Socket();
+				mSocket.connect(new InetSocketAddress(url.getHost(), url.getPort()), (int)timeout_);
 
 				// generate key
 				mKey = generateKey();
 
-				// set headers
-				mConnection.setRequestProperty(HEADER_HOST, url.getHost());
-				mConnection.setRequestProperty(HEADER_CONNECTION, "Upgrade");
-				mConnection.setRequestProperty(HEADER_PROTOCOL, VERSION_PROTOCOL);
-				mConnection.setRequestProperty(HEADER_VERSION, Integer.toString(VERSION_WEBSOCKET));
-				mConnection.setRequestProperty(HEADER_KEY, mKey);
-				mConnection.setRequestProperty(HEADER_UPGRADE, "websocket");
-				mConnection.setRequestProperty(HEADER_AGENT, AGENT_WEBSOCKET);
+				// write header
+				OutputStream output = mSocket.getOutputStream();
+				output.write("GET ".getBytes());
+				output.write(url.getPath().getBytes());
+				output.write(" HTTP/1.1\r\n".getBytes());
 
-				// connect
-				mConnection.setRequestMethod("GET");
-				mConnection.connect();
+				// write headers
+				output.write((HEADER_HOST + ':' + url.getHost() + "\r\n").getBytes());
+				output.write((HEADER_HOST + ':' + url.getHost() + "\r\n").getBytes());
+				output.write((HEADER_CONNECTION + ':' + "Upgrade" + "\r\n").getBytes());
+				output.write((HEADER_PROTOCOL + ':' + VERSION_PROTOCOL + "\r\n").getBytes());
+				output.write((HEADER_VERSION + ':' + VERSION_WEBSOCKET + "\r\n").getBytes());
+				output.write((HEADER_KEY + ':' + mKey + "\r\n").getBytes());
+				output.write((HEADER_UPGRADE + ':' + "websocket" + "\r\n").getBytes());
+				output.write((HEADER_AGENT + ':' + AGENT_WEBSOCKET + "\r\n").getBytes());
+				output.write("\r\n".getBytes());
 
-				// if connection succeeded
-				code = mConnection.getResponseCode();
-				if (code < 300)
+				// read code
+				InputStream input = mSocket.getInputStream();
+				String line = NetworkTools.readLine(input, NetworkTools.TIMEOUT_READ);
+				assert line != null;
+				code = NetworkTools.parseCode(line);
+
+				// if code parsed successfully
+				if (code > 0)
 				{
 					// read headers
-					Map<String, List<String>> respHeaders = mConnection.getHeaderFields();
-					if (respHeaders != null)
+					headers = new HashMap<>();
+					for (; ; )
 					{
-						headers = new HashMap<>();
-						for (Map.Entry<String, List<String>> entry : respHeaders.entrySet())
+						// parse header
+						Pair<String, String> header;
+						line = NetworkTools.readLine(input, NetworkTools.TIMEOUT_READ);
+						assert line != null;
+						header = NetworkTools.parseHeader(line);
+						if (header != null)
 						{
-							String key = entry.getKey();
-							if (key != null)
-							{
-								key = key.toLowerCase();
-							}
-							headers.put(key, entry.getValue().get(0));
+							headers.put(header.el1, header.el2);
+						}
+						else
+						{
+							break;
 						}
 					}
 
-					// start listening
-					TasksManager.runThread(socketTask);
+					// if succeeded
+					if (code < 300)
+					{
+						// start listening
+						TasksManager.runThread(socketTask);
 
-					result = NetworkResult.SUCCESS;
+						result = NetworkResult.SUCCESS;
+					}
+					else
+					{
+						Logging.logging(Level.WARNING, "unexpected response: " + code);
+						result = NetworkResult.UNEXPECTED_RESPONSE;
+						disconnect();
+					}
 				}
 				else
 				{
-					byte[] error = Auxiliary.readFromStream(mConnection.getErrorStream());
-					String message = "";
-					if (error != null)
-					{
-						message = new String(error);
-					}
-					Logging.logging(Level.WARNING, "unable to connect: " + code + " - " + message);
+					Logging.logging(Level.WARNING, "unable to parse code: " + line);
 					result = NetworkResult.UNEXPECTED_RESPONSE;
 					disconnect();
 				}
@@ -256,13 +270,20 @@ public class WebSocket
 	/**
 	 * disconnect web socket.
 	 */
-	public void disconnect()
+	public synchronized void disconnect()
 	{
 		// if connected
 		if (isConnected() == true)
 		{
-			mConnection.disconnect();
-			mConnection = null;
+			try
+			{
+				mSocket.close();
+			}
+			catch (IOException e)
+			{
+				Logging.logging(e);
+			}
+			mSocket = null;
 		}
 	}
 
@@ -275,12 +296,12 @@ public class WebSocket
 	 * @return operation result.
 	 */
 	@NotNull
-	public NetworkResult write(@NotNull byte[] data_, boolean encrypt_)
+	public synchronized NetworkResult write(@NotNull byte[] data_, boolean encrypt_)
 	{
 		try
 		{
 			// get output stream
-			OutputStream output = mConnection.getOutputStream();
+			OutputStream output = mSocket.getOutputStream();
 
 			// if data should be encrypted
 			if (encrypt_ == true)
@@ -408,15 +429,18 @@ public class WebSocket
 				try
 				{
 					// get input stream
-					InputStream input = mConnection.getInputStream();
+					InputStream input = mSocket.getInputStream();
 
 					// read data
-					byte[] data = Auxiliary.readFromStream(input);
+					byte[] data = NetworkTools.readBytes(input, NetworkTools.TIMEOUT_READ);
 
 					// invoke observers
 					if (data != null)
 					{
-						mListener.dataReceived(data);
+						if (data.length > 0)
+						{
+							mListener.dataReceived(data);
+						}
 					}
 					else
 					{
