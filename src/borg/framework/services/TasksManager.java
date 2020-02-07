@@ -60,7 +60,8 @@ public class TasksManager
 	private static final LinkedList<Descriptor<?>> sTasks = new LinkedList<>();
 
 	/** running loopers. Map from the looper to tasks queue for the looper **/
-	private static final Map<Object, LinkedList<Descriptor<?>>> sLoopers = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Object, LinkedList<Descriptor<?>>> sLoopers = Collections
+		.synchronizedMap(new HashMap<>());
 
 	/** main thread instance **/
 	private static final Thread sMain = Thread.currentThread();
@@ -111,6 +112,7 @@ public class TasksManager
 	{
 		Thread thread = new Thread(() ->
 		{
+			// run the task
 			try
 			{
 				task_.run(param_);
@@ -146,7 +148,15 @@ public class TasksManager
 		// if on main
 		if (Thread.currentThread() == sMain)
 		{
-			task_.run(param_);
+			// run the task
+			try
+			{
+				task_.run(param_);
+			}
+			catch (Throwable e)
+			{
+				Logging.logging(e);
+			}
 		}
 		else
 		{
@@ -164,11 +174,13 @@ public class TasksManager
 	@NotNull
 	public static Thread startLooper()
 	{
-		// start looper thread
-		Thread looper = runThread(param_ ->
+		// create looper thread
+		Thread looper = new Thread(() ->
 		{
 			// poll task
 			Thread thread = Thread.currentThread();
+			thread.setName("looper " + thread.getId());
+
 			//noinspection SynchronizationOnLocalVariableOrMethodParameter
 			synchronized (thread)
 			{
@@ -190,7 +202,14 @@ public class TasksManager
 							if (descriptor != null)
 							{
 								// execute the task
-								descriptor.task.run(descriptor.param);
+								try
+								{
+									descriptor.task.run(descriptor.param);
+								}
+								catch (Throwable e)
+								{
+									Logging.logging(e);
+								}
 							}
 							else
 							{
@@ -226,8 +245,9 @@ public class TasksManager
 			}
 		});
 
-		// add looper
+		// start looper
 		sLoopers.put(looper, new LinkedList<>());
+		looper.start();
 
 		return looper;
 	}
@@ -288,7 +308,14 @@ public class TasksManager
 		if (looper_ == Thread.currentThread())
 		{
 			// run the task
-			task_.run(param_);
+			try
+			{
+				task_.run(param_);
+			}
+			catch (Throwable e)
+			{
+				Logging.logging(e);
+			}
 
 			return true;
 		}
@@ -305,6 +332,7 @@ public class TasksManager
 				synchronized (looper_)
 				{
 					// add task to the queue
+					int here = 355; // TODO remove
 					queue.add(new Descriptor<>(task_, param_));
 
 					// invoke looper

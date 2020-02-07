@@ -4,7 +4,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class TimeManager
@@ -97,6 +99,9 @@ public final class TimeManager
 
 	/** list of timeouts **/
 	private final static LinkedList sTimeouts = new LinkedList();
+
+	/** timeouts buffer cache **/
+	private final static List<Timer<?>> cTimeouts = new ArrayList<>();
 
 	/** active asynchronous executor timers. Map from timer handler to the timer descriptor **/
 	private static final Map<Handler<?>, Timer<?>> sAsyncExecutors = new HashMap<>();
@@ -194,7 +199,7 @@ public final class TimeManager
 	 *
 	 * @return return ID of created timer.
 	 */
-	public synchronized static int create(long delay_, @NotNull Handler<Void> handler_)
+	public static int create(long delay_, @NotNull Handler<Void> handler_)
 	{
 		return _create(delay_, handler_, null).id;
 	}
@@ -208,9 +213,7 @@ public final class TimeManager
 	 *
 	 * @return return ID of created timer.
 	 */
-	public synchronized static <T> int create(long delay_,
-		@NotNull Handler<T> handler_,
-		@Nullable T param_)
+	public static <T> int create(long delay_, @NotNull Handler<T> handler_, @Nullable T param_)
 	{
 		return _create(delay_, handler_, param_).id;
 	}
@@ -223,24 +226,27 @@ public final class TimeManager
 	 * @return provided timer parameters, if found.
 	 */
 	@Nullable
-	public synchronized static <T> T remove(int timer_)
+	public static <T> T remove(int timer_)
 	{
-		// remove timer
-		Timer<?> timer = sTimers.remove(timer_);
-
-		// if time found
 		Object param;
-		if (timer != null)
+		synchronized (sTimeouts)
 		{
-			// store parameters
-			param = timer.param;
-
 			// remove timer
-			sTimeouts.remove(timer.timeout);
-		}
-		else
-		{
-			param = null;
+			Timer<?> timer = sTimers.remove(timer_);
+
+			// if time found
+			if (timer != null)
+			{
+				// store parameters
+				param = timer.param;
+
+				// remove timer
+				sTimeouts.remove(timer.timeout);
+			}
+			else
+			{
+				param = null;
+			}
 		}
 
 		//noinspection unchecked
@@ -265,18 +271,19 @@ public final class TimeManager
 	 * @param handler_ handler to execute.
 	 * @param param_   parameter that will be passed to the handler during the execution.
 	 */
-	public synchronized static <T> void asyncExecute(long delay_,
-		@NotNull Handler<T> handler_,
-		@Nullable T param_)
+	public static <T> void asyncExecute(long delay_, @NotNull Handler<T> handler_, @Nullable T param_)
 	{
-		// remove previous executor
-		_cancelExecution(handler_);
+		synchronized (sTimeouts)
+		{
+			// remove previous executor
+			_cancelExecution(handler_);
 
-		// create handler execution timer
-		Timer<T> timer = _create(delay_, handler_, param_);
+			// create handler execution timer
+			Timer<T> timer = _create(delay_, handler_, param_);
 
-		// add executor
-		sAsyncExecutors.put(handler_, timer);
+			// add executor
+			sAsyncExecutors.put(handler_, timer);
+		}
 	}
 
 	/**
@@ -284,42 +291,77 @@ public final class TimeManager
 	 *
 	 * @param handler_ handler to cancel.
 	 */
-	public synchronized static void cancel(@NotNull Handler<?> handler_)
+	public static void cancel(@NotNull Handler<?> handler_)
 	{
-		_cancelExecution(handler_);
+		synchronized (sTimeouts)
+		{
+			_cancelExecution(handler_);
+		}
 	}
 
 	/**
 	 * timer loop.
 	 */
-	public synchronized static void loop()
+	public static void loop()
 	{
+		// update system tick
 		sTick = getTime();
 
-		while (sTimeouts.first != null)
+		// copy relevant timers
+		int n = 0;
+		synchronized (sTimeouts)
 		{
-			Timer<?> timer = sTimeouts.first.timer;
+			for (int i = sTimeouts.length - cTimeouts.size(); i > 0; --i)
+			{
+				cTimeouts.add(null);
+			}
+			Node node = sTimeouts.first;
+			while(node != null)
+			{
+				// if timer is relevant
+				if (node.timer.timeToExecute <= sTick)
+				{
+					// cache timer
+					cTimeouts.set(n, node.timer);
+					++n;
+
+					// remove timer
+					sTimeouts.remove(node);
+					sTimers.remove(node.timer.id);
+					node = sTimeouts.first;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		// invoke timers
+		for (int i = 0; i < n; ++i)
+		{
+			Timer<?> timer = cTimeouts.get(i);
 
 			// if timer should be executed
 			if (timer.timeToExecute <= getTime())
 			{
 				// store parameters
-				int id = timer.id;
 				//noinspection unchecked
 				Handler<Object> handler = (Handler<Object>)timer.handler;
 				Object param = timer.param;
 
 				// remove timer
-				sTimers.remove(id);
-				sTimeouts.remove(timer.timeout);
-				Timer<?> executor = sAsyncExecutors.get(handler);
-				if ((executor != null) && (executor.id == id))
+				synchronized (sTimeouts)
 				{
-					sAsyncExecutors.remove(handler);
+					Timer<?> executor = sAsyncExecutors.get(handler);
+					if ((executor != null) && (executor.id == timer.id))
+					{
+						sAsyncExecutors.remove(handler);
+					}
 				}
 
 				// invoke handler
-				handler.handle(id, param);
+				handler.handle(timer.id, param);
 			}
 			else
 			{
@@ -334,33 +376,38 @@ public final class TimeManager
 	{
 		// create timer
 		long timeToExecute = getTime() + delay_;
-		Timer<T> timer = new Timer<>(sLastId, handler_, param_, timeToExecute);
-		++sLastId;
+		Timer<T> timer;
 
 		// insert timeout
-		Node node;
-		for (node = sTimeouts.first; node != null; node = node.next)
+		synchronized (sTimeouts)
 		{
-			// if later timer found
-			Timer<?> current = node.timer;
-			if (current.timeToExecute >= timeToExecute)
+			timer = new Timer<>(sLastId, handler_, param_, timeToExecute);
+			++sLastId;
+
+			Node node;
+			for (node = sTimeouts.first; node != null; node = node.next)
 			{
-				break;
+				// if later timer found
+				Timer<?> current = node.timer;
+				if (current.timeToExecute >= timeToExecute)
+				{
+					break;
+				}
 			}
-		}
 
-		// if the timer is latest
-		if (node == null)
-		{
-			timer.timeout = sTimeouts.insertAfter(null, timer);
-		}
-		else
-		{
-			timer.timeout = sTimeouts.insertBefore(node, timer);
-		}
+			// if the timer is latest
+			if (node == null)
+			{
+				timer.timeout = sTimeouts.insertAfter(null, timer);
+			}
+			else
+			{
+				timer.timeout = sTimeouts.insertBefore(node, timer);
+			}
 
-		// set timer
-		sTimers.put(timer.id, timer);
+			// set timer
+			sTimers.put(timer.id, timer);
+		}
 
 		return timer;
 	}
@@ -389,6 +436,7 @@ public final class TimeManager
 	{
 		Node first = null;
 		Node last = null;
+		int length = 0;
 
 		@NotNull
 		Node insertBefore(@Nullable Node node_, @NotNull Timer<?> timer_)
@@ -438,6 +486,7 @@ public final class TimeManager
 				first = node;
 			}
 
+			++length;
 			return node;
 		}
 
@@ -489,6 +538,7 @@ public final class TimeManager
 				last = node;
 			}
 
+			++length;
 			return node;
 		}
 
@@ -517,6 +567,7 @@ public final class TimeManager
 				last = node_.prev;
 			}
 
+			--length;
 			return node_.timer;
 		}
 	}
