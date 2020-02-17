@@ -4,42 +4,53 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.Map;
 
-public final class HttpResponse
+import borg.framework.auxiliaries.NetworkTools;
+
+public final class HttpResponse extends HttpRequest
 {
 	/** communication result **/
 	@NotNull
 	public final NetworkResult result;
-
-	/** final ULR from where the response received **/
-	@NotNull
-	public final String url;
-
-	/** communication response **/
-	@Nullable
-	public final byte[] response;
-
-	/** response headers **/
-	@Nullable
-	public final Map<String, String> headers;
 
 	/** response code according {@link HttpURLConnection} constants **/
 	public final int code;
 
 	@Contract(pure = true)
 	public HttpResponse(@NotNull NetworkResult result_,
-		@NotNull String url_,
-		@Nullable byte[] response_,
+		int code_,
 		@Nullable Map<String, String> headers_,
-		int code_)
+		@Nullable byte[] data_)
 	{
+		super(headers_, data_);
+
 		result = result_;
-		url = url_;
-		response = response_;
-		headers = headers_;
 		code = code_;
+	}
+
+	@Contract(pure = true)
+	@NotNull
+	public static HttpResponse readResponse(@NotNull InputStream stream_, long timeout_)
+	{
+		// read code
+		String line = NetworkTools.readLine(stream_, NetworkTools.TIMEOUT_READ);
+		assert line != null;
+		int code = NetworkTools.parseCode(line);
+		Map<String, String> headers = null;
+		byte[] data = null;
+		if (code > 0)
+		{
+			// read data
+			HttpRequest request = HttpRequest.readRequest(stream_, timeout_);
+			headers = request.headers;
+			data = request.data;
+		}
+
+		// build response
+		return new HttpResponse(NetworkResult.SUCCESS, code, headers, data);
 	}
 
 	@Contract(" -> new")
@@ -53,10 +64,10 @@ public final class HttpResponse
 		builder.append(" (");
 		builder.append(code);
 		builder.append(')');
-		if (response != null)
+		if (data != null)
 		{
 			builder.append(": ");
-			builder.append(new String(response));
+			builder.append(new String(data));
 		}
 
 		return new String(builder);

@@ -100,8 +100,8 @@ public final class TimeManager
 	/** list of timeouts **/
 	private final static LinkedList sTimeouts = new LinkedList();
 
-	/** timeouts buffer cache **/
-	private final static List<Timer<?>> cTimeouts = new ArrayList<>();
+	/** queue of timers to execute in current loop **/
+	private final static List<Timer<?>> sQueue = new ArrayList<>();
 
 	/** active asynchronous executor timers. Map from timer handler to the timer descriptor **/
 	private static final Map<Handler<?>, Timer<?>> sAsyncExecutors = new HashMap<>();
@@ -302,7 +302,7 @@ public final class TimeManager
 	/**
 	 * timer loop.
 	 */
-	public static void loop()
+	public static void  loop()
 	{
 		// update system tick
 		sTick = getTime();
@@ -311,24 +311,33 @@ public final class TimeManager
 		int n = 0;
 		synchronized (sTimeouts)
 		{
-			for (int i = sTimeouts.length - cTimeouts.size(); i > 0; --i)
-			{
-				cTimeouts.add(null);
-			}
-			Node node = sTimeouts.first;
-			while(node != null)
+			while (sTimeouts.first != null)
 			{
 				// if timer is relevant
-				if (node.timer.timeToExecute <= sTick)
+				Timer<?> timer = sTimeouts.first.timer;
+				if (timer.timeToExecute <= sTick)
 				{
-					// cache timer
-					cTimeouts.set(n, node.timer);
+					// if queue should be expanded
+					if (sQueue.size() <= n)
+					{
+						// expand queue
+						sQueue.add(null);
+					}
+
+					// add timer to the queue
+					sQueue.set(n, timer);
 					++n;
 
 					// remove timer
-					sTimeouts.remove(node);
-					sTimers.remove(node.timer.id);
-					node = sTimeouts.first;
+					sTimeouts.remove(sTimeouts.first);
+					sTimers.remove(timer.id);
+
+					// if execute for the timer defined
+					Timer<?> executor = sAsyncExecutors.get(timer.handler);
+					if ((executor != null) && (executor.id == timer.id))
+					{
+						sAsyncExecutors.remove(timer.handler);
+					}
 				}
 				else
 				{
@@ -340,33 +349,12 @@ public final class TimeManager
 		// invoke timers
 		for (int i = 0; i < n; ++i)
 		{
-			Timer<?> timer = cTimeouts.get(i);
+			// get timer
+			//noinspection unchecked
+			Timer<Object> timer = (Timer<Object>)sQueue.get(i);
 
-			// if timer should be executed
-			if (timer.timeToExecute <= getTime())
-			{
-				// store parameters
-				//noinspection unchecked
-				Handler<Object> handler = (Handler<Object>)timer.handler;
-				Object param = timer.param;
-
-				// remove timer
-				synchronized (sTimeouts)
-				{
-					Timer<?> executor = sAsyncExecutors.get(handler);
-					if ((executor != null) && (executor.id == timer.id))
-					{
-						sAsyncExecutors.remove(handler);
-					}
-				}
-
-				// invoke handler
-				handler.handle(timer.id, param);
-			}
-			else
-			{
-				break;
-			}
+			// invoke handler
+			timer.handler.handle(timer.id, timer.param);
 		}
 	}
 
@@ -436,7 +424,6 @@ public final class TimeManager
 	{
 		Node first = null;
 		Node last = null;
-		int length = 0;
 
 		@NotNull
 		Node insertBefore(@Nullable Node node_, @NotNull Timer<?> timer_)
@@ -486,7 +473,6 @@ public final class TimeManager
 				first = node;
 			}
 
-			++length;
 			return node;
 		}
 
@@ -538,7 +524,6 @@ public final class TimeManager
 				last = node;
 			}
 
-			++length;
 			return node;
 		}
 
@@ -567,7 +552,6 @@ public final class TimeManager
 				last = node_.prev;
 			}
 
-			--length;
 			return node_.timer;
 		}
 	}

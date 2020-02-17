@@ -93,9 +93,9 @@ public class TasksManager
 	 */
 	@NotNull
 	@Contract("_, -> new")
-	public static Thread runThread(@NotNull Task<Void> task_)
+	public static Thread runOnThread(@NotNull Task<Void> task_)
 	{
-		return runThread(task_, null);
+		return runOnThread(task_, null);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class TasksManager
 	 */
 	@NotNull
 	@Contract("_, _ -> new")
-	public static <T> Thread runThread(@NotNull Task<T> task_, @Nullable T param_)
+	public static <T> Thread runOnThread(@NotNull Task<T> task_, @Nullable T param_)
 	{
 		Thread thread = new Thread(() ->
 		{
@@ -332,7 +332,6 @@ public class TasksManager
 				synchronized (looper_)
 				{
 					// add task to the queue
-					int here = 355; // TODO remove
 					queue.add(new Descriptor<>(task_, param_));
 
 					// invoke looper

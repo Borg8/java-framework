@@ -11,7 +11,6 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -21,7 +20,6 @@ import borg.framework.auxiliaries.Logging;
 import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.resources.HttpResponse;
 import borg.framework.resources.NetworkResult;
-import borg.framework.structures.Pair;
 
 public class WebSocket
 {
@@ -202,39 +200,20 @@ public class WebSocket
 				output.write((HEADER_AGENT + ':' + AGENT_WEBSOCKET + "\r\n").getBytes());
 				output.write("\r\n".getBytes());
 
-				// read code
+				// read response
 				InputStream input = mSocket.getInputStream();
-				String line = NetworkTools.readLine(input, NetworkTools.TIMEOUT_READ);
-				assert line != null;
-				code = NetworkTools.parseCode(line);
+				HttpResponse response = HttpResponse.readResponse(input, NetworkTools.TIMEOUT_READ);
+				code = response.code;
+				headers = response.headers;
 
 				// if code parsed successfully
 				if (code > 0)
 				{
-					// read headers
-					headers = new HashMap<>();
-					for (; ; )
-					{
-						// parse header
-						Pair<String, String> header;
-						line = NetworkTools.readLine(input, NetworkTools.TIMEOUT_READ);
-						assert line != null;
-						header = NetworkTools.parseHeader(line);
-						if (header != null)
-						{
-							headers.put(header.el1, header.el2);
-						}
-						else
-						{
-							break;
-						}
-					}
-
 					// if succeeded
 					if (code < 300)
 					{
 						// start listening
-						TasksManager.runThread(socketTask);
+						TasksManager.runOnThread(socketTask);
 
 						result = NetworkResult.SUCCESS;
 					}
@@ -247,7 +226,7 @@ public class WebSocket
 				}
 				else
 				{
-					Logging.logging(Level.WARNING, "unable to parse code: " + line);
+					Logging.logging(Level.WARNING, "unable to parse code");
 					result = NetworkResult.UNEXPECTED_RESPONSE;
 					disconnect();
 				}
@@ -264,7 +243,7 @@ public class WebSocket
 			result = NetworkResult.BUSY;
 		}
 
-		return new HttpResponse(result, url.toString(), null, headers, code);
+		return new HttpResponse(result, code, headers, null);
 	}
 
 	/**

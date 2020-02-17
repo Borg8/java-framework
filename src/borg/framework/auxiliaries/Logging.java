@@ -112,6 +112,7 @@ public final class Logging
 	 * @return built string.
 	 */
 	@NotNull
+	@Contract(pure = true)
 	public static String buildExceptionReport(@NotNull Thread thread_, @NotNull Throwable e_)
 	{
 		StringBuilder builder = new StringBuilder();
@@ -123,7 +124,7 @@ public final class Logging
 
 		// append exception
 		builder.append(", exception: ");
-		builder.append(e_.toString());
+		builder.append(e_);
 
 		// add causes
 		int i = 0;
@@ -132,7 +133,7 @@ public final class Logging
 		{
 			// append cause
 			builder.append(", cause: ");
-			builder.append(cause.toString());
+			builder.append(cause);
 
 			// get next cause
 			e_ = cause;
@@ -216,7 +217,7 @@ public final class Logging
 	 */
 	public static void logging(@NotNull Level level_, @NotNull Object message_)
 	{
-		sLogger.log(level_, "\n" + message_.toString());
+		sLogger.log(level_, "\n" + message_);
 	}
 
 	/**

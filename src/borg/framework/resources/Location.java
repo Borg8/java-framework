@@ -53,23 +53,6 @@ public class Location
 	public static final int FORMAT_SECONDS = 2;
 
 	/**
-	 * Bundle key for a version of the location that has been fed through LocationFudger. Allows
-	 * location providers to flag locations as being safe for use with ACCESS_COARSE_LOCATION
-	 * permission.
-	 *
-	 * @hide
-	 */
-	public static final String EXTRA_COARSE_LOCATION = "coarseLocation";
-
-	/**
-	 * Bundle key for a version of the location containing no GPS data. Allows location providers to
-	 * flag locations as being safe to feed to LocationFudger.
-	 *
-	 * @hide
-	 */
-	public static final String EXTRA_NO_GPS_LOCATION = "noGPSLocation";
-
-	/**
 	 * Bit mask for mFieldsMask indicating the presence of mAltitude.
 	 */
 	private static final int HAS_ALTITUDE_MASK = 1;
@@ -105,14 +88,8 @@ public class Location
 	// Cached data to make bearing/distance computations more efficient for the case
 	// where distanceTo and bearingTo are called in sequence. Assume this typically happens
 	// on the same thread for caching purposes.
-	private static ThreadLocal<BearingDistanceCache> sBearingDistanceCache = new ThreadLocal<BearingDistanceCache>()
-	{
-		@Override
-		protected BearingDistanceCache initialValue()
-		{
-			return new BearingDistanceCache();
-		}
-	};
+	private static ThreadLocal<BearingDistanceCache> sBearingDistanceCache =
+		ThreadLocal.withInitial(BearingDistanceCache::new);
 
 	private long mTime = 0;
 	private double mLatitude = 0.0;
@@ -171,9 +148,9 @@ public class Location
 	 * is not guaranteed to round-trip with {@link #convert(String)}.
 	 *
 	 * @throws IllegalArgumentException if coordinate is less than -180.0, greater than 180.0, or is
-	 *           not a number.
+	 *                                  not a number.
 	 * @throws IllegalArgumentException if outputType is not one of FORMAT_DEGREES, FORMAT_MINUTES, or
-	 *           FORMAT_SECONDS.
+	 *                                  FORMAT_SECONDS.
 	 */
 	public static String convert(double coordinate, int outputType)
 	{
@@ -224,7 +201,7 @@ public class Location
 	 * FORMAT_SECONDS into a double. This conversion is performed in a locale agnostic method, and so
 	 * is not guaranteed to round-trip with {@link #convert(double, int)}.
 	 *
-	 * @throws NullPointerException if coordinate is null
+	 * @throws NullPointerException     if coordinate is null
 	 * @throws IllegalArgumentException if the coordinate is not in one of the valid formats.
 	 */
 	public static double convert(String coordinate)
@@ -344,10 +321,10 @@ public class Location
 
 		double sigma = 0.0;
 		double deltaSigma = 0.0;
-		double cosSqAlpha = 0.0;
-		double cos2SM = 0.0;
-		double cosSigma = 0.0;
-		double sinSigma = 0.0;
+		double cosSqAlpha;
+		double cos2SM;
+		double cosSigma;
+		double sinSigma;
 		double cosLambda = 0.0;
 		double sinLambda = 0.0;
 
@@ -398,8 +375,7 @@ public class Location
 			}
 		}
 
-		float distance = (float)(b * A * (sigma - deltaSigma));
-		results.mDistance = distance;
+		results.mDistance = (float)(b * A * (sigma - deltaSigma));
 		float initialBearing = (float)Math.atan2(cosU2 * sinLambda,
 			cosU1 * sinU2 - sinU1 * cosU2 * cosLambda);
 		initialBearing *= 180.0 / Math.PI;
@@ -424,11 +400,11 @@ public class Location
 	 * bearing is stored in results[1]. If results has length 3 or greater, the final bearing is
 	 * stored in results[2].
 	 *
-	 * @param startLatitude the starting latitude
+	 * @param startLatitude  the starting latitude
 	 * @param startLongitude the starting longitude
-	 * @param endLatitude the ending latitude
-	 * @param endLongitude the ending longitude
-	 * @param results an array of floats to hold the results
+	 * @param endLatitude    the ending latitude
+	 * @param endLongitude   the ending longitude
+	 * @param results        an array of floats to hold the results
 	 *
 	 * @throws IllegalArgumentException if results is null or has length < 1
 	 */
@@ -464,6 +440,7 @@ public class Location
 	 * Distance is defined using the WGS84 ellipsoid.
 	 *
 	 * @param dest the destination location
+	 *
 	 * @return the approximate distance in meters
 	 */
 	public float distanceTo(Location dest)
@@ -488,6 +465,7 @@ public class Location
 	 * the WGS84 ellipsoid. Locations that are (nearly) antipodal may produce meaningless results.
 	 *
 	 * @param dest the destination location
+	 *
 	 * @return the initial bearing in degrees
 	 */
 	public float bearingTo(Location dest)
@@ -845,23 +823,6 @@ public class Location
 	}
 
 	/**
-	 * Remove the vertical accuracy from this location.
-	 *
-	 * <p>
-	 * Following this call {@link #hasVerticalAccuracy} will return false, and
-	 * {@link #getVerticalAccuracyMeters} will return 0.0.
-	 *
-	 * @deprecated use a new Location object for location updates.
-	 * @removed
-	 */
-	@Deprecated
-	public void removeVerticalAccuracy()
-	{
-		mVerticalAccuracyMeters = 0.0f;
-		mFieldsMask &= ~HAS_VERTICAL_ACCURACY_MASK;
-	}
-
-	/**
 	 * True if this location has a speed accuracy.
 	 */
 	public boolean hasSpeedAccuracy()
@@ -898,23 +859,6 @@ public class Location
 	{
 		mSpeedAccuracyMetersPerSecond = speedAccuracyMeterPerSecond;
 		mFieldsMask |= HAS_SPEED_ACCURACY_MASK;
-	}
-
-	/**
-	 * Remove the speed accuracy from this location.
-	 *
-	 * <p>
-	 * Following this call {@link #hasSpeedAccuracy} will return false, and
-	 * {@link #getSpeedAccuracyMetersPerSecond} will return 0.0.
-	 *
-	 * @deprecated use a new Location object for location updates.
-	 * @removed
-	 */
-	@Deprecated
-	public void removeSpeedAccuracy()
-	{
-		mSpeedAccuracyMetersPerSecond = 0.0f;
-		mFieldsMask &= ~HAS_SPEED_ACCURACY_MASK;
 	}
 
 	/**
@@ -956,65 +900,6 @@ public class Location
 		mFieldsMask |= HAS_BEARING_ACCURACY_MASK;
 	}
 
-	/**
-	 * Remove the bearing accuracy from this location.
-	 *
-	 * <p>
-	 * Following this call {@link #hasBearingAccuracy} will return false, and
-	 * {@link #getBearingAccuracyDegrees} will return 0.0.
-	 *
-	 * @deprecated use a new Location object for location updates.
-	 * @removed
-	 */
-	@Deprecated
-	public void removeBearingAccuracy()
-	{
-		mBearingAccuracyDegrees = 0.0f;
-		mFieldsMask &= ~HAS_BEARING_ACCURACY_MASK;
-	}
-
-	/**
-	 * Return true if this Location object is complete.
-	 *
-	 * <p>
-	 * A location object is currently considered complete if it has a valid provider, accuracy,
-	 * wall-clock time and elapsed real-time.
-	 *
-	 * <p>
-	 * All locations supplied by the {@link LocationManager} to applications must be complete.
-	 *
-	 * @see #makeComplete
-	 * @hide
-	 */
-	public boolean isComplete()
-	{
-		if (!hasAccuracy())
-			return false;
-		if (mTime == 0)
-			return false;
-		return true;
-	}
-
-	/**
-	 * Helper to fill incomplete fields.
-	 *
-	 * <p>
-	 * Used to assist in backwards compatibility with Location objects received from applications.
-	 *
-	 * @see #isComplete
-	 * @hide
-	 */
-	public void makeComplete()
-	{
-		if (!hasAccuracy())
-		{
-			mFieldsMask |= HAS_HORIZONTAL_ACCURACY_MASK;
-			mHorizontalAccuracyMeters = 100.0f;
-		}
-		if (mTime == 0)
-			mTime = System.currentTimeMillis();
-	}
-
 	@Override
 	public String toString()
 	{
@@ -1022,33 +907,57 @@ public class Location
 		s.append("Location[");
 		s.append(String.format(" %.6f,%.6f", mLatitude, mLongitude));
 		if (hasAccuracy())
+		{
 			s.append(String.format(" hAcc=%.0f", mHorizontalAccuracyMeters));
+		}
 		else
+		{
 			s.append(" hAcc=???");
+		}
 		if (mTime == 0)
 		{
 			s.append(" t=?!?");
 		}
 		if (hasAltitude())
+		{
 			s.append(" alt=").append(mAltitude);
+		}
 		if (hasSpeed())
+		{
 			s.append(" vel=").append(mSpeed);
+		}
 		if (hasBearing())
+		{
 			s.append(" bear=").append(mBearing);
+		}
 		if (hasVerticalAccuracy())
+		{
 			s.append(String.format(" vAcc=%.0f", mVerticalAccuracyMeters));
+		}
 		else
+		{
 			s.append(" vAcc=???");
+		}
 		if (hasSpeedAccuracy())
+		{
 			s.append(String.format(" sAcc=%.0f", mSpeedAccuracyMetersPerSecond));
+		}
 		else
+		{
 			s.append(" sAcc=???");
+		}
 		if (hasBearingAccuracy())
+		{
 			s.append(String.format(" bAcc=%.0f", mBearingAccuracyDegrees));
+		}
 		else
+		{
 			s.append(" bAcc=???");
+		}
 		if (isFromMockProvider())
+		{
 			s.append(" mock");
+		}
 
 		s.append(']');
 		return s.toString();
@@ -1062,24 +971,6 @@ public class Location
 	public boolean isFromMockProvider()
 	{
 		return (mFieldsMask & HAS_MOCK_PROVIDER_MASK) != 0;
-	}
-
-	/**
-	 * Flag this Location as having come from a mock provider or not.
-	 *
-	 * @param isFromMockProvider true if this Location came from a mock provider, false otherwise
-	 * @hide
-	 */
-	public void setIsFromMockProvider(boolean isFromMockProvider)
-	{
-		if (isFromMockProvider)
-		{
-			mFieldsMask |= HAS_MOCK_PROVIDER_MASK;
-		}
-		else
-		{
-			mFieldsMask &= ~HAS_MOCK_PROVIDER_MASK;
-		}
 	}
 
 	/**
