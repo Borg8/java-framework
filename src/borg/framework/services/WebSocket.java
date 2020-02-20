@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -18,6 +19,7 @@ import java.util.logging.Level;
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
 import borg.framework.auxiliaries.NetworkTools;
+import borg.framework.resources.HttpRequest;
 import borg.framework.resources.HttpResponse;
 import borg.framework.resources.NetworkResult;
 
@@ -132,15 +134,13 @@ public class WebSocket
 	@Contract(pure = true)
 	public WebSocket(@NotNull String url_, @NotNull Listener listener_)
 	{
-		try
-		{
-			url = new URL(url_);
-		}
-		catch (MalformedURLException e)
-		{
-			throw new Error(e);
-		}
+		this(createUrl(url_), listener_);
+	}
 
+	@Contract(pure = true)
+	public WebSocket(@NotNull URL url_, @NotNull Listener listener_)
+	{
+		url = url_;
 		mListener = listener_;
 
 		mSocket = null;
@@ -183,22 +183,20 @@ public class WebSocket
 				// generate key
 				mKey = generateKey();
 
-				// write header
-				OutputStream output = mSocket.getOutputStream();
-				output.write("GET ".getBytes());
-				output.write(url.getPath().getBytes());
-				output.write(" HTTP/1.1\r\n".getBytes());
+				// build request
+				Map<String, String> requestHeaders = new HashMap<>();
+				requestHeaders.put(HEADER_HOST, url.getHost());
+				requestHeaders.put(HEADER_CONNECTION, "Upgrade");
+				requestHeaders.put(HEADER_PROTOCOL, VERSION_PROTOCOL);
+				requestHeaders.put(HEADER_VERSION, Integer.toString(VERSION_WEBSOCKET));
+				requestHeaders.put(HEADER_KEY, mKey);
+				requestHeaders.put(HEADER_UPGRADE, "websocket");
+				requestHeaders.put(HEADER_AGENT, AGENT_WEBSOCKET);
+				HttpRequest request = new HttpRequest("GET", url.getPath(), requestHeaders, null);
 
-				// write headers
-				output.write((HEADER_HOST + ':' + url.getHost() + "\r\n").getBytes());
-				output.write((HEADER_HOST + ':' + url.getHost() + "\r\n").getBytes());
-				output.write((HEADER_CONNECTION + ':' + "Upgrade" + "\r\n").getBytes());
-				output.write((HEADER_PROTOCOL + ':' + VERSION_PROTOCOL + "\r\n").getBytes());
-				output.write((HEADER_VERSION + ':' + VERSION_WEBSOCKET + "\r\n").getBytes());
-				output.write((HEADER_KEY + ':' + mKey + "\r\n").getBytes());
-				output.write((HEADER_UPGRADE + ':' + "websocket" + "\r\n").getBytes());
-				output.write((HEADER_AGENT + ':' + AGENT_WEBSOCKET + "\r\n").getBytes());
-				output.write("\r\n".getBytes());
+				// write request
+				OutputStream output = mSocket.getOutputStream();
+				output.write(request.serialize());
 
 				// read response
 				InputStream input = mSocket.getInputStream();
@@ -256,13 +254,15 @@ public class WebSocket
 		{
 			try
 			{
-				mSocket.close();
+				// close socket
+				Socket socket = mSocket;
+				mSocket = null;
+				socket.close();
 			}
 			catch (IOException e)
 			{
 				Logging.logging(e);
 			}
-			mSocket = null;
 		}
 	}
 
@@ -403,6 +403,8 @@ public class WebSocket
 		@Override
 		public void run(Void param_)
 		{
+			Thread.currentThread().setName("websocket to " + url);
+
 			for (; ; )
 			{
 				try
@@ -411,24 +413,35 @@ public class WebSocket
 					InputStream input = mSocket.getInputStream();
 
 					// read data
-					byte[] data = NetworkTools.readBytes(input, NetworkTools.TIMEOUT_READ);
-
-					// invoke observers
-					if (data != null)
-					{
-						if (data.length > 0)
-						{
-							mListener.dataReceived(data);
-						}
-					}
-					else
+					int b = input.read();
+					if (b < 0)
 					{
 						break;
 					}
+					byte[] bytes = NetworkTools.readBytes(input, NetworkTools.TIMEOUT_READ);
+					byte[] data;
+					if (bytes == null)
+					{
+						data = new byte[] { (byte)b };
+					}
+					else
+					{
+						data = new byte[bytes.length + 1];
+						data[0] = (byte)b;
+						System.arraycopy(bytes, 0, data, 1, bytes.length);
+					}
+
+					// invoke observers
+					mListener.dataReceived(data);
 				}
 				catch (IOException e)
 				{
-					Logging.logging(e);
+					// if the socket was not disconnected
+					if (mSocket != null)
+					{
+						Logging.logging(e);
+					}
+
 					break;
 				}
 			}
@@ -438,4 +451,18 @@ public class WebSocket
 			mListener.disconnected();
 		}
 	};
+
+	@NotNull
+	@Contract(pure = true)
+	private static URL createUrl(String url_)
+	{
+		try
+		{
+			return new URL(url_);
+		}
+		catch (MalformedURLException e)
+		{
+			throw new Error(e);
+		}
+	}
 }

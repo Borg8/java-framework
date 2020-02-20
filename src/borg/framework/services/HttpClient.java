@@ -251,7 +251,7 @@ public final class HttpClient
 			connection.disconnect();
 		}
 
-		return new HttpResponse(result, url_, response, headers, code);
+		return new HttpResponse(result, code, headers, response);
 	}
 
 	/**
@@ -262,6 +262,7 @@ public final class HttpClient
 	 * @return created connection to URL or {@code null} if connection cannot be created.
 	 */
 	@Nullable
+	@Contract(pure = true)
 	public HttpURLConnection createConnection(@NotNull String url_)
 	{
 		try

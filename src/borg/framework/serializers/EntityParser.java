@@ -192,7 +192,8 @@ public final class EntityParser
 		// if object is a map
 		if (object_ instanceof Map)
 		{
-			return buildJson(object_);
+			//noinspection unchecked
+			return buildJson((Map<String, Object>)object_);
 		}
 
 		// if object is a list
