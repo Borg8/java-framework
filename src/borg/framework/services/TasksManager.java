@@ -181,44 +181,53 @@ public class TasksManager
 			Thread thread = Thread.currentThread();
 			thread.setName("looper " + thread.getId());
 
-			//noinspection SynchronizationOnLocalVariableOrMethodParameter
-			synchronized (thread)
+			for (; ; )
 			{
-				for (; ; )
-				{
-					// get looper queue
-					LinkedList<Descriptor<?>> queue;
-					queue = sLoopers.get(thread);
+				// get looper queue
+				LinkedList<Descriptor<?>> queue;
+				queue = sLoopers.get(thread);
 
-					// if queue exists
-					if (queue != null)
+				// if queue exists
+				if (queue != null)
+				{
+					// execute queue
+					for (; ; )
 					{
-						// execute queue
-						for (; ; )
+						// get descriptor
+						Descriptor<Object> descriptor;
+						//noinspection SynchronizationOnLocalVariableOrMethodParameter
+						synchronized (thread)
 						{
 							// if tasks exists
 							//noinspection unchecked
-							Descriptor<Object> descriptor = (Descriptor<Object>)queue.pollFirst();
-							if (descriptor != null)
-							{
-								// execute the task
-								try
-								{
-									descriptor.task.run(descriptor.param);
-								}
-								catch (Throwable e)
-								{
-									Logging.logging(e);
-								}
-							}
-							else
-							{
-								break;
-							}
+							 descriptor = (Descriptor<Object>)queue.pollFirst();
 						}
 
-						// if the looper still exists
-						if (sLoopers.containsKey(thread))
+						// if the descriptor exists
+						if (descriptor != null)
+						{
+							// execute the task
+							try
+							{
+								descriptor.task.run(descriptor.param);
+							}
+							catch (Throwable e)
+							{
+								Logging.logging(e);
+							}
+							thread.setName("looper " + thread.getId());
+						}
+						else
+						{
+							break;
+						}
+					}
+
+					// if the looper still exists
+					if (sLoopers.containsKey(thread))
+					{
+						//noinspection SynchronizationOnLocalVariableOrMethodParameter
+						synchronized (thread)
 						{
 							// wait for tasks
 							try
@@ -230,19 +239,19 @@ public class TasksManager
 								break;
 							}
 						}
-						else
-						{
-							break;
-						}
 					}
 					else
 					{
 						break;
 					}
 				}
-
-				Logging.logging("looper: " + thread.getName() + " stopped");
+				else
+				{
+					break;
+				}
 			}
+
+			Logging.logging("looper: " + thread.getName() + " stopped");
 		});
 
 		// start looper

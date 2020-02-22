@@ -62,43 +62,50 @@ public class HttpRequest implements Serializable
 	@Nullable
 	public static HttpRequest readRequest(@NotNull InputStream stream_, long timeout_)
 	{
-		// read header
-		String title = NetworkTools.readLine(stream_, timeout_);
-		if (title != null)
+		try
 		{
-			// read method
-			int e = title.indexOf(' ');
-			String method = title.substring(0, e);
-
-			// read path
-			int i = e + 1;
-			e = title.indexOf(' ', i);
-			String path = title.substring(i, e);
-
-			// read headers
-			Map<String, String> headers = new HashMap<>();
-			for (; ; )
+			// read header
+			String title = NetworkTools.readLine(stream_, timeout_);
+			if (title != null)
 			{
-				// parse header
-				Pair<String, String> header;
-				String line = NetworkTools.readLine(stream_, timeout_);
-				assert line != null;
-				header = NetworkTools.parseHeader(line);
-				if (header != null)
+				// read method
+				int e = title.indexOf(' ');
+				String method = title.substring(0, e);
+
+				// read path
+				int i = e + 1;
+				e = title.indexOf(' ', i);
+				String path = title.substring(i, e);
+
+				// read headers
+				Map<String, String> headers = new HashMap<>();
+				for (; ; )
 				{
-					headers.put(header.el1, header.el2);
+					// parse header
+					Pair<String, String> header;
+					String line = NetworkTools.readLine(stream_, timeout_);
+					assert line != null;
+					header = NetworkTools.parseHeader(line);
+					if (header != null)
+					{
+						headers.put(header.el1, header.el2);
+					}
+					else
+					{
+						break;
+					}
 				}
-				else
-				{
-					break;
-				}
+
+				// read content
+				byte[] content = NetworkTools.readBytes(stream_, timeout_);
+
+				// build request
+				return new HttpRequest(method, path, headers, content);
 			}
-
-			// read content
-			byte[] content = NetworkTools.readBytes(stream_, timeout_);
-
-			// build request
-			return new HttpRequest(method, path, headers, content);
+		}
+		catch (Exception e)
+		{
+			Logging.logging(e);
 		}
 
 		return null;
@@ -134,7 +141,7 @@ public class HttpRequest implements Serializable
 				if (headers != null)
 				{
 					separator = ":".getBytes();
-					for (Map.Entry<String, String> header: headers.entrySet())
+					for (Map.Entry<String, String> header : headers.entrySet())
 					{
 						stream.write(header.getKey().getBytes());
 						stream.write(separator);

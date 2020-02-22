@@ -33,5 +33,5 @@ public enum NetworkResult
 	UNEXPECTED_RESPONSE,
 
 	/** 10: disconnect occurred **/
-	DISCONNECT;
+	DISCONNECT
 }

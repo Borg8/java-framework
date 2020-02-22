@@ -291,6 +291,7 @@ public class WebSocket
 
 			// write data
 			output.write(data_);
+			output.flush();
 
 			return NetworkResult.SUCCESS;
 		}
