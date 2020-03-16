@@ -119,7 +119,7 @@ public class TasksManager
 			}
 			catch (Throwable e)
 			{
-				Logging.logging(e);
+				throw new Error(e);
 			}
 		});
 
@@ -155,7 +155,7 @@ public class TasksManager
 			}
 			catch (Throwable e)
 			{
-				Logging.logging(e);
+				throw new Error(e);
 			}
 		}
 		else
@@ -323,7 +323,7 @@ public class TasksManager
 			}
 			catch (Throwable e)
 			{
-				Logging.logging(e);
+				throw new Error(e);
 			}
 
 			return true;
@@ -377,7 +377,7 @@ public class TasksManager
 			}
 			catch (Throwable e)
 			{
-				Logging.logging(e);
+				throw new Error(e);
 			}
 
 			return true;

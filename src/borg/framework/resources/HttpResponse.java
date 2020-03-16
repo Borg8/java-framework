@@ -107,7 +107,7 @@ public final class HttpResponse implements Serializable
 			try
 			{
 				// write HTTP 1.1
-				stream.write("HTTP/1.1\r\n".getBytes());
+				stream.write("HTTP/1.1".getBytes());
 				stream.write(separator);
 
 				// write code

@@ -323,7 +323,7 @@ public class WebSocket
 		List<Byte> buffer = new ArrayList<>();
 
 		// add fin
-		byte b = (byte)((fin_? 1: 0) << 7);
+		int b = (fin_? 1: 0) << 7;
 
 		// add rsv1
 		b |= (rsv1_? 1: 0) << 6;
@@ -338,17 +338,17 @@ public class WebSocket
 		b |= opcode_.ordinal();
 
 		// add byte
-		buffer.add(b);
+		buffer.add((byte)b);
 
 		// add key mask
-		b = (byte)((mask_? 1: 0) << 7);
+		b = (mask_? 1: 0) << 7;
 
 		// if 8 bits length
 		if (payload_.length <= 0x7d)
 		{
 			// add length
 			b |= payload_.length;
-			buffer.add(b);
+			buffer.add((byte)b);
 		}
 		else
 		{
@@ -357,21 +357,24 @@ public class WebSocket
 			{
 				// add length
 				b |= 0x7e;
-				buffer.add(b);
+				buffer.add((byte)b);
+				buffer.add((byte)((payload_.length >>> 8) & 0xff));
 				buffer.add((byte)(payload_.length & 0xff));
-				buffer.add((byte)((payload_.length >> 8) & 0xff));
 			}
 			else
 			{
 				// add length
 				b |= 0x7f;
-				buffer.add(b);
+				buffer.add((byte)b);
 				long l = payload_.length;
-				for (int i = 0; i < 8; ++i)
-				{
-					buffer.add((byte)(l & 0xff));
-					l >>= 8;
-				}
+				buffer.add((byte)((l >>> 56) & 0xff));
+				buffer.add((byte)((l >>> 48) & 0xff));
+				buffer.add((byte)((l >>> 40) & 0xff));
+				buffer.add((byte)((l >>> 32) & 0xff));
+				buffer.add((byte)((l >>> 24) & 0xff));
+				buffer.add((byte)((l >>> 16) & 0xff));
+				buffer.add((byte)((l >>> 8) & 0xff));
+				buffer.add((byte)(l & 0xff));
 			}
 		}
 

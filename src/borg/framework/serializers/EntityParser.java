@@ -130,7 +130,7 @@ public final class EntityParser
 					Object object = json_.get(key);
 
 					// if object is not null
-					if (object != null)
+					if ((object != null) && (object != JSONObject.NULL))
 					{
 						// map object
 						map.put(key, serializeJson(object));
