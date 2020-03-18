@@ -1,4 +1,4 @@
-package borg.framework.resources;
+package borg.framework.structures;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 import borg.framework.auxiliaries.Logging;
 import borg.framework.auxiliaries.NetworkTools;
-import borg.framework.structures.Pair;
+import borg.framework.Constants;
 
 public class HttpRequest implements Serializable
 {

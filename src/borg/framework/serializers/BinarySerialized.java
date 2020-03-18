@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logging;
-import borg.framework.resources.Constants;
+import borg.framework.Constants;
 
 public class BinarySerialized extends Serialized
 {

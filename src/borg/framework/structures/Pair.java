@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
-import borg.framework.resources.Constants;
+import borg.framework.Constants;
 
 public final class Pair<T, S> implements Serializable
 {

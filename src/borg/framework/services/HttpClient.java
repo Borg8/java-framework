@@ -15,8 +15,8 @@ import java.util.Map.Entry;
 
 import borg.framework.auxiliaries.Logging;
 import borg.framework.auxiliaries.NetworkTools;
-import borg.framework.resources.HttpResponse;
-import borg.framework.resources.NetworkResult;
+import borg.framework.structures.HttpResponse;
+import borg.framework.structures.NetworkResult;
 
 public final class HttpClient
 {

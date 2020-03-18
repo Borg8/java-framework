@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import borg.framework.resources.Constants;
+import borg.framework.Constants;
 
 public final class ThreadCollection<E> implements Iterable<E>, Serializable
 {

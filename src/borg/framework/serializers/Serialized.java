@@ -10,7 +10,7 @@ import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logging;
-import borg.framework.resources.Constants;
+import borg.framework.Constants;
 import borg.framework.services.StorageManager;
 
 public abstract class Serialized implements Serializable

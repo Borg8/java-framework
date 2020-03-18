@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package borg.framework.resources;
+package borg.framework.structures;
 
 import java.text.DecimalFormat;
 import java.util.StringTokenizer;

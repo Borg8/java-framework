@@ -1,4 +1,4 @@
-package borg.framework.resources;
+package borg.framework;
 
 import org.jetbrains.annotations.Contract;
 

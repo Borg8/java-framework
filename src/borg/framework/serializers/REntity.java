@@ -15,7 +15,7 @@ import java.util.Map;
 
 import borg.framework.auxiliaries.Logging;
 import borg.framework.compability.CallSuper;
-import borg.framework.resources.Constants;
+import borg.framework.Constants;
 import borg.framework.services.ArraysManager;
 
 public abstract class REntity implements Serializable

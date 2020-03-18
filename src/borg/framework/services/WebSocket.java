@@ -19,9 +19,9 @@ import java.util.logging.Level;
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logging;
 import borg.framework.auxiliaries.NetworkTools;
-import borg.framework.resources.HttpRequest;
-import borg.framework.resources.HttpResponse;
-import borg.framework.resources.NetworkResult;
+import borg.framework.structures.HttpRequest;
+import borg.framework.structures.HttpResponse;
+import borg.framework.structures.NetworkResult;
 
 public class WebSocket
 {

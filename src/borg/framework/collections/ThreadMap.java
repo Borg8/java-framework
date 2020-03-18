@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import borg.framework.resources.Constants;
+import borg.framework.Constants;
 
 public final class ThreadMap<K, V> implements Serializable
 {

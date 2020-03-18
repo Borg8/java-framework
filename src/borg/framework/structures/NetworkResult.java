@@ -1,4 +1,4 @@
-package borg.framework.resources;
+package borg.framework.structures;
 
 public enum NetworkResult
 {
