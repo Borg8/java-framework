@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Auxiliary;
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.structures.HttpRequest;
 import borg.framework.structures.HttpResponse;
@@ -217,27 +217,27 @@ public class WebSocket
 					}
 					else
 					{
-						Logging.logging(Level.WARNING, "unexpected response: " + code);
+						Logger.log(Level.WARNING, "unexpected response: " + code);
 						result = NetworkResult.UNEXPECTED_RESPONSE;
 						disconnect();
 					}
 				}
 				else
 				{
-					Logging.logging(Level.WARNING, "unable to parse code");
+					Logger.log(Level.WARNING, "unable to parse code");
 					result = NetworkResult.UNEXPECTED_RESPONSE;
 					disconnect();
 				}
 			}
 			catch (Exception e)
 			{
-				Logging.logging(Level.WARNING, e);
+				Logger.log(Level.WARNING, e);
 				result = NetworkResult.UNABLE_TO_CONNECT;
 			}
 		}
 		else
 		{
-			Logging.logging(Level.WARNING, "already connected");
+			Logger.log(Level.WARNING, "already connected");
 			result = NetworkResult.BUSY;
 		}
 
@@ -261,7 +261,7 @@ public class WebSocket
 			}
 			catch (IOException e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 		}
 	}
@@ -297,7 +297,7 @@ public class WebSocket
 		}
 		catch (IOException e)
 		{
-			Logging.logging(e);
+			Logger.log(e);
 			return NetworkResult.UNABLE_TO_SEND;
 		}
 	}
@@ -443,7 +443,7 @@ public class WebSocket
 					// if the socket was not disconnected
 					if (mSocket != null)
 					{
-						Logging.logging(e);
+						Logger.log(e);
 					}
 
 					break;

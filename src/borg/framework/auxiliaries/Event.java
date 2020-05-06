@@ -235,7 +235,7 @@ public final class Event<T>
 					{
 						exception = e;
 					}
-					Logging.logging(e);
+					Logger.log(e);
 				}
 			}
 

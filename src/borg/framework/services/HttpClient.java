@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import borg.framework.auxiliaries.Logging;
-import borg.framework.auxiliaries.NetworkTools;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.structures.HttpResponse;
 import borg.framework.structures.NetworkResult;
 
@@ -125,7 +124,7 @@ public final class HttpClient
 				}
 				catch (Exception e)
 				{
-					Logging.logging(e);
+					Logger.log(e);
 					break;
 				}
 
@@ -139,7 +138,7 @@ public final class HttpClient
 					}
 					catch (Exception e)
 					{
-						Logging.logging(e);
+						Logger.log(e);
 
 						// unable to send
 						result = NetworkResult.UNABLE_TO_SEND;
@@ -193,12 +192,12 @@ public final class HttpClient
 					}
 					if (in != null)
 					{
-						response = NetworkTools.readBytes(in, NetworkTools.TIMEOUT_READ);
+						response = StorageManager.readFile(in);
 					}
 				}
 				catch (Exception e)
 				{
-					Logging.logging(e);
+					Logger.log(e);
 
 					// unable to read
 					result = NetworkResult.UNABLE_TO_READ;
@@ -232,7 +231,7 @@ public final class HttpClient
 			}
 			catch (Exception e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 		}
 		if (out != null)
@@ -243,7 +242,7 @@ public final class HttpClient
 			}
 			catch (Exception e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 		}
 		if (connection != null)
@@ -282,7 +281,7 @@ public final class HttpClient
 		}
 		catch (Exception e)
 		{
-			Logging.logging(e);
+			Logger.log(e);
 		}
 
 		return null;

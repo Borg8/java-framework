@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 
 public final class EntityParser
 {
@@ -64,7 +64,7 @@ public final class EntityParser
 				}
 				catch (Exception e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logger.log(Level.WARNING, e);
 				}
 			}
 
@@ -95,7 +95,7 @@ public final class EntityParser
 				}
 				catch (Exception e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logger.log(Level.WARNING, e);
 				}
 			}
 
@@ -138,7 +138,7 @@ public final class EntityParser
 				}
 				catch (Exception e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logger.log(Level.WARNING, e);
 				}
 			}
 
@@ -170,7 +170,7 @@ public final class EntityParser
 				}
 				catch (JSONException e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logger.log(Level.WARNING, e);
 				}
 			}
 

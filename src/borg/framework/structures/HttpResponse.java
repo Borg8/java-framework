@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.Constants;
 
@@ -121,10 +121,14 @@ public final class HttpResponse implements Serializable
 					separator = ":".getBytes();
 					for (Map.Entry<String, String> header: headers.entrySet())
 					{
-						stream.write(header.getKey().getBytes());
-						stream.write(separator);
-						stream.write(header.getValue().getBytes());
-						stream.write(eol);
+						String key = header.getKey();
+						if (key != null)
+						{
+							stream.write(key.getBytes());
+							stream.write(separator);
+							stream.write(header.getValue().getBytes());
+							stream.write(eol);
+						}
 					}
 					stream.write(eol);
 				}
@@ -137,7 +141,7 @@ public final class HttpResponse implements Serializable
 			}
 			catch (Exception e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 
 			mSerialization = stream.toByteArray();

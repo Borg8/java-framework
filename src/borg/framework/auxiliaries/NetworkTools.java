@@ -20,7 +20,7 @@ public final class NetworkTools
 	public static final long TIMEOUT_CONNECT = 10 * TimeManager.SECOND;
 
 	/** read timeout **/
-	public static final long TIMEOUT_READ = 3;
+	public static final long TIMEOUT_READ = 10;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
@@ -200,7 +200,7 @@ public final class NetworkTools
 	private static byte[] read(@NotNull InputStream stream_, long timeout_, int size_, char eof_)
 	{
 		// prepare
-		long now = TimeManager.getTime() + MIN_TIMEOUT_READ;
+		long now = TimeManager.getSystemTime() + MIN_TIMEOUT_READ;
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream(SIZE_CHUNK);
 		if (size_ <= 0)
 		{
@@ -215,6 +215,8 @@ public final class NetworkTools
 		{
 			do
 			{
+				// FIXME even if stream_.available() == 0, stream_.read() can succeed.
+
 				// if data available
 				if (stream_.available() > 0)
 				{
@@ -236,17 +238,17 @@ public final class NetworkTools
 						break;
 					}
 
-					now = TimeManager.getTime();
+					now = TimeManager.getSystemTime();
 				}
 				else
 				{
 					Auxiliary.sleep(10);
 				}
-			} while (TimeManager.getTime() - now <= timeout_);
+			} while (TimeManager.getSystemTime() - now <= timeout_);
 		}
 		catch (Exception e)
 		{
-			Logging.logging(e);
+			Logger.log(e);
 			return null;
 		}
 
@@ -258,7 +260,7 @@ public final class NetworkTools
 		}
 		catch (Exception e)
 		{
-			Logging.logging(e);
+			Logger.log(e);
 		}
 		return array;
 	}

@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.Constants;
 
@@ -105,7 +105,7 @@ public class HttpRequest implements Serializable
 		}
 		catch (Exception e)
 		{
-			Logging.logging(e);
+			Logger.log(e);
 		}
 
 		return null;
@@ -159,7 +159,7 @@ public class HttpRequest implements Serializable
 			}
 			catch (Exception e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 
 			mSerialization = stream.toByteArray();

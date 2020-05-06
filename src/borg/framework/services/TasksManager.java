@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 
 public class TasksManager
 {
@@ -213,7 +213,7 @@ public class TasksManager
 							}
 							catch (Throwable e)
 							{
-								Logging.logging(e);
+								Logger.log(e);
 							}
 							thread.setName("looper " + thread.getId());
 						}
@@ -251,7 +251,7 @@ public class TasksManager
 				}
 			}
 
-			Logging.logging("looper: " + thread.getName() + " stopped");
+			Logger.log("looper: " + thread.getName() + " stopped");
 		});
 
 		// start looper

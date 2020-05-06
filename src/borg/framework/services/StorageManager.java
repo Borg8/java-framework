@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.util.Objects;
 import java.util.logging.Level;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 
 
 public final class StorageManager
@@ -302,7 +302,7 @@ public final class StorageManager
 			}
 			catch (Exception e_)
 			{
-				Logging.logging(Level.WARNING, e_);
+				Logger.log(Level.WARNING, e_);
 			}
 		}
 	}
@@ -457,7 +457,7 @@ public final class StorageManager
 			}
 			catch (Exception e_)
 			{
-				Logging.logging(Level.WARNING, e_);
+				Logger.log(Level.WARNING, e_);
 			}
 		}
 	}
@@ -495,7 +495,7 @@ public final class StorageManager
 			}
 			catch (Exception e_)
 			{
-				Logging.logging(Level.WARNING, e_);
+				Logger.log(Level.WARNING, e_);
 			}
 		}
 	}

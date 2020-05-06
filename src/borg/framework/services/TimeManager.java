@@ -112,8 +112,8 @@ public final class TimeManager
 	/** system clock tick of current cycle **/
 	private static long sTick = 0;
 
-	/** system real time **/
-	private static long sRealTime = 0;
+	/** real time offset **/
+	private static long sTimeOffset = 0;
 
 	/** last free timer ID **/
 	private static int sLastId = 0;
@@ -129,9 +129,9 @@ public final class TimeManager
 	}
 
 	/**
-	 * @return real system time.
+	 * @return system time.
 	 */
-	public static long getTime()
+	public static long getSystemTime()
 	{
 		return sClock.getTime();
 	}
@@ -149,7 +149,7 @@ public final class TimeManager
 	 */
 	public static long getRealTime()
 	{
-		return sRealTime + getTime();
+		return sTimeOffset + getSystemTime();
 	}
 
 	/**
@@ -159,7 +159,7 @@ public final class TimeManager
 	 */
 	public static void setRealTime(long time_)
 	{
-		sRealTime = time_ - getTime();
+		sTimeOffset = time_ - getSystemTime();
 	}
 
 	/**
@@ -185,7 +185,7 @@ public final class TimeManager
 		Timer<?> timer = sTimers.get(timer_);
 		if (timer != null)
 		{
-			return getTime() - timer.timeToExecute;
+			return getSystemTime() - timer.timeToExecute;
 		}
 
 		return -1;
@@ -305,7 +305,7 @@ public final class TimeManager
 	public static void  loop()
 	{
 		// update system tick
-		sTick = getTime();
+		sTick = getSystemTime();
 
 		// copy relevant timers
 		int n = 0;
@@ -363,7 +363,7 @@ public final class TimeManager
 	private static <T> Timer<T> _create(long delay_, @NotNull Handler<T> handler_, T param_)
 	{
 		// create timer
-		long timeToExecute = getTime() + delay_;
+		long timeToExecute = getSystemTime() + delay_;
 		Timer<T> timer;
 
 		// insert timeout

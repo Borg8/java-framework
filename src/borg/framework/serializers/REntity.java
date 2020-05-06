@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.compability.CallSuper;
 import borg.framework.Constants;
 import borg.framework.services.ArraysManager;
@@ -110,7 +110,7 @@ public abstract class REntity implements Serializable
 			}
 			catch (Exception e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 		}
 
@@ -178,7 +178,7 @@ public abstract class REntity implements Serializable
 			}
 			catch (Exception e)
 			{
-				Logging.logging(e);
+				Logger.log(e);
 			}
 		}
 
@@ -454,7 +454,7 @@ public abstract class REntity implements Serializable
 				}
 				catch (Exception e)
 				{
-					Logging.logging(e);
+					Logger.log(e);
 				}
 			}
 		}
@@ -527,7 +527,7 @@ public abstract class REntity implements Serializable
 				}
 				catch (Exception e)
 				{
-					Logging.logging(e);
+					Logger.log(e);
 				}
 
 				return objects;
@@ -555,7 +555,7 @@ public abstract class REntity implements Serializable
 		}
 		catch (Exception e)
 		{
-			Logging.logging(e);
+			Logger.log(e);
 		}
 
 		return default_;

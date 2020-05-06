@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.Constants;
 import borg.framework.services.StorageManager;
 
@@ -195,7 +195,7 @@ public abstract class Serialized implements Serializable
 					}
 					catch (Exception e)
 					{
-						Logging.logging(Level.WARNING, e);
+						Logger.log(Level.WARNING, e);
 					}
 				}
 			}
@@ -281,7 +281,7 @@ public abstract class Serialized implements Serializable
 				}
 				catch (Exception e)
 				{
-					Logging.logging(Level.WARNING, e);
+					Logger.log(Level.WARNING, e);
 				}
 			}
 		}
@@ -301,7 +301,7 @@ public abstract class Serialized implements Serializable
 		}
 		catch (Exception e)
 		{
-			Logging.logging(Level.WARNING, e);
+			Logger.log(Level.WARNING, e);
 		}
 	}
 

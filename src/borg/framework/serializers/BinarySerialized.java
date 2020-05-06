@@ -11,7 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.logging.Level;
 
-import borg.framework.auxiliaries.Logging;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.Constants;
 
 public class BinarySerialized extends Serialized
@@ -133,7 +133,7 @@ public class BinarySerialized extends Serialized
 		}
 		catch (Exception e)
 		{
-			Logging.logging(Level.WARNING, e);
+			Logger.log(Level.WARNING, e);
 		}
 
 		return null;
@@ -148,9 +148,9 @@ public class BinarySerialized extends Serialized
 		{
 			return (Serialized)read(data_);
 		}
-		catch (Exception e)
+		catch (Throwable e)
 		{
-			Logging.logging(Level.WARNING, e);
+			Logger.log(Level.WARNING, e);
 		}
 
 		return null;
