@@ -2,6 +2,7 @@ package borg.framework.services;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,10 +12,13 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import javax.net.ssl.SSLSocketFactory;
 
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logger;
@@ -55,6 +59,8 @@ public class WebSocket
 	private static final String HEADER_UPGRADE = "upgrade";
 
 	private static final String HEADER_AGENT = "user-agent";
+
+	private static final String HEADER_AUTHORIZATION = "authorization";
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
@@ -159,11 +165,15 @@ public class WebSocket
 	 * connect websocket. Blocking operation.
 	 *
 	 * @param timeout_ connection timeout, 0 for infinite.
+	 * @param user_ user name, if required.
+	 * @param password_ password, if required.
 	 *
 	 * @return operation response.
 	 */
 	@NotNull
-	public synchronized HttpResponse connect(long timeout_)
+	public synchronized HttpResponse connect(long timeout_,
+		@Nullable String user_,
+		@Nullable String password_)
 	{
 		// set default parameters
 		int code = -1;
@@ -176,8 +186,16 @@ public class WebSocket
 			// create connection
 			try
 			{
-				// create connection
-				mSocket = new Socket();
+				if (url.getProtocol().equals("https"))
+				{
+					mSocket = SSLSocketFactory.getDefault().createSocket();
+				}
+				else
+				{
+					mSocket = new Socket();
+				}
+				mSocket.setSoTimeout(NetworkTools.TIMEOUT_CONNECT);
+
 				mSocket.connect(new InetSocketAddress(url.getHost(), url.getPort()), (int)timeout_);
 
 				// generate key
@@ -192,6 +210,13 @@ public class WebSocket
 				requestHeaders.put(HEADER_KEY, mKey);
 				requestHeaders.put(HEADER_UPGRADE, "websocket");
 				requestHeaders.put(HEADER_AGENT, AGENT_WEBSOCKET);
+				if (user_ != null)
+				{
+					String credentials = user_ + ":" + password_;
+					credentials = new String(Base64.getEncoder().encode(credentials.getBytes()));
+					requestHeaders.put(HEADER_AUTHORIZATION, "Basic " + credentials);
+				}
+
 				HttpRequest request = new HttpRequest("GET", url.getPath(), requestHeaders, null);
 
 				// write request
@@ -199,8 +224,8 @@ public class WebSocket
 				output.write(request.serialize());
 
 				// read response
-				InputStream input = mSocket.getInputStream();
-				HttpResponse response = HttpResponse.readResponse(input, NetworkTools.TIMEOUT_READ);
+				mSocket.setSoTimeout(NetworkTools.TIMEOUT_READ);
+				HttpResponse response = HttpResponse.readResponse(mSocket.getInputStream());
 				code = response.code;
 				headers = response.headers;
 
@@ -417,12 +442,14 @@ public class WebSocket
 					InputStream input = mSocket.getInputStream();
 
 					// read data
+					mSocket.setSoTimeout(0);
 					int b = input.read();
 					if (b < 0)
 					{
 						break;
 					}
-					byte[] bytes = NetworkTools.readBytes(input, NetworkTools.TIMEOUT_READ);
+					mSocket.setSoTimeout(NetworkTools.TIMEOUT_READ);
+					byte[] bytes = NetworkTools.readBytes(input);
 					byte[] data;
 					if (bytes == null)
 					{

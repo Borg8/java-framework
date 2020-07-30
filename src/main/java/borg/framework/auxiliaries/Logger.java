@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.MessageFormat;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -31,9 +30,13 @@ public final class Logger
 	private static final java.util.logging.Logger sLogger =
 		java.util.logging.Logger.getLogger("borg.framework");
 
+	private static final Throwable sStackHolder = new Throwable();
+
 	private static String sRoot = null;
 
 	private static int sDepth = 0;
+
+	private static boolean sStackReady = false;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -191,7 +194,8 @@ public final class Logger
 	public static void snapshot(@NotNull Level level_, @Nullable String message_, Object... state_)
 	{
 		// build stack trace
-		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		buildStack();
+		StackTraceElement[] stackTrace = sStackHolder.getStackTrace();
 		String stack = stackTrace(stackTrace, 1);
 
 		// build state
@@ -219,10 +223,10 @@ public final class Logger
 		int line = stackTrace[2].getLineNumber();
 
 		// build message
-		String message = MessageFormat.format("snapshot from: {0}#{1}:{2}{3}\n\n{4}\n\n{5}",
+		String message = String.format("snapshot from: %s#%s:%d%s\n\n%s\n\n%s",
 			className,
 			method,
-			Integer.toString(line),
+			line,
 			message_ == null? "": " - " + message_,
 			state == null? "": state,
 			stack);
@@ -238,6 +242,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Object message_)
 	{
+		buildStack();
 		log(Level.INFO, message_);
 	}
 
@@ -249,7 +254,13 @@ public final class Logger
 	 */
 	public static void log(@NotNull Level level_, @NotNull Object message_)
 	{
-		sLogger.log(level_, "\n" + message_);
+		buildStack();
+		StackTraceElement element = sStackHolder.getStackTrace()[2];
+		sLogger.log(level_, String.format("%s:%d\n%s\n",
+			element.getClassName(),
+			element.getLineNumber(),
+			message_));
+		sStackReady = false;
 	}
 
 	/**
@@ -271,5 +282,14 @@ public final class Logger
 	public static void log(@Nullable String message_, @NotNull Throwable e_)
 	{
 		sLogger.log(Level.SEVERE, "\n" + message_, e_);
+	}
+
+	private static void buildStack()
+	{
+		if (sStackReady == false)
+		{
+			sStackHolder.fillInStackTrace();
+			sStackReady = true;
+		}
 	}
 }

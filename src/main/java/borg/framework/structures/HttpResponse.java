@@ -54,10 +54,10 @@ public final class HttpResponse implements Serializable
 
 	@Contract(pure = true)
 	@NotNull
-	public static HttpResponse readResponse(@NotNull InputStream stream_, long timeout_)
+	public static HttpResponse readResponse(@NotNull InputStream stream_)
 	{
 		// read code
-		String line = NetworkTools.readLine(stream_, NetworkTools.TIMEOUT_READ);
+		String line = NetworkTools.readLine(stream_);
 		assert line != null;
 		int code = NetworkTools.parseCode(line);
 		Map<String, String> headers = null;
@@ -70,7 +70,7 @@ public final class HttpResponse implements Serializable
 			{
 				// parse header
 				Pair<String, String> header;
-				line = NetworkTools.readLine(stream_, timeout_);
+				line = NetworkTools.readLine(stream_);
 				assert line != null;
 				header = NetworkTools.parseHeader(line);
 				if (header != null)
@@ -84,7 +84,7 @@ public final class HttpResponse implements Serializable
 			}
 
 			// read content
-			content = NetworkTools.readBytes(stream_, timeout_);
+			content = NetworkTools.readBytes(stream_);
 		}
 
 		// build response

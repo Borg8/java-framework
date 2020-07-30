@@ -17,18 +17,16 @@ public final class NetworkTools
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** read connection **/
-	public static final long TIMEOUT_CONNECT = 10 * TimeManager.SECOND;
+	public static final int TIMEOUT_CONNECT = (int)(10 * TimeManager.SECOND);
 
 	/** read timeout **/
-	public static final long TIMEOUT_READ = 10;
+	public static final int TIMEOUT_READ = 1000;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private static final int SIZE_CHUNK = 8192;
-
-	private static final long MIN_TIMEOUT_READ = 1000;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -43,30 +41,28 @@ public final class NetworkTools
 	 * read bytes from input stream. Blocking operation.
 	 *
 	 * @param stream_  stream to read from.
-	 * @param timeout_ timeout to read each byte.
 	 *
 	 * @return read bytes, or {@code null} if the stream is not readable.
 	 */
 	@Nullable
 	@Contract(pure = true)
-	public static byte[] readBytes(@NotNull InputStream stream_, long timeout_)
+	public static byte[] readBytes(@NotNull InputStream stream_)
 	{
-		return read(stream_, timeout_, 0, (char)-1);
+		return read(stream_, 0, (char)-1);
 	}
 
 	/**
 	 * read line from stream. Blocking operation.
 	 *
 	 * @param stream_  stream to read from.
-	 * @param timeout_ timeout to read each byte.
 	 *
 	 * @return read line or {@code null} if the stream is not readable.
 	 */
 	@Nullable
 	@Contract(pure = true)
-	public static String readLine(@NotNull InputStream stream_, long timeout_)
+	public static String readLine(@NotNull InputStream stream_)
 	{
-		byte[] line = read(stream_, timeout_, 0, '\n');
+		byte[] line = read(stream_, 0, '\n');
 		if (line != null)
 		{
 			return new String(line);
@@ -197,59 +193,42 @@ public final class NetworkTools
 
 	@Nullable
 	@Contract(pure = true)
-	private static byte[] read(@NotNull InputStream stream_, long timeout_, int size_, char eof_)
+	private static byte[] read(@NotNull InputStream stream_, int size_, char eof_)
 	{
 		// prepare
-		long now = TimeManager.getSystemTime() + MIN_TIMEOUT_READ;
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream(SIZE_CHUNK);
 		if (size_ <= 0)
 		{
 			size_ = Integer.MAX_VALUE;
 		}
-		if (timeout_ <= 0)
-		{
-			timeout_ = Long.MAX_VALUE;
-		}
 
 		try
 		{
-			do
+			for(;;)
 			{
-				// FIXME even if stream_.available() == 0, stream_.read() can succeed.
+				// read byte
+				int b = stream_.read();
 
-				// if data available
-				if (stream_.available() > 0)
+				// if end of stream
+				if ((b <= 0) || (b == eof_))
 				{
-					// read byte
-					int b = stream_.read();
-
-					// if end of stream
-					if ((b <= 0) || (b == eof_))
-					{
-						break;
-					}
-
-					// add byte
-					buffer.write(b);
-
-					// if all bytes read
-					if (buffer.size() >= size_)
-					{
-						break;
-					}
-
-					now = TimeManager.getSystemTime();
+					break;
 				}
-				else
+
+				// add byte
+				buffer.write(b);
+
+				// if all bytes read
+				if (buffer.size() >= size_)
 				{
-					Auxiliary.sleep(10);
+					break;
 				}
-			} while (TimeManager.getSystemTime() - now <= timeout_);
+
+			}
 		}
 		catch (Exception e)
 		{
-			Logger.log(e);
-			return null;
+			// nothing to do here
 		}
 
 		// close buffer

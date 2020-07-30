@@ -54,18 +54,17 @@ public class HttpRequest implements Serializable
 	 * read request from stream.
 	 *
 	 * @param stream_  stream to read the request from.
-	 * @param timeout_ timeout to read each byte.
 	 *
 	 * @return read request, if parsed.
 	 */
 	@Contract(pure = true)
 	@Nullable
-	public static HttpRequest readRequest(@NotNull InputStream stream_, long timeout_)
+	public static HttpRequest readRequest(@NotNull InputStream stream_)
 	{
 		try
 		{
 			// read header
-			String title = NetworkTools.readLine(stream_, timeout_);
+			String title = NetworkTools.readLine(stream_);
 			if (title != null)
 			{
 				// read method
@@ -83,7 +82,7 @@ public class HttpRequest implements Serializable
 				{
 					// parse header
 					Pair<String, String> header;
-					String line = NetworkTools.readLine(stream_, timeout_);
+					String line = NetworkTools.readLine(stream_);
 					assert line != null;
 					header = NetworkTools.parseHeader(line);
 					if (header != null)
@@ -97,7 +96,7 @@ public class HttpRequest implements Serializable
 				}
 
 				// read content
-				byte[] content = NetworkTools.readBytes(stream_, timeout_);
+				byte[] content = NetworkTools.readBytes(stream_);
 
 				// build request
 				return new HttpRequest(method, path, headers, content);
