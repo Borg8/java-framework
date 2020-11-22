@@ -133,6 +133,9 @@ public class WebSocket
 	/** current socket key **/
 	private String mKey;
 
+	/** keepalive interval **/
+	private long mKeepalive;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +153,7 @@ public class WebSocket
 		mListener = listener_;
 
 		mSocket = null;
+		mKeepalive = -1;
 	}
 
 	/**
@@ -164,8 +168,8 @@ public class WebSocket
 	/**
 	 * connect websocket. Blocking operation.
 	 *
-	 * @param timeout_ connection timeout, 0 for infinite.
-	 * @param user_ user name, if required.
+	 * @param timeout_  connection timeout, 0 for infinite.
+	 * @param user_     user name, if required.
 	 * @param password_ password, if required.
 	 *
 	 * @return operation response.
@@ -238,6 +242,9 @@ public class WebSocket
 						// start listening
 						TasksManager.runOnThread(socketTask);
 
+						// start keepalive
+						setKeepalive(mKeepalive);
+
 						result = NetworkResult.SUCCESS;
 					}
 					else
@@ -283,11 +290,31 @@ public class WebSocket
 				Socket socket = mSocket;
 				mSocket = null;
 				socket.close();
+
+				// disable watchdog
+				TimeManager.cancel(_keepaliveWatchdog);
 			}
 			catch (IOException e)
 			{
 				Logger.log(e);
 			}
+		}
+	}
+
+	/**
+	 * set websocket keepalive.
+	 *
+	 * @param interval_ keepalive interval, -1 to disable.
+	 */
+	public void setKeepalive(long interval_)
+	{
+		mKeepalive = interval_;
+
+		// if connected
+		if ((isConnected() == true) && (mKeepalive > 0))
+		{
+			// start watchdog
+			TimeManager.asyncExecute(0, _keepaliveWatchdog);
 		}
 	}
 
@@ -300,7 +327,13 @@ public class WebSocket
 	 * @return operation result.
 	 */
 	@NotNull
-	public synchronized NetworkResult write(@NotNull byte[] data_, boolean encrypt_)
+	public NetworkResult write(@NotNull byte[] data_, boolean encrypt_)
+	{
+		return write(data_, encrypt_? Opcode.TEXT: null);
+	}
+
+	@NotNull
+	private synchronized NetworkResult write(@NotNull byte[] data_, @Nullable Opcode opcode_)
 	{
 		try
 		{
@@ -308,10 +341,10 @@ public class WebSocket
 			OutputStream output = mSocket.getOutputStream();
 
 			// if data should be encrypted
-			if (encrypt_ == true)
+			if (opcode_ != null)
 			{
 				// build frame
-				data_ = buildFrame(true, false, false, false, Opcode.TEXT, true, data_);
+				data_ = buildFrame(true, false, false, false, opcode_, true, data_);
 			}
 
 			// write data
@@ -335,6 +368,7 @@ public class WebSocket
 		return "12345";
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@NotNull
 	@Contract(pure = true)
 	private static byte[] buildFrame(boolean fin_,
@@ -496,4 +530,20 @@ public class WebSocket
 			throw new Error(e);
 		}
 	}
+
+	private final TimeManager.Handler<Void> _keepaliveWatchdog = new TimeManager.Handler<>()
+	{
+		@Override
+		public void handle(int time_, Void param_)
+		{
+			if ((isConnected() == true) && (mKeepalive > 0))
+			{
+				// send keepalive
+				write(new byte[0], Opcode.PING);
+
+				// reschedule
+				TimeManager.asyncExecute(mKeepalive, _keepaliveWatchdog);
+			}
+		}
+	};
 }

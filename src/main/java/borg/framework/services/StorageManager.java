@@ -59,13 +59,6 @@ public final class StorageManager
 	@Contract(pure = true)
 	public static File getFile(@NotNull String name_) throws Exception
 	{
-		// if file path is an absolute
-		if (name_.charAt(0) == File.separatorChar)
-		{
-			return new File(name_).getCanonicalFile();
-		}
-
-		// return file relatively from home directory
 		return new File(name_).getCanonicalFile();
 	}
 
@@ -432,7 +425,6 @@ public final class StorageManager
 	{
 		if (name_.isEmpty() == false)
 		{
-			// noinspection HardcodedFileSeparator
 			String regex = "^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\.[^.]*)?$)[^<>:\"/\\\\|?*\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F .]$";
 			return name_.matches(regex);
 		}

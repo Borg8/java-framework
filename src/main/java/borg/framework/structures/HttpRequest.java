@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
@@ -104,7 +105,7 @@ public class HttpRequest implements Serializable
 		}
 		catch (Exception e)
 		{
-			Logger.log(e);
+			Logger.log(Level.FINE, e);
 		}
 
 		return null;

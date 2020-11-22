@@ -7,10 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.logging.Level;
 
-import borg.framework.auxiliaries.Logger;
 import borg.framework.Constants;
+import borg.framework.auxiliaries.Logger;
 import borg.framework.services.StorageManager;
 
 public abstract class Serialized implements Serializable
@@ -195,7 +194,7 @@ public abstract class Serialized implements Serializable
 					}
 					catch (Exception e)
 					{
-						Logger.log(Level.WARNING, e);
+						Logger.log(e);
 					}
 				}
 			}
@@ -281,7 +280,7 @@ public abstract class Serialized implements Serializable
 				}
 				catch (Exception e)
 				{
-					Logger.log(Level.WARNING, e);
+					Logger.log(e);
 				}
 			}
 		}
@@ -301,7 +300,7 @@ public abstract class Serialized implements Serializable
 		}
 		catch (Exception e)
 		{
-			Logger.log(Level.WARNING, e);
+			Logger.log(e);
 		}
 	}
 

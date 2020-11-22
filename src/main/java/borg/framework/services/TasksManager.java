@@ -60,11 +60,17 @@ public class TasksManager
 	private static final LinkedList<Descriptor<?>> sTasks = new LinkedList<>();
 
 	/** running loopers. Map from the looper to tasks queue for the looper **/
-	private static final Map<Object, LinkedList<Descriptor<?>>> sLoopers = Collections
-		.synchronizedMap(new HashMap<>());
+	private static final Map<Object, LinkedList<Descriptor<?>>> sLoopers =
+		Collections.synchronizedMap(new HashMap<>());
 
 	/** main thread instance **/
 	private static final Thread sMain = Thread.currentThread();
+
+	/** registered flows. Map from thread ID to the flow ID **/
+	private static final Map<Long, Long> sFlows = new HashMap<>();
+
+	/** next flow ID **/
+	private static long sFlowId = 0;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -82,6 +88,30 @@ public class TasksManager
 	public static void init()
 	{
 		// nothing to do here
+	}
+
+	/**
+	 * start flow.
+	 *
+	 * @return started flow ID.
+	 */
+	public synchronized static long startFlow()
+	{
+		long id = sFlowId;
+		++sFlowId;
+
+		// TODO
+		return id;
+	}
+
+	/**
+	 * finish flow.
+	 *
+	 * @param id_ ID of the flow to finish.
+	 */
+	public synchronized static void finishFlow(long id_)
+	{
+		// TODO
 	}
 
 	/**
@@ -200,7 +230,7 @@ public class TasksManager
 						{
 							// if tasks exists
 							//noinspection unchecked
-							 descriptor = (Descriptor<Object>)queue.pollFirst();
+							descriptor = (Descriptor<Object>)queue.pollFirst();
 						}
 
 						// if the descriptor exists

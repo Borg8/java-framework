@@ -53,10 +53,16 @@ public final class Logger
 	 *
 	 * @param root_  root class to log.
 	 * @param depth_ exceptions depth.
-	 * @param file_  log output file.
+	 * @param level_ minimum log level.
+	 * @param file_  log output file to add, if {@code null} then all handlers will be removed.
 	 */
-	public static void configure(@Nullable Class<?> root_, int depth_, @Nullable String file_)
+	public static void configure(@Nullable Class<?> root_,
+		int depth_,
+		@NotNull Level level_,
+		@Nullable String file_)
 	{
+		sLogger.setLevel(level_);
+
 		if (root_ != null)
 		{
 			sRoot = root_.getName();
@@ -84,6 +90,7 @@ public final class Logger
 			for (Handler handler : sLogger.getHandlers())
 			{
 				sLogger.removeHandler(handler);
+				handler.close();
 			}
 		}
 	}
