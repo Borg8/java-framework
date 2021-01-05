@@ -102,7 +102,7 @@ public final class BinaryParser
 		 *
 		 * @throws Exception when object was unable to do deserialize itself.
 		 */
-		void deserialize(Iterator<Byte> iterator_) throws Exception;
+		void deserialize(@NotNull Iterator<Byte> iterator_) throws Exception;
 	}
 
 	public interface BinarySerializable
@@ -136,6 +136,7 @@ public final class BinaryParser
 	 *
 	 * @return crc32 value.
 	 */
+	@Contract(pure = true)
 	public static long crcValue(@NotNull List<Byte> data_)
 	{
 		// reset last value
@@ -156,6 +157,7 @@ public final class BinaryParser
 	 * @return hex string represent the integer.
 	 */
 	@NotNull
+	@Contract(pure = true)
 	public static String integerToHex(long integer_, int size_)
 	{
 		builder.setLength(0);
@@ -207,7 +209,8 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	public static long readInteger(Iterator<Byte> iterator_, int size_)
+	@Contract(pure = true)
+	public static long readInteger(@NotNull Iterator<Byte> iterator_, int size_)
 	{
 		long value = 0;
 		for (int i = 0; i < size_; ++i)
@@ -228,13 +231,16 @@ public final class BinaryParser
 	 *
 	 * @throws Exception if enum cannot be read
 	 */
-	public static <T extends Enum<T>> T readEnum(Iterator<Byte> iterator_, Class<T> entityTypesEnum_)
+	@Contract(pure = true)
+	@NotNull
+	public static <T extends Enum<T>> T readEnum(@NotNull Iterator<Byte> iterator_,
+		@NotNull Class<T> entityTypesEnum_)
 		throws Exception
 	{
 		long value = 0;
 		for (int i = 0; i < SIZE_UINT8; ++i)
 		{
-			value += (iterator_.next() & 0xffL) << (8 * i);
+			value += iterator_.next() & 0xffL;
 		}
 
 		// get entity class
@@ -255,7 +261,7 @@ public final class BinaryParser
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static long readInteger(@NotNull byte[] source_, int size_, int offset_)
+	public static long readInteger(byte @NotNull [] source_, int size_, int offset_)
 	{
 		long value = 0;
 		for (--size_; size_ >= 0; --size_)
@@ -275,7 +281,8 @@ public final class BinaryParser
 	 * @return read array.
 	 */
 	@NotNull
-	public static List<Long> readList(Iterator<Byte> iterator_, int size_)
+	@Contract(pure = true)
+	public static List<Long> readList(@NotNull Iterator<@NotNull Byte> iterator_, int size_)
 	{
 		// read array size
 		int size = (int)readInteger(iterator_, SIZE_UINT16);
@@ -301,13 +308,13 @@ public final class BinaryParser
 	 * @return read array.
 	 */
 	@NotNull
-	public static List<Byte> readByteList(Iterator<Byte> iterator_, int size_)
+	@Contract(pure = true)
+	public static List<Byte> readByteList(@NotNull Iterator<@NotNull Byte> iterator_, int size_)
 	{
 		// read array size
 		int size = (int)readInteger(iterator_, SIZE_UINT16);
 
 		// create array
-		@NotNull
 		List<Byte> list = new ArrayList<>(size);
 
 		// read elements
@@ -330,7 +337,9 @@ public final class BinaryParser
 	 * @throws Exception if array can not be read.
 	 */
 	@NotNull
-	public static <T extends BinaryDeserializable> ArrayList<T> readList(Iterator<Byte> iterator_,
+	@Contract(pure = true)
+	public static <T extends BinaryDeserializable> ArrayList<T> readList(
+		@NotNull Iterator<@NotNull Byte> iterator_,
 		@NotNull Class<T> class_) throws Exception
 	{
 		// read array size
@@ -362,7 +371,8 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int write(@NotNull List<Byte> object_, @NotNull List<Byte> buffer_)
+	public static int write(@NotNull List<@NotNull Byte> object_,
+		@NotNull List<@NotNull Byte> buffer_)
 	{
 		buffer_.addAll(object_);
 
@@ -378,7 +388,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeInteger(long value_, int size_, @NotNull List<Byte> buffer_)
+	public static int writeInteger(long value_, int size_, @NotNull List<@NotNull Byte> buffer_)
 	{
 		for (int i = 0; i < size_; ++i)
 		{
@@ -399,7 +409,10 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeInteger(long value_, int size_, int index_, @NotNull List<Byte> buffer_)
+	public static int writeInteger(long value_,
+		int size_,
+		int index_,
+		@NotNull List<@NotNull Byte> buffer_)
 	{
 		for (int i = 0; i < size_; ++i)
 		{
@@ -420,7 +433,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeInteger(long value_, int size_, int index_, byte[] buffer_)
+	public static int writeInteger(long value_, int size_, int index_, byte @NotNull [] buffer_)
 	{
 		for (int i = 0; i < size_; ++i)
 		{
@@ -440,8 +453,9 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends BinarySerializable> int writeCollection(@NotNull Collection<T> collection_,
-		@NotNull List<Byte> buffer_)
+	public static <T extends BinarySerializable> int writeCollection(
+		@NotNull Collection<@NotNull T> collection_,
+		@NotNull List<@NotNull Byte> buffer_)
 	{
 		int size = 0;
 
@@ -467,9 +481,10 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends Number> int writeCollection(@NotNull List<T> collection_,
+	public static <T extends @NotNull Number> int writeCollection(
+		@NotNull List<@NotNull T> collection_,
 		int elementSize_,
-		@NotNull List<Byte> buffer_)
+		@NotNull List<@NotNull Byte> buffer_)
 	{
 		int size = 0;
 
@@ -494,8 +509,8 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends Enum<?>> int writeCollection(@NotNull List<T> collection_,
-		@NotNull List<Byte> buffer_)
+	public static <T extends Enum<?>> int writeCollection(@NotNull List<@NotNull T> collection_,
+		@NotNull List<@NotNull Byte> buffer_)
 	{
 		int size = 0;
 
@@ -519,7 +534,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeDouble(double value_, @NotNull List<Byte> buffer_)
+	public static int writeDouble(double value_, @NotNull List<@NotNull Byte> buffer_)
 	{
 		long value = Double.doubleToRawLongBits(value_);
 
@@ -539,7 +554,8 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	public static double readDouble(Iterator<Byte> iterator_)
+	@Contract(pure = true)
+	public static double readDouble(@NotNull Iterator<@NotNull Byte> iterator_)
 	{
 		long value = 0;
 		for (int i = 0; i < SIZE_UINT64; ++i)

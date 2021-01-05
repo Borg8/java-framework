@@ -109,7 +109,7 @@ public class WebSocket
 		 *
 		 * @param data_ received data.
 		 */
-		void dataReceived(@NotNull byte[] data_);
+		void dataReceived(byte @NotNull [] data_);
 
 		/**
 		 * socket disconnected.
@@ -327,13 +327,13 @@ public class WebSocket
 	 * @return operation result.
 	 */
 	@NotNull
-	public NetworkResult write(@NotNull byte[] data_, boolean encrypt_)
+	public NetworkResult write(byte @NotNull [] data_, boolean encrypt_)
 	{
 		return write(data_, encrypt_? Opcode.TEXT: null);
 	}
 
 	@NotNull
-	private synchronized NetworkResult write(@NotNull byte[] data_, @Nullable Opcode opcode_)
+	private synchronized NetworkResult write(byte @NotNull [] data_, @Nullable Opcode opcode_)
 	{
 		try
 		{
@@ -369,15 +369,14 @@ public class WebSocket
 	}
 
 	@SuppressWarnings("ConstantConditions")
-	@NotNull
 	@Contract(pure = true)
-	private static byte[] buildFrame(boolean fin_,
+	private static byte @NotNull [] buildFrame(boolean fin_,
 		boolean rsv1_,
 		boolean rsv2_,
 		boolean rsv3_,
 		@NotNull Opcode opcode_,
 		boolean mask_,
-		@NotNull byte[] payload_)
+		byte @NotNull [] payload_)
 	{
 		List<Byte> buffer = new ArrayList<>();
 

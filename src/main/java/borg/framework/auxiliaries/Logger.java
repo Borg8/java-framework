@@ -4,6 +4,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -27,16 +29,28 @@ public final class Logger
 	// Fields
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/** logger instance **/
 	private static final java.util.logging.Logger sLogger =
 		java.util.logging.Logger.getLogger("borg.framework");
 
+	/** stack holder **/
 	private static final Throwable sStackHolder = new Throwable();
 
+	/**
+	 *
+	 **/
 	private static String sRoot = null;
 
+	/**
+	 *
+	 **/
 	private static int sDepth = 0;
 
+	/** is stack ready **/
 	private static boolean sStackReady = false;
+
+	/** started sessions. Map from thread ID to the session name **/
+	private static final Map<Long, String> sSessions = new HashMap<>();
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -92,6 +106,33 @@ public final class Logger
 				sLogger.removeHandler(handler);
 				handler.close();
 			}
+		}
+	}
+
+	/**
+	 * @return current session name.
+	 */
+	@Nullable
+	public static String getSession()
+	{
+		return sSessions.get(Thread.currentThread().getId());
+	}
+
+	/**
+	 * start session for the thread.
+	 *
+	 * @param session_ session to start, {@code null} to stop session.
+	 */
+	public static void startSession(@Nullable String session_)
+	{
+		long id = Thread.currentThread().getId();
+		if (session_ != null)
+		{
+			sSessions.put(id, session_);
+		}
+		else
+		{
+			sSessions.remove(id);
 		}
 	}
 
@@ -262,10 +303,12 @@ public final class Logger
 	public static void log(@NotNull Level level_, @NotNull Object message_)
 	{
 		buildStack();
+		String session = sSessions.get(Thread.currentThread().getId());
 		StackTraceElement element = sStackHolder.getStackTrace()[2];
-		sLogger.log(level_, String.format("%s:%d\n%s\n",
+		sLogger.log(level_, String.format("%s:%d\n%s%s\n",
 			element.getClassName(),
 			element.getLineNumber(),
+			session != null? session + "\n\n": "",
 			message_));
 		sStackReady = false;
 	}
@@ -288,7 +331,29 @@ public final class Logger
 	 */
 	public static void log(@Nullable String message_, @NotNull Throwable e_)
 	{
-		sLogger.log(Level.SEVERE, "\n" + message_, e_);
+		buildStack();
+		String session = sSessions.get(Thread.currentThread().getId());
+		StackTraceElement element = sStackHolder.getStackTrace()[2];
+		sLogger.log(Level.SEVERE, String.format("%s:%d\n%s%s\n",
+			element.getClassName(),
+			element.getLineNumber(),
+			session != null? session + "\n\n": "",
+			message_), e_);
+		sStackReady = false;
+	}
+
+	/**
+	 * assertion log.
+	 *
+	 * @param condition_ condition to test.
+	 * @param message_   message to log if the condition is false.
+	 */
+	public static void log(boolean condition_, @NotNull Object message_)
+	{
+		if (condition_ == false)
+		{
+			log(Level.SEVERE, message_);
+		}
 	}
 
 	private static void buildStack()

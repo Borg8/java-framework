@@ -145,6 +145,7 @@ public class TasksManager
 			// run the task
 			try
 			{
+				Logger.startSession(Logger.getSession());
 				task_.run(param_);
 			}
 			catch (Throwable e)
@@ -181,6 +182,7 @@ public class TasksManager
 			// run the task
 			try
 			{
+				Logger.startSession(Logger.getSession());
 				task_.run(param_);
 			}
 			catch (Throwable e)
@@ -349,6 +351,7 @@ public class TasksManager
 			// run the task
 			try
 			{
+				Logger.startSession(Logger.getSession());
 				task_.run(param_);
 			}
 			catch (Throwable e)

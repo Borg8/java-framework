@@ -14,7 +14,6 @@ import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logger;
 
-
 public final class StorageManager
 {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +101,7 @@ public final class StorageManager
 	 * @param file_ file to delete.
 	 *
 	 * @return {@code true} if the file or whole directory was deleted, {@code false} otherwise, but
-	 *         if the file is directory, then it possible than some files were deleted.
+	 * if the file is directory, then it possible than some files were deleted.
 	 */
 	public static boolean delete(@NotNull File file_)
 	{
@@ -110,7 +109,7 @@ public final class StorageManager
 		if (file_.isDirectory() == true)
 		{
 			// delete all its files
-			for (File file: Objects.requireNonNull(file_.listFiles()))
+			for (File file : Objects.requireNonNull(file_.listFiles()))
 			{
 				if (delete(file) == false)
 				{
@@ -125,7 +124,7 @@ public final class StorageManager
 	/**
 	 * create file with given name from byte cByteStream.
 	 *
-	 * @param name_ the path to the given file.
+	 * @param name_    the path to the given file.
 	 * @param content_ file content.
 	 *
 	 * @return created file.
@@ -133,7 +132,7 @@ public final class StorageManager
 	 * @throws Exception when file was not created.
 	 */
 	@NotNull
-	public static File createFile(@NotNull String name_, @NotNull byte[] content_) throws Exception
+	public static File createFile(@NotNull String name_, byte @NotNull [] content_) throws Exception
 	{
 		File file = getFile(name_);
 		createFile(file, content_);
@@ -144,12 +143,12 @@ public final class StorageManager
 	/**
 	 * create file from byte cByteStream.
 	 *
-	 * @param file_ file to create.
+	 * @param file_    file to create.
 	 * @param content_ file content.
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	public static void createFile(@NotNull File file_, @NotNull byte[] content_) throws Exception
+	public static void createFile(@NotNull File file_, byte @NotNull [] content_) throws Exception
 	{
 		writeFile(file_, content_, false);
 	}
@@ -157,7 +156,7 @@ public final class StorageManager
 	/**
 	 * create file with given name from input stream.
 	 *
-	 * @param name_ the path to the given file.
+	 * @param name_   the path to the given file.
 	 * @param stream_ input stream for file content.
 	 *
 	 * @return created file.
@@ -177,7 +176,7 @@ public final class StorageManager
 	/**
 	 * create file from input stream.
 	 *
-	 * @param file_ file to create.
+	 * @param file_   file to create.
 	 * @param stream_ input stream for file content.
 	 *
 	 * @throws Exception when file was not created.
@@ -191,7 +190,7 @@ public final class StorageManager
 	/**
 	 * append to file with given name given byte cByteStream.
 	 *
-	 * @param name_ the path to the given file.
+	 * @param name_    the path to the given file.
 	 * @param content_ file content.
 	 *
 	 * @return appended file.
@@ -199,7 +198,7 @@ public final class StorageManager
 	 * @throws Exception when file was not created.
 	 */
 	@NotNull
-	public static File appendFile(@NotNull String name_, @NotNull byte[] content_) throws Exception
+	public static File appendFile(@NotNull String name_, byte @NotNull [] content_) throws Exception
 	{
 		File file = getFile(name_);
 		appendFile(file, content_);
@@ -210,12 +209,12 @@ public final class StorageManager
 	/**
 	 * append to file given byte cByteStream.
 	 *
-	 * @param file_ file to append to it.
+	 * @param file_    file to append to it.
 	 * @param content_ file content.
 	 *
 	 * @throws Exception when file was not created.
 	 */
-	public static void appendFile(@NotNull File file_, @NotNull byte[] content_) throws Exception
+	public static void appendFile(@NotNull File file_, byte @NotNull [] content_) throws Exception
 	{
 		writeFile(file_, content_, true);
 	}
@@ -223,7 +222,7 @@ public final class StorageManager
 	/**
 	 * append to file with given name from input stream.
 	 *
-	 * @param name_ the path to the given file.
+	 * @param name_   the path to the given file.
 	 * @param stream_ input stream for file content.
 	 *
 	 * @return appended file.
@@ -243,7 +242,7 @@ public final class StorageManager
 	/**
 	 * append to file from input stream.
 	 *
-	 * @param file_ file to append to it.
+	 * @param file_   file to append to it.
 	 * @param stream_ input stream for file content.
 	 *
 	 * @throws Exception when file was not created.
@@ -253,18 +252,8 @@ public final class StorageManager
 		writeFile(file_, stream_, true);
 	}
 
-	/**
-	 * read file content.
-	 *
-	 * @param name_ the path to the given file.
-	 *
-	 * @return read file content.
-	 *
-	 * @throws Exception when file was not found.
-	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] readFile(@NotNull String name_) throws Exception
+	public static byte @NotNull [] readFile(@NotNull String name_) throws Exception
 	{
 		return readFile(getFile(name_));
 	}
@@ -278,9 +267,8 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] readFile(@NotNull File file_) throws Exception
+	public static byte @NotNull [] readFile(@NotNull File file_) throws Exception
 	{
 		FileInputStream stream = getFileInputStream(file_);
 		try
@@ -309,14 +297,13 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] readFile(@NotNull final InputStream stream_) throws Exception
+	public static byte @NotNull [] readFile(@NotNull final InputStream stream_) throws Exception
 	{
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		byte[] buffer = new byte[SIZE_CHUNK];
 
-		for (;;)
+		for (; ; )
 		{
 			// read chunk
 			int len;
@@ -344,7 +331,7 @@ public final class StorageManager
 	/**
 	 * create output stream for given file.
 	 *
-	 * @param name_ - file path.
+	 * @param name_   - file path.
 	 * @param append_ true if file must be appended, false otherwise if recreated.
 	 *
 	 * @return file output stream.
@@ -362,7 +349,7 @@ public final class StorageManager
 	/**
 	 * create output stream for given file.
 	 *
-	 * @param file_ - file to create output stream to it.
+	 * @param file_   - file to create output stream to it.
 	 * @param append_ true if file must be appended, false otherwise if recreated.
 	 *
 	 * @return file output stream.
@@ -432,7 +419,7 @@ public final class StorageManager
 		return false;
 	}
 
-	private static void writeFile(@NotNull File file_, @NotNull byte[] content_, boolean append_)
+	private static void writeFile(@NotNull File file_, byte @NotNull [] content_, boolean append_)
 		throws Exception
 	{
 		OutputStream stream = getFileOutputStream(file_, append_);
@@ -463,7 +450,7 @@ public final class StorageManager
 
 		try
 		{
-			for (;;)
+			for (; ; )
 			{
 				// read chunk
 				int size = stream_.read(buffer, 0, SIZE_CHUNK);

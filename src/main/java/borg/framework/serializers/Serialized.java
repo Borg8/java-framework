@@ -57,7 +57,7 @@ public abstract class Serialized implements Serializable
 		 */
 		@Contract(pure = true)
 		@Nullable
-		byte[] encrypt(@NotNull Serialized object_, @NotNull byte[] data_);
+		byte[] encrypt(@NotNull Serialized object_, byte @NotNull [] data_);
 
 		/**
 		 * decrypt serialized object.
@@ -69,7 +69,7 @@ public abstract class Serialized implements Serializable
 		 */
 		@Contract(pure = true)
 		@Nullable
-		byte[] decrypt(@NotNull Serialized object_, @NotNull byte[] data_);
+		byte[] decrypt(@NotNull Serialized object_, byte @NotNull [] data_);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -310,5 +310,5 @@ public abstract class Serialized implements Serializable
 
 	@Contract(pure = true)
 	@Nullable
-	protected abstract Serialized deserialize(@NotNull byte[] data_);
+	protected abstract Serialized deserialize(byte @NotNull [] data_);
 }

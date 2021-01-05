@@ -104,7 +104,7 @@ public class BinarySerialized extends Serialized
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <T extends Serializable> T read(@NotNull byte[] array_)
+	public static <T extends Serializable> T read(byte @NotNull [] array_)
 	{
 		try
 		{
@@ -142,7 +142,7 @@ public class BinarySerialized extends Serialized
 	@Override
 	@Contract(pure = true)
 	@Nullable
-	protected Serialized deserialize(@NotNull byte[] data_)
+	protected Serialized deserialize(byte @NotNull [] data_)
 	{
 		try
 		{

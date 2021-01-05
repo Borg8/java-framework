@@ -93,7 +93,7 @@ public final class ArraysManager
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static String getArrayAsHex(@NotNull byte[] array_)
+	public static String getArrayAsHex(byte @NotNull [] array_)
 	{
 		StringBuilder builder = new StringBuilder();
 
@@ -177,9 +177,8 @@ public final class ArraysManager
 	 *
 	 * @return array from given hex representation.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] buildArrayFromHex(@NotNull String hex_)
+	public static byte @NotNull [] buildArrayFromHex(@NotNull String hex_)
 	{
 		// create array
 		int n = hex_.length();
@@ -409,8 +408,7 @@ public final class ArraysManager
 	 *
 	 * @return computed hash.
 	 */
-	@NotNull
-	public synchronized static byte[] getArraySha256(@NotNull byte[] array_)
+	public synchronized static byte @NotNull [] getArraySha256(byte @NotNull [] array_)
 	{
 		byte[] sha256 = new byte[sSha256Digest.getDigestLength()];
 
@@ -460,7 +458,7 @@ public final class ArraysManager
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static Pair<byte[], byte[]> encrypt(@NotNull byte[] array_, @NotNull byte[] key_)
+	public static Pair<byte[], byte[]> encrypt(byte @NotNull [] array_, byte @NotNull [] key_)
 		throws Exception
 	{
 		byte[] encryptedArray;
@@ -520,9 +518,10 @@ public final class ArraysManager
 	 *
 	 * @throws Exception if encryption was failed.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] encrypt(@NotNull byte[] array_, @NotNull byte[] key_, @NotNull byte[] iv_)
+	public static byte @NotNull [] encrypt(byte @NotNull [] array_,
+		byte @NotNull [] key_,
+		byte @NotNull [] iv_)
 		throws Exception
 	{
 		byte[] encryptedArray;
@@ -552,9 +551,10 @@ public final class ArraysManager
 	 *
 	 * @throws Exception when decryption failed.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] decrypt(@NotNull byte[] array_, @NotNull byte[] key_, @NotNull byte[] iv_)
+	public static byte @NotNull [] decrypt(byte @NotNull [] array_,
+		byte @NotNull [] key_,
+		byte @NotNull [] iv_)
 		throws Exception
 	{
 		byte[] decryptedArray;
@@ -579,9 +579,8 @@ public final class ArraysManager
 	 *
 	 * @return built array.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] bytesFromList(@NotNull List<Byte> data_)
+	public static byte @NotNull [] bytesFromList(@NotNull List<Byte> data_)
 	{
 		int n = data_.size();
 		byte[] array = new byte[n];
@@ -602,7 +601,7 @@ public final class ArraysManager
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static List<Byte> listFromBytes(@NotNull byte[] data_)
+	public static List<Byte> listFromBytes(byte @NotNull [] data_)
 	{
 		ArrayList<Byte> list = new ArrayList<>(data_.length);
 		for (byte b : data_)
