@@ -465,7 +465,7 @@ public class WebSocket
 		@Override
 		public void run(Void param_)
 		{
-			Thread.currentThread().setName("websocket to " + url);
+			Thread.currentThread().setName("websocket reader from " + url);
 
 			for (; ; )
 			{

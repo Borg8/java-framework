@@ -30,18 +30,16 @@ public class HttpRequest implements Serializable
 	public final Map<String, String> headers;
 
 	/** received data **/
-	@Nullable
-	public final byte[] content;
+	public final byte @Nullable [] content;
 
 	/** serialization of the request **/
-	@Nullable
-	private transient byte[] mSerialization;
+	private transient byte @Nullable [] mSerialization;
 
 	@Contract(pure = true)
 	public HttpRequest(@NotNull String method_,
 		@NotNull String path_,
 		@Nullable Map<String, String> headers_,
-		@Nullable byte[] content_)
+		byte @Nullable [] content_)
 	{
 		method = method_;
 		path = path_;
@@ -54,7 +52,7 @@ public class HttpRequest implements Serializable
 	/**
 	 * read request from stream.
 	 *
-	 * @param stream_  stream to read the request from.
+	 * @param stream_ stream to read the request from.
 	 *
 	 * @return read request, if parsed.
 	 */
@@ -114,9 +112,8 @@ public class HttpRequest implements Serializable
 	/**
 	 * @return request serialized as bytes array.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public byte[] serialize()
+	public byte @NotNull [] serialize()
 	{
 		if (mSerialization == null)
 		{

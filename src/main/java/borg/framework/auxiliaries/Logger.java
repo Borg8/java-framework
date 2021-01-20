@@ -181,6 +181,7 @@ public final class Logger
 	 * @return built string.
 	 */
 	@NotNull
+	@Contract(pure = true)
 	public static String exceptionLog(@NotNull Throwable e_)
 	{
 		return exceptionLog(Thread.currentThread(), e_);
@@ -305,9 +306,10 @@ public final class Logger
 		buildStack();
 		String session = sSessions.get(Thread.currentThread().getId());
 		StackTraceElement element = sStackHolder.getStackTrace()[2];
-		sLogger.log(level_, String.format("%s:%d\n%s%s\n",
+		sLogger.log(level_, String.format("%s:%d, %s\n%s%s\n",
 			element.getClassName(),
 			element.getLineNumber(),
+			Thread.currentThread().getName(),
 			session != null? session + "\n\n": "",
 			message_));
 		sStackReady = false;

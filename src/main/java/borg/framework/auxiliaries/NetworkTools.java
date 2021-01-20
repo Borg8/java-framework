@@ -40,13 +40,12 @@ public final class NetworkTools
 	/**
 	 * read bytes from input stream. Blocking operation.
 	 *
-	 * @param stream_  stream to read from.
+	 * @param stream_ stream to read from.
 	 *
 	 * @return read bytes, or {@code null} if the stream is not readable.
 	 */
-	@Nullable
 	@Contract(pure = true)
-	public static byte[] readBytes(@NotNull InputStream stream_)
+	public static byte @Nullable [] readBytes(@NotNull InputStream stream_)
 	{
 		return read(stream_, 0, (char)-1);
 	}
@@ -54,7 +53,7 @@ public final class NetworkTools
 	/**
 	 * read line from stream. Blocking operation.
 	 *
-	 * @param stream_  stream to read from.
+	 * @param stream_ stream to read from.
 	 *
 	 * @return read line or {@code null} if the stream is not readable.
 	 */
@@ -191,9 +190,8 @@ public final class NetworkTools
 		return c_;
 	}
 
-	@Nullable
 	@Contract(pure = true)
-	private static byte[] read(@NotNull InputStream stream_, int size_, char eof_)
+	private static byte @Nullable [] read(@NotNull InputStream stream_, int size_, char eof_)
 	{
 		// prepare
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream(SIZE_CHUNK);
@@ -204,7 +202,7 @@ public final class NetworkTools
 
 		try
 		{
-			for(;;)
+			for (; ; )
 			{
 				// read byte
 				int b = stream_.read();
@@ -223,7 +221,6 @@ public final class NetworkTools
 				{
 					break;
 				}
-
 			}
 		}
 		catch (Exception e)

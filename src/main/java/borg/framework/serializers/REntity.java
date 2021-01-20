@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import borg.framework.Constants;
 import borg.framework.auxiliaries.Logger;
 import borg.framework.compability.CallSuper;
-import borg.framework.Constants;
 import borg.framework.services.ArraysManager;
 
 public abstract class REntity implements Serializable
@@ -298,7 +298,7 @@ public abstract class REntity implements Serializable
 
 	@Nullable
 	@Contract(value = "null->null", pure = true)
-	protected static String serialize(@Nullable byte[] array_)
+	protected static String serialize(byte @Nullable [] array_)
 	{
 		if ((array_ != null) && (array_.length > 0))
 		{
@@ -416,7 +416,7 @@ public abstract class REntity implements Serializable
 	@Contract(pure = true)
 	protected static byte[] readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
-		@Nullable byte[] default_)
+		byte @Nullable [] default_)
 	{
 		if (map_ != null)
 		{
@@ -498,7 +498,7 @@ public abstract class REntity implements Serializable
 	}
 
 	@Contract(pure = true)
-	protected static <T extends REntity> ArrayList<T> readField(
+	protected static <T extends REntity> List<T> readField(
 		@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		@NotNull Class<T> class_,

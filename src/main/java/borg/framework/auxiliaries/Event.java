@@ -24,7 +24,7 @@ public final class Event<T>
 		@NotNull
 		public final Object owner;
 
-		private boolean isOnetime;
+		boolean isOnetime;
 
 		/**
 		 * @param owner_ instance where Observer was instantiated (usual it will be 'this').
