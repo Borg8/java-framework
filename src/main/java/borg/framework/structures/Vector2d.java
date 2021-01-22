@@ -64,8 +64,8 @@ public class Vector2d implements Serializable
 		mDirY = 0;
 		mLastDirection = HALF_PI;
 		mLastRotation = HALF_PI;
-		mLastCos = 0;
-		mLastSin = 1;
+		mLastCos = 1;
+		mLastSin = 0;
 	}
 
 	public Vector2d(double x_, double y_)
@@ -226,8 +226,8 @@ public class Vector2d implements Serializable
 	public final void setDirection(double angle_)
 	{
 		// TODO optimize
-		y = getSize();
-		x = 0;
+		x = getSize();
+		y = 0;
 		mLastRotation = 0;
 
 		// rotate
