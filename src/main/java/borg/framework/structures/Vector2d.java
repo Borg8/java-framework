@@ -48,22 +48,24 @@ public class Vector2d implements Serializable
 	private double mLastSin;
 
 	/** angle for which the cos and sin were computed **/
-	private double mLastAngle;
+	private double mLastRotation;
 
 	public Vector2d()
 	{
 		x = 0;
 		y = 0;
+
 		mSizeX = 0;
 		mSizeY = 0;
-		mDirX = 0;
-		mDirY = 0;
 		mLastSize = 0;
 		mLastSize2 = 0;
+
+		mDirX = 0;
+		mDirY = 0;
 		mLastDirection = HALF_PI;
-		mLastAngle = 0;
-		mLastCos = 1;
-		mLastSin = 0;
+		mLastRotation = HALF_PI;
+		mLastCos = 0;
+		mLastSin = 1;
 	}
 
 	public Vector2d(double x_, double y_)
@@ -94,22 +96,7 @@ public class Vector2d implements Serializable
 		// if vector coordinates was changed
 		if ((x != mDirX) || (y != mDirY))
 		{
-			if (y == 0)
-			{
-				if (x < 0)
-				{
-					mLastDirection = -HALF_PI;
-				}
-				else
-				{
-					mLastDirection = HALF_PI;
-				}
-			}
-			else
-			{
-				double angle = Math.atan(x / y);
-				mLastDirection = y < 0? -angle: Math.PI - angle;
-			}
+			mLastDirection = Math.atan2(y, y);
 
 			// store vector coordinates
 			mDirX = x;
@@ -133,7 +120,7 @@ public class Vector2d implements Serializable
 			if (mLastSize2 != size2)
 			{
 				mLastSize2 = size2;
-				mLastSize = Math.sqrt(x * x + y * y);
+				mLastSize = Math.sqrt(size2);
 			}
 
 			// store vector coordinates
@@ -150,9 +137,7 @@ public class Vector2d implements Serializable
 	@Contract(pure = true)
 	public final double getSize2()
 	{
-		double size = x * x + y * y;
-		mLastSize2 = size;
-		return size;
+		return x * x + y * y;
 	}
 
 	/**
@@ -201,7 +186,7 @@ public class Vector2d implements Serializable
 	}
 
 	/**
-	 * resize the vector to given size.
+	 * resize the vector to given size, if vector was (0, 0) then it will be (size_, 0)
 	 *
 	 * @param size_ size of vector after resizing.
 	 *
@@ -210,24 +195,43 @@ public class Vector2d implements Serializable
 	public final double resize(double size_)
 	{
 		double r = getSize();
-
-		if (r > 0)
+		if (r == 0)
 		{
-			// get scale factor
-			double factor = size_ / r;
-
-			// change vector components
-			x *= factor;
-			y *= factor;
-
-			// recompute parameters
-			mLastSize2 *= factor * factor;
-			mLastSize *= factor;
-			mSizeX = x;
-			mSizeY = y;
+			x = 1;
+			r = 1;
+			mLastSize = 1;
 		}
 
+		// get scale factor
+		double factor = size_ / r;
+
+		// change vector components
+		x *= factor;
+		y *= factor;
+
+		// recompute parameters
+		mLastSize *= factor;
+		mLastSize2 = mLastSize * mLastSize;
+		mSizeX = x;
+		mSizeY = y;
+
 		return r;
+	}
+
+	/**
+	 * set vector direction.
+	 *
+	 * @param angle_ direction to set.
+	 */
+	public final void setDirection(double angle_)
+	{
+		// TODO optimize
+		y = getSize();
+		x = 0;
+		mLastRotation = 0;
+
+		// rotate
+		rotate(angle_);
 	}
 
 	/**
@@ -238,11 +242,11 @@ public class Vector2d implements Serializable
 	public final void rotate(double angle_)
 	{
 		// if cos and sin were not computed
-		if (angle_ != mLastAngle)
+		if (angle_ != mLastRotation)
 		{
 			mLastCos = Math.cos(angle_);
 			mLastSin = Math.sin(angle_);
-			mLastAngle = angle_;
+			mLastRotation = angle_;
 		}
 
 		// rotate
