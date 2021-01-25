@@ -67,9 +67,8 @@ public class BinarySerialized extends Serialized
 	 *
 	 * @return serialized object.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static byte[] write(@NotNull Serializable object_)
+	public static byte @NotNull [] write(@NotNull Serializable object_)
 	{
 		// serialize code
 		try
@@ -124,8 +123,7 @@ public class BinarySerialized extends Serialized
 
 	@Override
 	@Contract(pure = true)
-	@Nullable
-	protected byte[] serialize()
+	protected byte @Nullable [] serialize()
 	{
 		try
 		{
@@ -146,7 +144,7 @@ public class BinarySerialized extends Serialized
 	{
 		try
 		{
-			return (Serialized)read(data_);
+			return read(data_);
 		}
 		catch (Throwable e)
 		{

@@ -86,7 +86,7 @@ public abstract class REntity implements Serializable
 	 */
 	@Contract(value = "null, _, _ -> param3", pure = true)
 	@SuppressWarnings("unchecked")
-	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> T buildTypedEntity(
+	public static <T extends REntity, E extends Enum<E> & RTyped<? super T>> T buildTypedEntity(
 		@Nullable HashMap<String, Object> map_,
 		@NotNull Class<E> types_,
 		@Nullable T default_)
@@ -101,7 +101,7 @@ public abstract class REntity implements Serializable
 				{
 					// get entity class
 					Method method = types_.getMethod("values");
-					Typed<T>[] values = (Typed<T>[])method.invoke(null);
+					RTyped<T>[] values = (RTyped<T>[])method.invoke(null);
 					assert values != null;
 					Class<T> entityClass = (Class<T>)values[((Number)type).intValue()].entityClass();
 
@@ -128,7 +128,7 @@ public abstract class REntity implements Serializable
 	 * @return built entity list.
 	 */
 	@Contract(pure = true)
-	public static <T extends REntity, E extends Enum<E> & Typed<? super T>> ArrayList<T> buildTypedList(
+	public static <T extends REntity, E extends Enum<E> & RTyped<? super T>> ArrayList<T> buildTypedList(
 		@Nullable ArrayList<HashMap<String, Object>> maps_,
 		@NotNull Class<E> types_,
 		@Nullable ArrayList<T> default_)

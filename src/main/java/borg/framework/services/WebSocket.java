@@ -321,6 +321,20 @@ public class WebSocket
 	/**
 	 * write data to socket. Blocking operation.
 	 *
+	 * @param message_    data to write.
+	 * @param encrypt_ if {@code true} then the data will be encrypted.
+	 *
+	 * @return operation result.
+	 */
+	@NotNull
+	public NetworkResult write(@NotNull String message_, boolean encrypt_)
+	{
+		return write(message_.getBytes(), encrypt_? Opcode.TEXT: null);
+	}
+
+	/**
+	 * write data to socket. Blocking operation.
+	 *
 	 * @param data_    data to write.
 	 * @param encrypt_ if {@code true} then the data will be encrypted.
 	 *
@@ -329,7 +343,7 @@ public class WebSocket
 	@NotNull
 	public NetworkResult write(byte @NotNull [] data_, boolean encrypt_)
 	{
-		return write(data_, encrypt_? Opcode.TEXT: null);
+		return write(data_, encrypt_? Opcode.BINARY: null);
 	}
 
 	@NotNull

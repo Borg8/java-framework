@@ -62,7 +62,7 @@ public class Vector2d implements Serializable
 
 		mDirX = 0;
 		mDirY = 0;
-		mLastDirection = HALF_PI;
+		mLastDirection = 0;
 		mLastRotation = HALF_PI;
 		mLastCos = 1;
 		mLastSin = 0;
@@ -173,7 +173,7 @@ public class Vector2d implements Serializable
 	}
 
 	/**
-	 * dotting vector by given vector.
+	 * innter multiplication if the vector by given vector.
 	 *
 	 * @param vector_ given vector.
 	 *
@@ -186,7 +186,7 @@ public class Vector2d implements Serializable
 	}
 
 	/**
-	 * resize the vector to given size, if vector was (0, 0) then it will be (size_, 0)
+	 * resize the vector to given size, if vector was (0, 0) then it size will not be changed.
 	 *
 	 * @param size_ size of vector after resizing.
 	 *
@@ -195,25 +195,22 @@ public class Vector2d implements Serializable
 	public final double resize(double size_)
 	{
 		double r = getSize();
-		if (r == 0)
+
+		if (r > 0)
 		{
-			x = 1;
-			r = 1;
-			mLastSize = 1;
+			// get scale factor
+			double factor = size_ / r;
+
+			// change vector components
+			x *= factor;
+			y *= factor;
+
+			// recompute parameters
+			mLastSize *= factor;
+			mLastSize2 = mLastSize * mLastSize;
+			mSizeX = x;
+			mSizeY = y;
 		}
-
-		// get scale factor
-		double factor = size_ / r;
-
-		// change vector components
-		x *= factor;
-		y *= factor;
-
-		// recompute parameters
-		mLastSize *= factor;
-		mLastSize2 = mLastSize * mLastSize;
-		mSizeX = x;
-		mSizeY = y;
 
 		return r;
 	}
