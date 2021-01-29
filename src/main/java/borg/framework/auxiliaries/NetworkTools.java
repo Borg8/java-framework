@@ -129,12 +129,10 @@ public final class NetworkTools
 					state = COLON;
 					continue;
 				}
-				else
+
+				if (state == VALUE)
 				{
-					if (state == VALUE)
-					{
-						continue;
-					}
+					continue;
 				}
 			}
 			else

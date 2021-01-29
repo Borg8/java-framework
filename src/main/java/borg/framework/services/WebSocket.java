@@ -46,6 +46,8 @@ public class WebSocket
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	private static final int LENGTH_KEY = 16;
+
 	private static final String HEADER_HOST = "host";
 
 	private static final String HEADER_CONNECTION = "connection";
@@ -378,8 +380,13 @@ public class WebSocket
 	@Contract(pure = true)
 	private static String generateKey()
 	{
-		// TODO
-		return "12345";
+		// generate key
+		byte[] key = new byte[LENGTH_KEY];
+		for (int i = 0; i < LENGTH_KEY; ++i)
+		{
+			key[i] = (byte)Auxiliary.random();
+		}
+		return Base64.getEncoder().encodeToString(key);
 	}
 
 	@SuppressWarnings("ConstantConditions")

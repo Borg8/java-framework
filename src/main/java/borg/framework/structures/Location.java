@@ -88,7 +88,7 @@ public class Location
 	// Cached data to make bearing/distance computations more efficient for the case
 	// where distanceTo and bearingTo are called in sequence. Assume this typically happens
 	// on the same thread for caching purposes.
-	private static ThreadLocal<BearingDistanceCache> sBearingDistanceCache =
+	private static final ThreadLocal<BearingDistanceCache> sBearingDistanceCache =
 		ThreadLocal.withInitial(BearingDistanceCache::new);
 
 	private long mTime = 0;

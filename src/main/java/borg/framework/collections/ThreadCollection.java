@@ -69,7 +69,7 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 		return getCollection().contains(object_);
 	}
 
-	public boolean containsAll(@NotNull Collection<?> map_)
+	public boolean containsAll(@NotNull Collection<E> map_)
 	{
 		return getCollection().containsAll(map_);
 	}

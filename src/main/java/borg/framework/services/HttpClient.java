@@ -85,7 +85,7 @@ public final class HttpClient
 	public HttpResponse sendRequest(@NotNull String url_,
 		@NotNull String method_,
 		@Nullable Map<String, String> headers_,
-		@Nullable byte[] content_,
+		byte @Nullable [] content_,
 		boolean redirect_)
 	{
 		// initiate pessimistic response parameters

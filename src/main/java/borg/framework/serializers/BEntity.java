@@ -100,7 +100,8 @@ public abstract class BEntity implements Serializable
 		// nothing to do here
 	}
 
-	protected BEntity(@SuppressWarnings("unused") @NotNull BEntity.DataIterator iterator_) throws Exception
+	protected BEntity(@SuppressWarnings("unused") @NotNull BEntity.DataIterator iterator_)
+		throws Exception
 	{
 		// nothing to do here
 	}
@@ -124,7 +125,8 @@ public abstract class BEntity implements Serializable
 	}
 
 	@Contract(pure = true)
-	protected static <T extends Enum<T>> T read(@NotNull BEntity.DataIterator iterator_, Class<T> enum_)
+	protected static <T extends Enum<T>> T read(@NotNull BEntity.DataIterator iterator_,
+		Class<T> enum_)
 		throws Exception
 	{
 		Method method = enum_.getMethod("values");
@@ -136,8 +138,8 @@ public abstract class BEntity implements Serializable
 
 	@Contract(pure = true)
 	@NotNull
-	protected static <T extends Number> List<T> readList(@NotNull BEntity.DataIterator iterator_, int size_)
-		throws Exception
+	protected static <T extends Number> List<T> readList(@NotNull BEntity.DataIterator iterator_,
+		int size_) throws Exception
 	{
 		// read list length
 		int length = (int)read(iterator_, BinaryParser.SIZE_INT16);

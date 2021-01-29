@@ -66,12 +66,6 @@ public class TasksManager
 	/** main thread instance **/
 	private static final Thread sMain = Thread.currentThread();
 
-	/** registered flows. Map from thread ID to the flow ID **/
-	private static final Map<Long, Long> sFlows = new HashMap<>();
-
-	/** next flow ID **/
-	private static long sFlowId = 0;
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,30 +82,6 @@ public class TasksManager
 	public static void init()
 	{
 		// nothing to do here
-	}
-
-	/**
-	 * start flow.
-	 *
-	 * @return started flow ID.
-	 */
-	public synchronized static long startFlow()
-	{
-		long id = sFlowId;
-		++sFlowId;
-
-		// TODO
-		return id;
-	}
-
-	/**
-	 * finish flow.
-	 *
-	 * @param id_ ID of the flow to finish.
-	 */
-	public synchronized static void finishFlow(long id_)
-	{
-		// TODO
 	}
 
 	/**
@@ -361,28 +331,26 @@ public class TasksManager
 
 			return true;
 		}
-		else
+
+		// get looper queue
+		LinkedList<Descriptor<?>> queue = sLoopers.get(looper_);
+
+		// if the looper found
+		if (queue != null)
 		{
-			// get looper queue
-			LinkedList<Descriptor<?>> queue = sLoopers.get(looper_);
-
-			// if the looper found
-			if (queue != null)
+			// invoke looper
+			//noinspection SynchronizationOnLocalVariableOrMethodParameter
+			synchronized (looper_)
 			{
+				// add task to the queue
+				queue.add(new Descriptor<>(task_, param_));
+
 				// invoke looper
-				//noinspection SynchronizationOnLocalVariableOrMethodParameter
-				synchronized (looper_)
-				{
-					// add task to the queue
-					queue.add(new Descriptor<>(task_, param_));
-
-					// invoke looper
-					looper_.notify();
-				}
+				looper_.notify();
 			}
-
-			return queue != null;
 		}
+
+		return queue != null;
 	}
 
 	/**

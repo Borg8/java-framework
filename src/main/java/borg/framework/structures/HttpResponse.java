@@ -31,18 +31,17 @@ public final class HttpResponse implements Serializable
 	public final Map<String, String> headers;
 
 	/** received data **/
-	@Nullable
-	public final byte[] content;
+	public final byte @Nullable [] content;
 
 	/** serialization of the request **/
-	@Nullable
-	private transient byte[] mSerialization;
+
+	private transient byte @Nullable [] mSerialization;
 
 	@Contract(pure = true)
 	public HttpResponse(@NotNull NetworkResult result_,
 		int code_,
 		@Nullable Map<String, String> headers_,
-		@Nullable byte[] content_)
+		byte @Nullable [] content_)
 	{
 		result = result_;
 		code = code_;
@@ -94,9 +93,8 @@ public final class HttpResponse implements Serializable
 	/**
 	 * @return request serialized as bytes array.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public byte[] serialize()
+	public byte @NotNull [] serialize()
 	{
 		if (mSerialization == null)
 		{
@@ -119,7 +117,7 @@ public final class HttpResponse implements Serializable
 				if (headers != null)
 				{
 					separator = ":".getBytes();
-					for (Map.Entry<String, String> header: headers.entrySet())
+					for (Map.Entry<String, String> header : headers.entrySet())
 					{
 						String key = header.getKey();
 						if (key != null)
