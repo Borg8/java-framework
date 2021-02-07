@@ -68,12 +68,22 @@ public class Vector2d implements Serializable
 		mLastSin = 0;
 	}
 
-	public Vector2d(double x_, double y_)
+	public Vector2d(@NotNull Vector2d vector_)
 	{
-		x = x_;
-		y = y_;
-		mSizeX = x_ + 1;
-		mDirX = mSizeX;
+		x = vector_.x;
+		y = vector_.y;
+
+		mSizeX = vector_.mSizeX;
+		mSizeY = vector_.mSizeY;
+		mLastSize = vector_.mLastSize;
+		mLastSize2 = vector_.mLastSize2;
+
+		mDirX = vector_.mDirX;
+		mDirY = vector_.mDirY;
+		mLastDirection = vector_.mLastDirection;
+		mLastRotation = vector_.mLastRotation;
+		mLastCos = vector_.mLastCos;
+		mLastSin = vector_.mLastSin;
 	}
 
 	/**
@@ -96,7 +106,7 @@ public class Vector2d implements Serializable
 		// if vector coordinates was changed
 		if ((x != mDirX) || (y != mDirY))
 		{
-			mLastDirection = Math.atan2(y, y);
+			mLastDirection = Math.atan2(y, x);
 
 			// store vector coordinates
 			mDirX = x;
@@ -262,10 +272,6 @@ public class Vector2d implements Serializable
 	@NotNull
 	public String toString()
 	{
-		return MessageFormat.format("x = {0}, y = {1}\nsize = {2}, angle = {3}",
-			Double.toString(x),
-			Double.toString(y),
-			getSize(),
-			getDirection());
+		return MessageFormat.format("x = {0}, y = {1}", x, y);
 	}
 }

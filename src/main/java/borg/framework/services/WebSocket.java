@@ -267,12 +267,14 @@ public class WebSocket
 			{
 				Logger.log(Level.WARNING, e);
 				result = NetworkResult.UNABLE_TO_CONNECT;
+				disconnect();
 			}
 		}
 		else
 		{
 			Logger.log(Level.WARNING, "already connected");
 			result = NetworkResult.BUSY;
+			disconnect();
 		}
 
 		return new HttpResponse(result, code, headers, null);
