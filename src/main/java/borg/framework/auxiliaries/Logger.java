@@ -4,11 +4,18 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 
 public final class Logger
@@ -24,6 +31,105 @@ public final class Logger
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
 	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public static final class LogFormatter extends Formatter
+	{
+		private final StringBuilder builder = new StringBuilder();
+		private final ZoneId zoneId = ZoneId.systemDefault();
+		private final StringWriter writer = new StringWriter();
+
+		@Override
+		@Contract(pure = true)
+		public String format(@NotNull LogRecord record_)
+		{
+			builder.setLength(0);
+
+			ZonedDateTime zdt = ZonedDateTime.ofInstant(record_.getInstant(), zoneId);
+			Parameters params = (Parameters)record_.getParameters()[0];
+
+			// time
+			builder.append(zdt.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+			builder.append("|");
+
+			// level
+			builder.append(record_.getLevel());
+			builder.append("|");
+
+			// thread
+			builder.append(params.thread);
+			builder.append("|");
+
+			// client ID
+			builder.append("|");
+
+			// session name
+			builder.append("|");
+
+			// session ID
+			if (params.session != null)
+			{
+				builder.append(params.session);
+			}
+			builder.append("|");
+
+			// provider
+			builder.append("|");
+
+			// consumer
+			builder.append("|");
+
+			// location
+			builder.append("\n");
+			builder.append(params.className);
+			builder.append(":");
+			builder.append(params.line);
+
+			// message
+			builder.append("\n\n");
+			builder.append(record_.getMessage());
+
+			// thrown
+			if (params.thrown != null)
+			{
+				builder.append("\n\n");
+				PrintWriter printWriter = new PrintWriter(writer);
+				params.thrown.printStackTrace(printWriter);
+				printWriter.close();
+				builder.append(writer);
+			}
+			builder.append("\n\n");
+
+			return builder.toString();
+		}
+	}
+
+	private static final class Parameters
+	{
+		public final String className;
+
+		public final int line;
+
+		public final String thread;
+
+		@Nullable
+		public final Throwable thrown;
+
+		@Nullable
+		public final String session;
+
+		Parameters(@NotNull String className_,
+			int line_,
+			@NotNull String thread_,
+			@Nullable Throwable thrown_,
+			@Nullable String session_)
+		{
+			className = className_;
+			line = line_;
+			thread = thread_;
+			thrown = thrown_;
+			session = session_;
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Fields
@@ -291,7 +397,6 @@ public final class Logger
 	 */
 	public static void log(@NotNull Object message_)
 	{
-		buildStack();
 		log(Level.INFO, message_);
 	}
 
@@ -303,16 +408,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Level level_, @NotNull Object message_)
 	{
-		buildStack();
-		String session = sSessions.get(Thread.currentThread().getId());
-		StackTraceElement element = sStackHolder.getStackTrace()[2];
-		sLogger.log(level_, String.format("%s:%d, %s\n%s%s\n",
-			element.getClassName(),
-			element.getLineNumber(),
-			Thread.currentThread().getName(),
-			session != null? session + "\n\n": "",
-			message_));
-		sStackReady = false;
+		log(level_, message_, null);
 	}
 
 	/**
@@ -333,22 +429,14 @@ public final class Logger
 	 */
 	public static void log(@Nullable String message_, @NotNull Throwable e_)
 	{
-		buildStack();
-		String session = sSessions.get(Thread.currentThread().getId());
-		StackTraceElement element = sStackHolder.getStackTrace()[2];
-		sLogger.log(Level.SEVERE, String.format("%s:%d\n%s%s\n",
-			element.getClassName(),
-			element.getLineNumber(),
-			session != null? session + "\n\n": "",
-			message_), e_);
-		sStackReady = false;
+		log(Level.SEVERE, message_, e_);
 	}
 
 	/**
 	 * assertion log.
 	 *
 	 * @param condition_ condition to test.
-	 * @param message_   message to log if the condition is false.
+	 * @param message_   message to log if the condition is {@code false}.
 	 */
 	public static void log(boolean condition_, @NotNull Object message_)
 	{
@@ -356,6 +444,27 @@ public final class Logger
 		{
 			log(Level.SEVERE, message_);
 		}
+	}
+
+	private static void log(@NotNull Level level_,
+		@Nullable Object message_,
+		@Nullable Throwable thrown_)
+	{
+		if (message_ == null)
+		{
+			message_ = "";
+		}
+
+		buildStack();
+		StackTraceElement element = sStackHolder.getStackTrace()[2];
+		sLogger.log(level_,
+			message_.toString(),
+			new Parameters(element.getClassName(),
+				element.getLineNumber(),
+				Thread.currentThread().getName(),
+				thrown_,
+				sSessions.get(Thread.currentThread().getId())));
+		sStackReady = false;
 	}
 
 	private static void buildStack()

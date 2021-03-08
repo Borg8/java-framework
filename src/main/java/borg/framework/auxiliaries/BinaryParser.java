@@ -21,11 +21,6 @@ public final class BinaryParser
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * length of array size value
-	 **/
-	public static final int SIZE_ARRAY_SIZE_LENGTH = 2;
-
-	/**
 	 * size of array int8 value
 	 **/
 	public static final int SIZE_INT8 = 1;
@@ -52,6 +47,11 @@ public final class BinaryParser
 
 	/** size of array int128 value **/
 	public static final int SIZE_INT128 = 16;
+
+	/**
+	 * length of array size value
+	 **/
+	public static final int SIZE_ARRAY_SIZE_LENGTH = SIZE_INT16;
 
 	/**
 	 * max value of byte
@@ -248,7 +248,7 @@ public final class BinaryParser
 		throws Exception
 	{
 		// read array size
-		int size = (int)readInteger(iterator_, SIZE_INT16);
+		int size = (int)readInteger(iterator_, SIZE_ARRAY_SIZE_LENGTH);
 
 		// create array
 		ArrayList<Long> list = new ArrayList<>(size);
@@ -276,7 +276,7 @@ public final class BinaryParser
 		throws Exception
 	{
 		// read array size
-		int size = (int)readInteger(iterator_, SIZE_INT16);
+		int size = (int)readInteger(iterator_, SIZE_ARRAY_SIZE_LENGTH);
 
 		// create array
 		List<Byte> list = new ArrayList<>(size);
@@ -306,7 +306,7 @@ public final class BinaryParser
 		@NotNull Class<T> class_) throws Exception
 	{
 		// read array size
-		int size = (int)readInteger(iterator_, SIZE_INT16);
+		int size = (int)readInteger(iterator_, SIZE_ARRAY_SIZE_LENGTH);
 
 		// create array
 		ArrayList<T> list = new ArrayList<>(size);

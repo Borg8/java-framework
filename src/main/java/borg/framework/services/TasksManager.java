@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import borg.framework.auxiliaries.Logger;
@@ -41,13 +42,18 @@ public class TasksManager
 		/** task to run **/
 		final Task<T> task;
 
+		/** task session **/
+		@Nullable
+		final String session;
+
 		/** task parameter **/
 		@Nullable
 		final T param;
 
-		Descriptor(@NotNull Task<T> task_, @Nullable T param_)
+		Descriptor(@NotNull Task<T> task_, @Nullable String session_, @Nullable T param_)
 		{
 			task = task_;
+			session = session_;
 			param = param_;
 		}
 	}
@@ -110,12 +116,13 @@ public class TasksManager
 	@Contract("_, _ -> new")
 	public static <T> Thread runOnThread(@NotNull Task<T> task_, @Nullable T param_)
 	{
+		String session = Logger.getSession();
 		Thread thread = new Thread(() ->
 		{
 			// run the task
 			try
 			{
-				Logger.startSession(Logger.getSession());
+				Logger.startSession(session);
 				task_.run(param_);
 			}
 			catch (Throwable e)
@@ -152,7 +159,6 @@ public class TasksManager
 			// run the task
 			try
 			{
-				Logger.startSession(Logger.getSession());
 				task_.run(param_);
 			}
 			catch (Throwable e)
@@ -177,12 +183,14 @@ public class TasksManager
 	public static Thread startLooper()
 	{
 		// create looper thread
+		String session = Logger.getSession();
 		Thread looper = new Thread(() ->
 		{
 			// poll task
 			Thread thread = Thread.currentThread();
 			thread.setName("looper " + thread.getId());
 
+			Logger.startSession(session);
 			for (; ; )
 			{
 				// get looper queue
@@ -273,7 +281,7 @@ public class TasksManager
 	public static boolean stopLooper(@NotNull Thread looper_)
 	{
 		// remove looper
-		LinkedList<Descriptor<?>> queue = sLoopers.remove(looper_);
+		List<Descriptor<?>> queue = sLoopers.remove(looper_);
 
 		// if looper was removed
 		boolean exists = queue != null;
@@ -316,12 +324,13 @@ public class TasksManager
 		@Nullable T param_)
 	{
 		// if from looper thread
+		String session = Logger.getSession();
 		if (looper_ == Thread.currentThread())
 		{
 			// run the task
 			try
 			{
-				Logger.startSession(Logger.getSession());
+				Logger.startSession(session);
 				task_.run(param_);
 			}
 			catch (Throwable e)
@@ -343,7 +352,7 @@ public class TasksManager
 			synchronized (looper_)
 			{
 				// add task to the queue
-				queue.add(new Descriptor<>(task_, param_));
+				queue.add(new Descriptor<>(task_, session, param_));
 
 				// invoke looper
 				looper_.notify();
@@ -374,6 +383,7 @@ public class TasksManager
 			{
 				// execute task
 				assert task != null;
+				Logger.startSession(task.session);
 				task.task.run(task.param);
 			}
 			catch (Throwable e)
@@ -391,7 +401,7 @@ public class TasksManager
 	{
 		synchronized (sTasks)
 		{
-			sTasks.add(new Descriptor<>(task_, param_));
+			sTasks.add(new Descriptor<>(task_, Logger.getSession(), param_));
 		}
 	}
 }

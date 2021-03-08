@@ -325,7 +325,7 @@ public class WebSocket
 	/**
 	 * write data to socket. Blocking operation.
 	 *
-	 * @param message_    data to write.
+	 * @param message_ data to write.
 	 * @param encrypt_ if {@code true} then the data will be encrypted.
 	 *
 	 * @return operation result.
@@ -496,6 +496,8 @@ public class WebSocket
 				{
 					// get input stream
 					InputStream input = mSocket.getInputStream();
+
+					// FIXME handle frame
 
 					// read data
 					mSocket.setSoTimeout(0);
