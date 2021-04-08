@@ -16,7 +16,6 @@ import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 
 public final class Logger
 {
@@ -43,9 +42,24 @@ public final class Logger
 		public String format(@NotNull LogRecord record_)
 		{
 			builder.setLength(0);
+			builder.append("~");
 
+			// read parameters`
 			ZonedDateTime zdt = ZonedDateTime.ofInstant(record_.getInstant(), zoneId);
-			Parameters params = (Parameters)record_.getParameters()[0];
+			Object[] array = record_.getParameters();
+			Parameters params = null;
+			if ((array != null) && (array.length > 0))
+			{
+				Object object = record_.getParameters()[0];
+				if (object instanceof Parameters)
+				{
+					params = (Parameters)record_.getParameters()[0];
+				}
+			}
+			if (params == null)
+			{
+				params = new Parameters("", -1, "", null, null);
+			}
 
 			// time
 			builder.append(zdt.format(DateTimeFormatter.RFC_1123_DATE_TIME));
@@ -97,7 +111,7 @@ public final class Logger
 				printWriter.close();
 				builder.append(writer);
 			}
-			builder.append("\n\n");
+			builder.append("|\n\n");
 
 			return builder.toString();
 		}
@@ -197,7 +211,7 @@ public final class Logger
 			try
 			{
 				FileHandler handler = new FileHandler(file_);
-				handler.setFormatter(new SimpleFormatter());
+				handler.setFormatter(new LogFormatter());
 				sLogger.addHandler(handler);
 			}
 			catch (Exception e)
@@ -397,6 +411,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Object message_)
 	{
+		buildStack();
 		log(Level.INFO, message_);
 	}
 
@@ -408,6 +423,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Level level_, @NotNull Object message_)
 	{
+		buildStack();
 		log(level_, message_, null);
 	}
 
@@ -418,6 +434,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Throwable e_)
 	{
+		buildStack();
 		log((String)null, e_);
 	}
 
@@ -429,6 +446,7 @@ public final class Logger
 	 */
 	public static void log(@Nullable String message_, @NotNull Throwable e_)
 	{
+		buildStack();
 		log(Level.SEVERE, message_, e_);
 	}
 
@@ -442,6 +460,7 @@ public final class Logger
 	{
 		if (condition_ == false)
 		{
+			buildStack();
 			log(Level.SEVERE, message_);
 		}
 	}

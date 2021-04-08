@@ -509,15 +509,7 @@ public final class BinaryParser
 	 */
 	public static int writeDouble(double value_, @NotNull List<Byte> buffer_)
 	{
-		long value = Double.doubleToRawLongBits(value_);
-
-		for (int i = 0; i < SIZE_INT64; ++i)
-		{
-			buffer_.add((byte)(value));
-			value >>= 8;
-		}
-
-		return SIZE_INT64;
+		return writeInteger(Double.doubleToRawLongBits(value_), SIZE_INT64, buffer_);
 	}
 
 	/**
@@ -528,14 +520,21 @@ public final class BinaryParser
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static double readDouble(@NotNull Iterator<@NotNull Byte> iterator_)
+	public static double readDouble(@NotNull Iterator<@NotNull Byte> iterator_) throws Exception
 	{
-		long value = 0;
-		for (int i = 0; i < SIZE_INT64; ++i)
-		{
-			value += (iterator_.next() & 0xffL) << (8 * i);
-		}
+		return Double.longBitsToDouble(readInteger(iterator_, SIZE_INT64));
+	}
 
-		return Double.longBitsToDouble(value);
+	/**
+	 * read float value from byte array stored in little endian representation.
+	 *
+	 * @param iterator_ iterator in buffer where the value is stored.
+	 *
+	 * @return read value.
+	 */
+	@Contract(pure = true)
+	public static double readFloat(@NotNull Iterator<@NotNull Byte> iterator_) throws Exception
+	{
+		return Float.intBitsToFloat((int)readInteger(iterator_, SIZE_INT32));
 	}
 }

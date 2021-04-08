@@ -501,27 +501,51 @@ public class WebSocket
 
 					// read data
 					mSocket.setSoTimeout(0);
-					int b = input.read();
-					if (b < 0)
+					int code = input.read();
+					if (code < 0)
 					{
 						break;
 					}
 					mSocket.setSoTimeout(NetworkTools.TIMEOUT_READ);
 					byte[] bytes = NetworkTools.readBytes(input);
 					byte[] data;
-					if (bytes == null)
+					if ((bytes != null) && (bytes.length > 0))
 					{
-						data = new byte[] { (byte)b };
+						data = new byte[bytes[0]];
+						System.arraycopy(bytes, 1, data, 0, data.length);
 					}
 					else
 					{
-						data = new byte[bytes.length + 1];
-						data[0] = (byte)b;
-						System.arraycopy(bytes, 0, data, 1, bytes.length);
+						data = new byte[0];
 					}
 
-					// invoke observers
-					mListener.dataReceived(data);
+					// TODO handle messages long than 127 bytes
+					code = code & 0x7f;
+					if (code < Opcode.values().length)
+					{
+						switch (Opcode.values()[code])
+						{
+							case PING:
+								// send keepalive
+								write(new byte[0], Opcode.PONG);
+								break;
+							case PONG:
+								// nothing to do here
+								break;
+
+							default:
+								// invoke observers
+								mListener.dataReceived(data);
+								break;
+						}
+					}
+					else
+					{
+						Logger.log(Level.WARNING, "invalid opcode: " + code);
+
+						// invoke observers
+						mListener.dataReceived(data);
+					}
 				}
 				catch (IOException e)
 				{
