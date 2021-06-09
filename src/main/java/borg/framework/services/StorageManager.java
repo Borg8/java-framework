@@ -24,8 +24,8 @@ public final class StorageManager
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/** chunk size (8 kb) **/
-	private static final int SIZE_CHUNK = 8 * 1024;
+	/** chunk size (32 kb) **/
+	private static final int SIZE_CHUNK = 32 * 1024;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
@@ -321,9 +321,7 @@ public final class StorageManager
 
 		byte[] array = byteStream.toByteArray();
 
-		// reset to help GC
-		byteStream.reset();
-		// TODO consider byteStream.close()
+		byteStream.close();
 
 		return array;
 	}

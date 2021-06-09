@@ -62,7 +62,7 @@ public final class Logger
 			}
 
 			// time
-			builder.append(zdt.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+			builder.append(zdt.format(DateTimeFormatter.ofPattern("uuuu-LL-dd HH:mm:ss")));
 			builder.append("|");
 
 			// level
@@ -90,6 +90,9 @@ public final class Logger
 			builder.append("|");
 
 			// consumer
+			builder.append("|");
+
+			// consumer type
 			builder.append("|");
 
 			// location

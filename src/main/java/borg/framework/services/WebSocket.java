@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -298,7 +297,7 @@ public class WebSocket
 				// disable watchdog
 				TimeManager.cancel(_keepaliveWatchdog);
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				Logger.log(e);
 			}
@@ -362,7 +361,7 @@ public class WebSocket
 			if (opcode_ != null)
 			{
 				// build frame
-				data_ = buildFrame(true, false, false, false, opcode_, true, data_);
+				data_ = _buildFrame(true, false, false, false, opcode_, true, data_);
 			}
 
 			// write data
@@ -371,7 +370,7 @@ public class WebSocket
 
 			return NetworkResult.SUCCESS;
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			Logger.log(e);
 			return NetworkResult.UNABLE_TO_SEND;
@@ -393,7 +392,7 @@ public class WebSocket
 
 	@SuppressWarnings("ConstantConditions")
 	@Contract(pure = true)
-	private static byte @NotNull [] buildFrame(boolean fin_,
+	private static byte @NotNull [] _buildFrame(boolean fin_,
 		boolean rsv1_,
 		boolean rsv2_,
 		boolean rsv3_,
@@ -507,47 +506,47 @@ public class WebSocket
 						break;
 					}
 					mSocket.setSoTimeout(NetworkTools.TIMEOUT_READ);
-					byte[] bytes = NetworkTools.readBytes(input);
-					byte[] data;
-					if ((bytes != null) && (bytes.length > 0))
-					{
-						data = new byte[bytes[0]];
-						System.arraycopy(bytes, 1, data, 0, data.length);
-					}
-					else
+					byte[] data = _readData(input);
+					if (data == null)
 					{
 						data = new byte[0];
 					}
 
-					// TODO handle messages long than 127 bytes
-					code = code & 0x7f;
-					if (code < Opcode.values().length)
+					try
 					{
-						switch (Opcode.values()[code])
+						code = code & 0x0f;
+						if (code < Opcode.values().length)
 						{
-							case PING:
-								// send keepalive
-								write(new byte[0], Opcode.PONG);
-								break;
-							case PONG:
-								// nothing to do here
-								break;
+							switch (Opcode.values()[code])
+							{
+								case PING:
+									// send keepalive
+									write(new byte[0], Opcode.PONG);
+									break;
+								case PONG:
+									// nothing to do here
+									break;
 
-							default:
-								// invoke observers
-								mListener.dataReceived(data);
-								break;
+								default:
+									// invoke observers
+									mListener.dataReceived(data);
+									break;
+							}
+						}
+						else
+						{
+							Logger.log(Level.WARNING, "invalid opcode: " + code);
+
+							// invoke observers
+							mListener.dataReceived(data);
 						}
 					}
-					else
+					catch (Exception e)
 					{
-						Logger.log(Level.WARNING, "invalid opcode: " + code);
-
-						// invoke observers
-						mListener.dataReceived(data);
+						Logger.log(e);
 					}
 				}
-				catch (IOException e)
+				catch (Exception e)
 				{
 					// if the socket was not disconnected
 					if (mSocket != null)
@@ -577,6 +576,38 @@ public class WebSocket
 		{
 			throw new Error(e);
 		}
+	}
+
+	@Contract(pure = true)
+	private static byte @Nullable [] _readData(@NotNull InputStream stream_)
+	{
+		try
+		{
+			// read length
+			int length = stream_.read() & 0x7f;
+			if (length == 0x7e)
+			{
+				int msb = stream_.read();
+				int lsb = stream_.read();
+				length = lsb + (msb << 8);
+			}
+
+			// read data
+			byte[] data = new byte[length];
+			int res = stream_.read(data);
+			if (res != length)
+			{
+				Logger.log(Level.WARNING, String.format("unable to read: %d of %d bytes", res, length));
+			}
+
+			return data;
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
+		}
+
+		return null;
 	}
 
 	private final TimeManager.Handler<Void> _keepaliveWatchdog = new TimeManager.Handler<>()

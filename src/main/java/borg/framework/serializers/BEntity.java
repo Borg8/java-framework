@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import borg.framework.Constants;
 import borg.framework.auxiliaries.BinaryParser;
 import borg.framework.compability.CallSuper;
+import borg.framework.services.ArraysManager;
 
 public abstract class BEntity implements Serializable
 {
@@ -303,5 +304,15 @@ public abstract class BEntity implements Serializable
 		}
 
 		return size;
+	}
+
+	@Override
+	@Contract(pure = true)
+	@NotNull
+	public String toString()
+	{
+		List<Byte> buffer = new ArrayList<>();
+		serialize(buffer);
+		return ArraysManager.getListAsHex(buffer);
 	}
 }
