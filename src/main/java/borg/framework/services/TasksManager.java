@@ -127,7 +127,7 @@ public class TasksManager
 			}
 			catch (Throwable e)
 			{
-				throw new Error(e);
+				Logger.log(e);
 			}
 		});
 
