@@ -62,7 +62,7 @@ public final class Logger
 			}
 
 			// time
-			builder.append(zdt.format(DateTimeFormatter.ofPattern("uuuu-LL-dd HH:mm:ss")));
+			builder.append(zdt.format(DateTimeFormatter.ofPattern("uuuu-LL-dd HH:mm:ss.n")));
 			builder.append("|");
 
 			// level

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logger;
 
@@ -357,6 +358,14 @@ public class TasksManager
 				// invoke looper
 				looper_.notify();
 			}
+		}
+		else
+		{
+			Logger.snapshot(Level.INFO, "no looper found",
+				"name",
+				looper_.getName(),
+				"id",
+				looper_.getId());
 		}
 
 		return queue != null;

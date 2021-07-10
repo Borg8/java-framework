@@ -496,8 +496,6 @@ public class WebSocket
 					// get input stream
 					InputStream input = mSocket.getInputStream();
 
-					// FIXME handle frame
-
 					// read data
 					mSocket.setSoTimeout(0);
 					int code = input.read();
