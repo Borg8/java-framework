@@ -47,7 +47,21 @@ public final class NetworkTools
 	@Contract(pure = true)
 	public static byte @Nullable [] readBytes(@NotNull InputStream stream_)
 	{
-		return read(stream_, 0, (char)-1);
+		return read(stream_, -1, (char)-1);
+	}
+
+	/**
+	 * read bytes from input stream. Blocking operation.
+	 *
+	 * @param stream_ stream to read from.
+	 * @param length_ number of bytes to read.
+	 *
+	 * @return read bytes, or {@code null} if the stream is not readable.
+	 */
+	@Contract(pure = true)
+	public static byte @Nullable [] readBytes(@NotNull InputStream stream_, int length_)
+	{
+		return read(stream_, length_, (char)-1);
 	}
 
 	/**
@@ -61,7 +75,7 @@ public final class NetworkTools
 	@Contract(pure = true)
 	public static String readLine(@NotNull InputStream stream_)
 	{
-		byte[] line = read(stream_, 0, '\n');
+		byte[] line = read(stream_, -1, '\n');
 		if (line != null)
 		{
 			return new String(line);
@@ -191,9 +205,14 @@ public final class NetworkTools
 	@Contract(pure = true)
 	private static byte @Nullable [] read(@NotNull InputStream stream_, int size_, char eof_)
 	{
+		if (size_ == 0)
+		{
+			return new byte[0];
+		}
+
 		// prepare
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream(SIZE_CHUNK);
-		if (size_ <= 0)
+		if (size_ < 0)
 		{
 			size_ = Integer.MAX_VALUE;
 		}

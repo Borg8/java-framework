@@ -20,12 +20,6 @@ public class Vector2d implements Serializable
 	/** y component **/
 	public double y;
 
-	/** x value for which size was computed **/
-	private double mSizeX;
-
-	/** y value for which size was computed **/
-	private double mSizeY;
-
 	/** last computed size **/
 	private double mLastSize;
 
@@ -55,8 +49,6 @@ public class Vector2d implements Serializable
 		x = 0;
 		y = 0;
 
-		mSizeX = 0;
-		mSizeY = 0;
 		mLastSize = 0;
 		mLastSize2 = 0;
 
@@ -73,8 +65,6 @@ public class Vector2d implements Serializable
 		x = vector_.x;
 		y = vector_.y;
 
-		mSizeX = vector_.mSizeX;
-		mSizeY = vector_.mSizeY;
 		mLastSize = vector_.mLastSize;
 		mLastSize2 = vector_.mLastSize2;
 
@@ -122,20 +112,12 @@ public class Vector2d implements Serializable
 	@Contract(pure = true)
 	public final double getSize()
 	{
-		// if vector coordinates was changed
-		if ((x != mSizeX) || (y != mSizeY))
+		// compute size
+		double size2 = x * x + y * y;
+		if (mLastSize2 != size2)
 		{
-			// compute size
-			double size2 = x * x + y * y;
-			if (mLastSize2 != size2)
-			{
-				mLastSize2 = size2;
-				mLastSize = Math.sqrt(size2);
-			}
-
-			// store vector coordinates
-			mSizeX = x;
-			mSizeY = y;
+			mLastSize2 = size2;
+			mLastSize = Math.sqrt(size2);
 		}
 
 		return mLastSize;
@@ -183,7 +165,7 @@ public class Vector2d implements Serializable
 	}
 
 	/**
-	 * innter multiplication if the vector by given vector.
+	 * inner multiplication if the vector by given vector.
 	 *
 	 * @param vector_ given vector.
 	 *
@@ -218,8 +200,6 @@ public class Vector2d implements Serializable
 			// recompute parameters
 			mLastSize *= factor;
 			mLastSize2 = mLastSize * mLastSize;
-			mSizeX = x;
-			mSizeY = y;
 		}
 
 		return r;

@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -39,6 +40,7 @@ public final class Logger
 
 		@Override
 		@Contract(pure = true)
+		@NotNull
 		public String format(@NotNull LogRecord record_)
 		{
 			builder.setLength(0);
@@ -62,7 +64,7 @@ public final class Logger
 			}
 
 			// time
-			builder.append(zdt.format(DateTimeFormatter.ofPattern("uuuu-LL-dd HH:mm:ss.n")));
+			builder.append(zdt.format(DateTimeFormatter.ofPattern("uuuu-LL-dd HH:mm:ss.SSS")));
 			builder.append("|");
 
 			// level
@@ -179,10 +181,17 @@ public final class Logger
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	static
+	{
+		Handler handler = new ConsoleHandler();
+		handler.setFormatter(new LogFormatter());
+		sLogger.addHandler(handler);
+	}
+
 	@Contract(pure = true)
 	private Logger()
 	{
-		// private constructor to avoid instantiation
+		// nothing to do here
 	}
 
 	/**
@@ -269,7 +278,7 @@ public final class Logger
 	 */
 	@Contract("_, _ -> new")
 	@NotNull
-	public static String stackTrace(@NotNull StackTraceElement[] traceElements_, int start_)
+	public static String stackTrace(StackTraceElement @NotNull [] traceElements_, int start_)
 	{
 		StringBuilder builder = new StringBuilder();
 

@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import borg.framework.Constants;
 import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
-import borg.framework.Constants;
 
 public class HttpRequest implements Serializable
 {
@@ -56,7 +56,6 @@ public class HttpRequest implements Serializable
 	 *
 	 * @return read request, if parsed.
 	 */
-	@Contract(pure = true)
 	@Nullable
 	public static HttpRequest readRequest(@NotNull InputStream stream_)
 	{
@@ -95,15 +94,24 @@ public class HttpRequest implements Serializable
 				}
 
 				// read content
-				byte[] content = NetworkTools.readBytes(stream_);
+				int length;
+				try
+				{
+					length = Integer.parseInt(headers.get("content-length"));
+				}
+				catch (Exception e_)
+				{
+					length = -1;
+				}
+				byte[] content = NetworkTools.readBytes(stream_, length);
 
 				// build request
 				return new HttpRequest(method, path, headers, content);
 			}
 		}
-		catch (Exception e)
+		catch (Exception e2_)
 		{
-			Logger.log(Level.FINE, e);
+			Logger.log(Level.FINE, e2_);
 		}
 
 		return null;

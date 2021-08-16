@@ -148,27 +148,6 @@ public final class BinaryParser
 	}
 
 	/**
-	 * read bits from bytes
-	 *
-	 * @param source_ the byte to read from
-	 * @param index_  the index of bit to read
-	 * @param offset_ the quantity of bits to read
-	 *
-	 * @return read byte.
-	 */
-	@Contract(pure = true)
-	public static byte readByte(byte source_, int index_, int offset_)
-	{
-		byte result_ = (byte)(source_ >> index_);
-
-		byte mask = (byte)(BYTE_MAX_SIZE >> (8 - offset_));
-
-		result_ = (byte)(result_ & mask);
-
-		return result_;
-	}
-
-	/**
 	 * read integer value from byte array stored in little endian representation.
 	 *
 	 * @param iterator_ - iterator in buffer where the value is stored.

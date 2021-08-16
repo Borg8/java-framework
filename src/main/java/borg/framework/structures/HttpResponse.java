@@ -33,10 +33,6 @@ public final class HttpResponse implements Serializable
 	/** received data **/
 	public final byte @Nullable [] content;
 
-	/** serialization of the request **/
-
-	private transient byte @Nullable [] mSerialization;
-
 	@Contract(pure = true)
 	public HttpResponse(@NotNull NetworkResult result_,
 		int code_,
@@ -47,8 +43,6 @@ public final class HttpResponse implements Serializable
 		code = code_;
 		headers = headers_;
 		content = content_;
-
-		mSerialization = null;
 	}
 
 	@Contract(pure = true)
@@ -96,56 +90,51 @@ public final class HttpResponse implements Serializable
 	@Contract(pure = true)
 	public byte @NotNull [] serialize()
 	{
-		if (mSerialization == null)
+		ByteArrayOutputStream stream = new ByteArrayOutputStream(1024);
+		byte[] separator = " ".getBytes();
+		byte[] eol = "\r\n".getBytes();
+
+		try
 		{
-			ByteArrayOutputStream stream = new ByteArrayOutputStream(1024);
-			byte[] separator = " ".getBytes();
-			byte[] eol = "\r\n".getBytes();
+			// write HTTP 1.1
+			stream.write("HTTP/1.1".getBytes());
+			stream.write(separator);
 
-			try
+			// write code
+			stream.write(Integer.toString(code).getBytes());
+			stream.write(separator);
+			stream.write(eol);
+
+			// write headers
+			if (headers != null)
 			{
-				// write HTTP 1.1
-				stream.write("HTTP/1.1".getBytes());
-				stream.write(separator);
-
-				// write code
-				stream.write(Integer.toString(code).getBytes());
-				stream.write(separator);
-				stream.write(eol);
-
-				// write headers
-				if (headers != null)
+				separator = ":".getBytes();
+				for (Map.Entry<String, String> header : headers.entrySet())
 				{
-					separator = ":".getBytes();
-					for (Map.Entry<String, String> header : headers.entrySet())
+					String key = header.getKey();
+					if (key != null)
 					{
-						String key = header.getKey();
-						if (key != null)
-						{
-							stream.write(key.getBytes());
-							stream.write(separator);
-							stream.write(header.getValue().getBytes());
-							stream.write(eol);
-						}
+						stream.write(key.getBytes());
+						stream.write(separator);
+						stream.write(header.getValue().getBytes());
+						stream.write(eol);
 					}
-					stream.write(eol);
 				}
-
-				// write content
-				if (content != null)
-				{
-					stream.write(content);
-				}
+				stream.write(eol);
 			}
-			catch (Exception e)
+
+			// write content
+			if (content != null)
 			{
-				Logger.log(e);
+				stream.write(content);
 			}
-
-			mSerialization = stream.toByteArray();
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
 		}
 
-		return mSerialization;
+		return stream.toByteArray();
 	}
 
 	@Contract(" -> new")

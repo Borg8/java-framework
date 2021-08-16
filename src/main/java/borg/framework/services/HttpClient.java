@@ -155,7 +155,7 @@ public final class HttpClient
 					if (code < 400)
 					{
 						// if redirection occurred
-						// TODO consider perform redirection before data sending
+						// TODO use HttpURLConnection.setFollowRedirects()
 						if ((redirect_ == true) && (code >= 300))
 						{
 							// get redirection location

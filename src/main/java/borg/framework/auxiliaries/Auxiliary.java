@@ -30,7 +30,7 @@ public final class Auxiliary
 
 	static
 	{
-		resetRandom(System.currentTimeMillis());
+		seedRandom(System.currentTimeMillis());
 	}
 
 	@Contract(pure = true)
@@ -40,21 +40,35 @@ public final class Auxiliary
 	}
 
 	/**
-	 * reset random pseudo algorithm to some initial value.
+	 * seed pseudo random algorithm.
 	 *
-	 * @param reset_ initialization value.
+	 * @param seed_ seed to set.
 	 */
-	public static void resetRandom(long reset_)
+	public static void seedRandom(long seed_)
 	{
 		// if reset value is valid
-		if ((reset_ != 0) && (reset_ != 0x9068ffff464fffffL))
+		if ((seed_ != 0) && (seed_ != 0x9068ffff464fffffL))
 		{
-			sRandom.setSeed(reset_);
+			sRandom.setSeed(seed_);
 		}
 	}
 
 	/**
-	 * @return pseudo random unsigned numbers in 31 bit
+	 * get random number from Gauss distribution.
+	 *
+	 * @param mu_    number offset.
+	 * @param sigma_ number multiplier.
+	 *
+	 * @return random number from Gauss distribution.
+	 */
+	@Contract(pure = true)
+	public static double randomGauss(double mu_, double sigma_)
+	{
+		return mu_ + sRandom.nextGaussian() * sigma_;
+	}
+
+	/**
+	 * @return random unsigned numbers in 31 bit
 	 */
 	@Contract(pure = true)
 	public static int random()
@@ -74,12 +88,12 @@ public final class Auxiliary
 	 * @param min_ minimum value.
 	 * @param max_ maximum value.
 	 *
-	 * @return random real number in the given range.
+	 * @return random real number in the given range (from min_ to max_ - 1).
 	 */
 	@Contract(pure = true)
 	public static int random(int min_, int max_)
 	{
-		return (random() % (max_  - min_))  + min_;
+		return (random() % (max_ - min_)) + min_;
 	}
 
 	/**
