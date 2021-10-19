@@ -101,7 +101,7 @@ public abstract class BEntity implements Serializable
 		// nothing to do here
 	}
 
-	protected BEntity(@SuppressWarnings("unused") @NotNull BEntity.DataIterator iterator_)
+	protected BEntity(@SuppressWarnings("unused") @NotNull DataIterator iterator_)
 		throws Exception
 	{
 		// nothing to do here
@@ -114,20 +114,26 @@ public abstract class BEntity implements Serializable
 	}
 
 	@Contract(pure = true)
-	protected static long read(@NotNull BEntity.DataIterator iterator_, int size_) throws Exception
+	protected static long read(@NotNull DataIterator iterator_, int size_) throws Exception
 	{
 		return BinaryParser.readInteger(iterator_, size_);
 	}
 
 	@Contract(pure = true)
-	protected static double read(@NotNull BEntity.DataIterator iterator_) throws Exception
+	protected static double read(@NotNull DataIterator iterator_) throws Exception
 	{
 		return read(iterator_, BinaryParser.SIZE_INT64) / REAL_PRECISION;
 	}
 
 	@Contract(pure = true)
-	protected static <T extends Enum<T>> T read(@NotNull BEntity.DataIterator iterator_,
-		Class<T> enum_)
+	protected static boolean readBool(@NotNull DataIterator iterator_) throws Exception
+	{
+		return read(iterator_, BinaryParser.SIZE_INT8) == BooleanType.TRUE.ordinal();
+	}
+
+	@Contract(pure = true)
+	protected static <T extends Enum<T>> T read(@NotNull DataIterator iterator_,
+		@NotNull Class<T> enum_)
 		throws Exception
 	{
 		Method method = enum_.getMethod("values");
@@ -139,7 +145,7 @@ public abstract class BEntity implements Serializable
 
 	@Contract(pure = true)
 	@NotNull
-	protected static <T extends Number> List<T> readList(@NotNull BEntity.DataIterator iterator_,
+	protected static <T extends Number> List<T> readList(@NotNull DataIterator iterator_,
 		int size_) throws Exception
 	{
 		// read list length
@@ -158,7 +164,7 @@ public abstract class BEntity implements Serializable
 
 	@Contract(pure = true)
 	@NotNull
-	protected static String readString(@NotNull BEntity.DataIterator iterator_) throws Exception
+	protected static String readString(@NotNull DataIterator iterator_) throws Exception
 	{
 		// read list length
 		int length = (int)read(iterator_, BinaryParser.SIZE_INT16);
@@ -175,7 +181,7 @@ public abstract class BEntity implements Serializable
 
 	@Contract(pure = true)
 	@NotNull
-	protected static <T extends BEntity> List<T> readList(@NotNull BEntity.DataIterator iterator_,
+	protected static <T extends BEntity> List<T> readList(@NotNull DataIterator iterator_,
 		@NotNull Class<T> class_) throws Exception
 	{
 		// read list length
@@ -198,7 +204,7 @@ public abstract class BEntity implements Serializable
 	@Contract(pure = true)
 	@NotNull
 	protected static <T extends BEntity, E extends Enum<E> & BTyped<? super T>> List<T> readTypedList(
-		@NotNull BEntity.DataIterator iterator_,
+		@NotNull DataIterator iterator_,
 		@NotNull Class<E> class_) throws Exception
 	{
 		// read list length
@@ -218,7 +224,7 @@ public abstract class BEntity implements Serializable
 	@Contract(pure = true)
 	@NotNull
 	public static <T extends BEntity, E extends Enum<E> & BTyped<? super T>> T buildTypedEntity(
-		@NotNull BEntity.DataIterator iterator_,
+		@NotNull DataIterator iterator_,
 		@NotNull Class<E> types_) throws Exception
 	{
 		// read type
@@ -243,9 +249,15 @@ public abstract class BEntity implements Serializable
 		return BinaryParser.writeInteger(integer_, size_, buffer_);
 	}
 
-	protected static int write(@NotNull Double real_, @NotNull List<Byte> buffer_)
+	protected static int write(double real_, @NotNull List<Byte> buffer_)
 	{
 		return write((long)(real_ * REAL_PRECISION), BinaryParser.SIZE_INT64, buffer_);
+	}
+
+	protected static int write(boolean bool_, @NotNull List<Byte> buffer_)
+	{
+		int value = bool_? BooleanType.TRUE.ordinal(): BooleanType.FALSE.ordinal();
+		return write(value, BinaryParser.SIZE_INT8, buffer_);
 	}
 
 	protected static int write(@NotNull Enum<?> enum_, @NotNull List<Byte> buffer_)
@@ -269,7 +281,7 @@ public abstract class BEntity implements Serializable
 		// write elements
 		for (T number : list_)
 		{
-			size += write((long)number, size_, buffer_);
+			size += write(number.longValue(), size_, buffer_);
 		}
 
 		return size;

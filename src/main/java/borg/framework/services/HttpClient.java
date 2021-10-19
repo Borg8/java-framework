@@ -51,7 +51,7 @@ public final class HttpClient
 	@Contract(pure = true)
 	private HttpClient()
 	{
-		// private constructor to prevent instantiation
+		// nothing to do here
 	}
 
 	/**

@@ -99,7 +99,7 @@ public final class Auxiliary
 	/**
 	 * get random number in range.
 	 *
-	 * @param max_ maximum value.
+	 * @param max_ maximum value, not included.
 	 *
 	 * @return random real number in range 0 to given max.
 	 */

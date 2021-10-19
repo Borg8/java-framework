@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 
 import borg.framework.Constants;
 
@@ -139,7 +138,7 @@ public class Vector2d implements Serializable
 	 *
 	 * @return this vector after the addition.
 	 */
-	@Contract(pure = true)
+	@NotNull
 	public final Vector2d add(@NotNull Vector2d vector_)
 	{
 		x += vector_.x;
@@ -155,7 +154,7 @@ public class Vector2d implements Serializable
 	 *
 	 * @return this vector after production.
 	 */
-	@Contract(pure = true)
+	@NotNull
 	public final Vector2d product(double scalar_)
 	{
 		x *= scalar_;
@@ -215,10 +214,14 @@ public class Vector2d implements Serializable
 		// TODO optimize
 		x = getSize();
 		y = 0;
-		mLastRotation = 0;
 
 		// rotate
 		rotate(angle_);
+
+		// recompute parameters
+		mLastDirection = angle_;
+		mDirX = x;
+		mDirY = y;
 	}
 
 	/**
@@ -241,10 +244,10 @@ public class Vector2d implements Serializable
 		x = x * mLastCos - y * mLastSin;
 		y = temp * mLastSin + y * mLastCos;
 
-		// recompute parameters
-		mLastDirection = angle_;
-		mDirX = x;
-		mDirY = y;
+		// invalidate parameters
+		mLastDirection = 0;
+		mDirX = 0;
+		mDirY = 0;
 	}
 
 	@Override
@@ -252,6 +255,6 @@ public class Vector2d implements Serializable
 	@NotNull
 	public String toString()
 	{
-		return MessageFormat.format("x = {0}, y = {1}", x, y);
+		return String.format("x = %f, y = %f", x, y);
 	}
 }

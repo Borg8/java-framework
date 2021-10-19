@@ -161,14 +161,10 @@ public final class Logger
 	/** stack holder **/
 	private static final Throwable sStackHolder = new Throwable();
 
-	/**
-	 *
-	 **/
+	/**	root class to log **/
 	private static String sRoot = null;
 
-	/**
-	 *
-	 **/
+	/** maximum stack log depth  **/
 	private static int sDepth = 0;
 
 	/** is stack ready **/
@@ -186,6 +182,7 @@ public final class Logger
 		Handler handler = new ConsoleHandler();
 		handler.setFormatter(new LogFormatter());
 		sLogger.addHandler(handler);
+		sLogger.setUseParentHandlers(false);
 	}
 
 	@Contract(pure = true)
