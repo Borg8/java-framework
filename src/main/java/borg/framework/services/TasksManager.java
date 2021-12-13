@@ -111,7 +111,7 @@ public class TasksManager
 	 * @param task_  task to run.
 	 * @param param_ parameter to pass to the task.
 	 *
-	 * @return task identifier or null if the task was not created.
+	 * @return task identifier or {@code null} if the task was not created.
 	 */
 	@NotNull
 	@Contract("_, _ -> new")

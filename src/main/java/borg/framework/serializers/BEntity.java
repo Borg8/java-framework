@@ -101,8 +101,7 @@ public abstract class BEntity implements Serializable
 		// nothing to do here
 	}
 
-	protected BEntity(@SuppressWarnings("unused") @NotNull DataIterator iterator_)
-		throws Exception
+	protected BEntity(@SuppressWarnings("unused") @NotNull DataIterator iterator_) throws Exception
 	{
 		// nothing to do here
 	}

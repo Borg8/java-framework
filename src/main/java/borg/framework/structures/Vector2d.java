@@ -55,8 +55,8 @@ public class Vector2d implements Serializable
 		mDirY = 0;
 		mLastDirection = 0;
 		mLastRotation = HALF_PI;
-		mLastCos = 1;
-		mLastSin = 0;
+		mLastCos = 0;
+		mLastSin = 1;
 	}
 
 	public Vector2d(@NotNull Vector2d vector_)
@@ -177,7 +177,7 @@ public class Vector2d implements Serializable
 	}
 
 	/**
-	 * resize the vector to given size, if vector was (0, 0) then it size will not be changed.
+	 * resize the vector to given size.
 	 *
 	 * @param size_ size of vector after resizing.
 	 *
@@ -199,6 +199,22 @@ public class Vector2d implements Serializable
 			// recompute parameters
 			mLastSize *= factor;
 			mLastSize2 = mLastSize * mLastSize;
+		}
+		else
+		{
+			// set vector components
+			x = size_;
+			y = 0;
+
+			// recompute parameters
+			mLastSize = size_;
+			mLastSize2 = size_ * size_;
+			mDirX = x;
+			mDirY = y;
+			mLastDirection = 0;
+			mLastRotation = HALF_PI;
+			mLastCos = 0;
+			mLastSin = 1;
 		}
 
 		return r;

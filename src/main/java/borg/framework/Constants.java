@@ -10,6 +10,6 @@ public final class Constants
 	@Contract(pure = true)
 	private Constants()
 	{
-		// private constructor to prevent instantiation.
+		// private constructor to prevent instantiation
 	}
 }
