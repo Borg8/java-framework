@@ -1,6 +1,7 @@
 package borg.framework.serializers;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -14,7 +15,6 @@ import java.util.function.Consumer;
 
 import borg.framework.Constants;
 import borg.framework.auxiliaries.BinaryParser;
-import borg.framework.compability.CallSuper;
 import borg.framework.services.ArraysManager;
 
 public abstract class BEntity implements Serializable
@@ -106,7 +106,7 @@ public abstract class BEntity implements Serializable
 		// nothing to do here
 	}
 
-	@CallSuper
+	@MustBeInvokedByOverriders
 	public int serialize(@SuppressWarnings("unused") @NotNull List<Byte> buffer_)
 	{
 		return 0;

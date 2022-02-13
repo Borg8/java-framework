@@ -64,7 +64,7 @@ public final class Logger
 			}
 
 			// time
-			builder.append(zdt.format(DateTimeFormatter.ofPattern("uuuu-LL-dd HH:mm:ss.SSS")));
+			builder.append(zdt.format(DateTimeFormatter.ofPattern("dd.LL HH:mm:ss.SSS")));
 			builder.append("|");
 
 			// level
@@ -75,26 +75,11 @@ public final class Logger
 			builder.append(params.thread);
 			builder.append("|");
 
-			// client ID
-			builder.append("|");
-
-			// session name
-			builder.append("|");
-
 			// session ID
 			if (params.session != null)
 			{
 				builder.append(params.session);
 			}
-			builder.append("|");
-
-			// provider
-			builder.append("|");
-
-			// consumer
-			builder.append("|");
-
-			// consumer type
 			builder.append("|");
 
 			// location

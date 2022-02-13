@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -222,7 +223,7 @@ public class WebSocket
 					requestHeaders.put(HEADER_AUTHORIZATION, "Basic " + credentials);
 				}
 
-				HttpRequest request = new HttpRequest("GET", url.getPath(), requestHeaders, null);
+				HttpRequest request = new HttpRequest("GET", new URI(url.getPath()), requestHeaders, null);
 
 				// write request
 				OutputStream output = mSocket.getOutputStream();

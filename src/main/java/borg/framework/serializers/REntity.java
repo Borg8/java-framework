@@ -1,6 +1,7 @@
 package borg.framework.serializers;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,6 @@ import java.util.Map;
 
 import borg.framework.Constants;
 import borg.framework.auxiliaries.Logger;
-import borg.framework.compability.CallSuper;
 import borg.framework.services.ArraysManager;
 
 public abstract class REntity implements Serializable
@@ -577,7 +577,7 @@ public abstract class REntity implements Serializable
 		return integers;
 	}
 
-	@CallSuper
+	@MustBeInvokedByOverriders
 	protected void buildMap(@SuppressWarnings("unused") @NotNull HashMap<String, Object> map_)
 	{
 		// nothing to do here

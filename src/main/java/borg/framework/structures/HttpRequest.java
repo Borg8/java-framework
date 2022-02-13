@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -22,8 +23,8 @@ public class HttpRequest implements Serializable
 	/** request method **/
 	public final String method;
 
-	/** request path **/
-	public final String path;
+	/** request URI **/
+	public final URI uri;
 
 	/** response headers **/
 	@Nullable
@@ -37,12 +38,12 @@ public class HttpRequest implements Serializable
 
 	@Contract(pure = true)
 	public HttpRequest(@NotNull String method_,
-		@NotNull String path_,
+		@NotNull URI uri_,
 		@Nullable Map<String, String> headers_,
 		byte @Nullable [] content_)
 	{
 		method = method_;
-		path = path_;
+		uri = uri_;
 		headers = headers_;
 		content = content_;
 
@@ -72,7 +73,7 @@ public class HttpRequest implements Serializable
 				// read path
 				int i = e + 1;
 				e = title.indexOf(' ', i);
-				String path = title.substring(i, e);
+				URI uri = new URI(title.substring(i, e));
 
 				// read headers
 				Map<String, String> headers = new HashMap<>();
@@ -95,18 +96,19 @@ public class HttpRequest implements Serializable
 
 				// read content
 				int length;
+				byte[] content = null;
 				try
 				{
 					length = Integer.parseInt(headers.get("content-length"));
+					content = NetworkTools.readBytes(stream_, length);
 				}
 				catch (Exception e_)
 				{
-					length = -1;
+					// nothing to do here
 				}
-				byte[] content = NetworkTools.readBytes(stream_, length);
 
 				// build request
-				return new HttpRequest(method, path, headers, content);
+				return new HttpRequest(method, uri, headers, content);
 			}
 		}
 		catch (Exception e2_)
@@ -135,8 +137,8 @@ public class HttpRequest implements Serializable
 				stream.write(method.getBytes());
 				stream.write(separator);
 
-				// write path
-				stream.write(path.getBytes());
+				// write uri
+				stream.write(uri.getRawQuery().getBytes());
 				stream.write(separator);
 
 				// write HTTP 1.1

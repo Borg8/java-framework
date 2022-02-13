@@ -70,6 +70,9 @@ public class TasksManager
 	private static final Map<Object, LinkedList<Descriptor<?>>> sLoopers =
 		Collections.synchronizedMap(new HashMap<>());
 
+	/** is main loop sleep allowed **/
+	private static boolean sSleep = true;
+
 	/** main thread instance **/
 	private static final Thread sMain = Thread.currentThread();
 
@@ -372,11 +375,58 @@ public class TasksManager
 	}
 
 	/**
-	 * run task from queue.
-	 *
-	 * @return {@code true} if task executed, {@code false} otherwise.
+	 * main loop.
 	 */
-	public static boolean runTask()
+	public static void loop()
+	{
+		// start main loop
+		//noinspection InfiniteLoopStatement
+		for (; ; )
+		{
+			// TODO sleep in no tasks
+
+			// loop timer
+			long next = TimeManager.loop();
+
+			// run main thread tasks
+			runTask();
+
+			synchronized (sTasks)
+			{
+				// if may sleep
+				if ((sSleep == true) && (next != 0) && (sTasks.isEmpty()))
+				{
+					try
+					{
+						if (next < 0)
+						{
+							sTasks.wait();
+						}
+						else
+						{
+							sTasks.wait(next);
+						}
+					}
+					catch (Exception e)
+					{
+						Logger.log(e); // TODO remove
+						// nothing to do here
+					}
+				}
+				else
+				{
+					sSleep = true;
+				}
+			}
+		}
+	}
+
+	public static void continueLoop()
+	{
+		sSleep = false;
+	}
+
+	private static boolean runTask()
 	{
 		if (sTasks.isEmpty() == false)
 		{
@@ -411,6 +461,7 @@ public class TasksManager
 		synchronized (sTasks)
 		{
 			sTasks.add(new Descriptor<>(task_, Logger.getSession(), param_));
+			sTasks.notify();
 		}
 	}
 }

@@ -284,6 +284,8 @@ public final class TimeManager
 			// add executor
 			sAsyncExecutors.put(handler_, timer);
 		}
+
+		TasksManager.continueLoop();
 	}
 
 	/**
@@ -301,16 +303,24 @@ public final class TimeManager
 
 	/**
 	 * timer loop.
+	 *
+	 * @return ticks to sleep until next timer, or negative number if may sleep forever.
 	 */
-	public static void  loop()
+	public static long loop()
 	{
 		// update system tick
 		sTick = getSystemTime();
 
 		// copy relevant timers
 		int n = 0;
+		long next = -1;
 		synchronized (sTimeouts)
 		{
+			if (sTimeouts.first != null)
+			{
+				next = sTimeouts.first.timer.timeToExecute - sTick;
+			}
+
 			while (sTimeouts.first != null)
 			{
 				// if timer is relevant
@@ -346,16 +356,24 @@ public final class TimeManager
 			}
 		}
 
-		// invoke timers
-		for (int i = 0; i < n; ++i)
+		if (n > 0)
 		{
-			// get timer
-			//noinspection unchecked
-			Timer<Object> timer = (Timer<Object>)sQueue.get(i);
+			// invoke timers
+			for (int i = 0; i < n; ++i)
+			{
+				// get timer
+				//noinspection unchecked
+				Timer<Object> timer = (Timer<Object>)sQueue.get(i);
 
-			// invoke handler
-			timer.handler.handle(timer.id, timer.param);
+				// invoke handler
+				timer.handler.handle(timer.id, timer.param);
+			}
+
+			return 0;
 		}
+
+		// TODO convert ticks to milliseconds
+		return next;
 	}
 
 	@NotNull

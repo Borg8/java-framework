@@ -54,7 +54,7 @@ public final class NetworkTools
 	 * read bytes from input stream. Blocking operation.
 	 *
 	 * @param stream_ stream to read from.
-	 * @param length_ number of bytes to read.
+	 * @param length_ number of bytes to read, negative number if not defined.
 	 *
 	 * @return read bytes, or {@code null} if the stream is not readable.
 	 */
@@ -247,6 +247,10 @@ public final class NetworkTools
 
 		// close buffer
 		byte[] array = buffer.toByteArray();
+		if (array.length == 0)
+		{
+			array = null;
+		}
 		try
 		{
 			buffer.close();

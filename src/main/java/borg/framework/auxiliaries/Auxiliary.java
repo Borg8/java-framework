@@ -68,18 +68,12 @@ public final class Auxiliary
 	}
 
 	/**
-	 * @return random unsigned numbers in 31 bit
+	 * @return random positive integer of 31 bit
 	 */
 	@Contract(pure = true)
 	public static int random()
 	{
-		int random = sRandom.nextInt();
-		if (random < 0)
-		{
-			return -random;
-		}
-
-		return random;
+		return sRandom.nextInt() & 0x7fffffff;
 	}
 
 	/**
@@ -88,7 +82,7 @@ public final class Auxiliary
 	 * @param min_ minimum value.
 	 * @param max_ maximum value.
 	 *
-	 * @return random real number in the given range (from min_ to max_ - 1).
+	 * @return random integer in the given range (from min_ to max_ - 1).
 	 */
 	@Contract(pure = true)
 	public static int random(int min_, int max_)
@@ -101,7 +95,7 @@ public final class Auxiliary
 	 *
 	 * @param max_ maximum value, not included.
 	 *
-	 * @return random real number in range 0 to given max.
+	 * @return random integer in range 0 to given max.
 	 */
 	@Contract(pure = true)
 	public static int random(int max_)

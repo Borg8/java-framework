@@ -27,7 +27,7 @@ public final class HttpResponse implements Serializable
 	public final int code;
 
 	/** response headers **/
-	@Nullable
+	@NotNull
 	public final Map<String, String> headers;
 
 	/** received data **/
@@ -41,8 +41,16 @@ public final class HttpResponse implements Serializable
 	{
 		result = result_;
 		code = code_;
-		headers = headers_;
+		headers = new HashMap<>();
+		if (headers_ != null)
+		{
+			headers.putAll(headers_);
+		}
 		content = content_;
+		if (content_ != null)
+		{
+			headers.put("content-length", Integer.toString(content_.length));
+		}
 	}
 
 	@Contract(pure = true)
@@ -106,22 +114,19 @@ public final class HttpResponse implements Serializable
 			stream.write(eol);
 
 			// write headers
-			if (headers != null)
+			separator = ":".getBytes();
+			for (Map.Entry<String, String> header : headers.entrySet())
 			{
-				separator = ":".getBytes();
-				for (Map.Entry<String, String> header : headers.entrySet())
+				String key = header.getKey();
+				if (key != null)
 				{
-					String key = header.getKey();
-					if (key != null)
-					{
-						stream.write(key.getBytes());
-						stream.write(separator);
-						stream.write(header.getValue().getBytes());
-						stream.write(eol);
-					}
+					stream.write(key.getBytes());
+					stream.write(separator);
+					stream.write(header.getValue().getBytes());
+					stream.write(eol);
 				}
-				stream.write(eol);
 			}
+			stream.write(eol);
 
 			// write content
 			if (content != null)
