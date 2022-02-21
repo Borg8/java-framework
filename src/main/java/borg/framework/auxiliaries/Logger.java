@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.ZoneId;
@@ -36,7 +37,6 @@ public final class Logger
 	{
 		private final StringBuilder builder = new StringBuilder();
 		private final ZoneId zoneId = ZoneId.systemDefault();
-		private final StringWriter writer = new StringWriter();
 
 		@Override
 		@Contract(pure = true)
@@ -96,9 +96,18 @@ public final class Logger
 			if (params.thrown != null)
 			{
 				builder.append("\n\n");
+				StringWriter writer = new StringWriter();
 				PrintWriter printWriter = new PrintWriter(writer);
 				params.thrown.printStackTrace(printWriter);
 				printWriter.close();
+				try
+				{
+					writer.close();
+				}
+				catch (IOException e)
+				{
+					// nothing to do here
+				}
 				builder.append(writer);
 			}
 			builder.append("|\n\n");
