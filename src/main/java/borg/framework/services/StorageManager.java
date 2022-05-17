@@ -89,7 +89,7 @@ public final class StorageManager
 				// if fail to recreate directory
 				if ((directory_.delete() == false) || (directory_.mkdirs() == false))
 				{
-					throw new Exception("unable to create directory");
+					throw new Exception("unable to create directory: " + directory_.getAbsolutePath());
 				}
 			}
 		}
@@ -119,6 +119,19 @@ public final class StorageManager
 		}
 
 		return file_.delete();
+	}
+
+	/**
+	 * rename file.
+	 *
+	 * @param file_     file to rename.
+	 * @param filename_ new file path.
+	 *
+	 * @return {@code true} if the file was renamed, {@code false} otherwise.
+	 */
+	public static boolean rename(@NotNull File file_, @NotNull String filename_)
+	{
+		return file_.renameTo(new File(filename_));
 	}
 
 	/**

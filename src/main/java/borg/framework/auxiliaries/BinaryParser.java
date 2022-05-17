@@ -20,29 +20,19 @@ public final class BinaryParser
 	// Public Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * size int8 value
-	 **/
+	/** size int8 value **/
 	public static final int SIZE_INT8 = 1;
 
-	/**
-	 * size int16 value
-	 **/
+	/** size int16 value **/
 	public static final int SIZE_INT16 = 2;
 
-	/**
-	 * size int24 value
-	 */
+	/** size int24 value */
 	public static final int SIZE_INT24 = 3;
 
-	/**
-	 * size int32 value
-	 **/
+	/** size int32 value **/
 	public static final int SIZE_INT32 = 4;
 
-	/**
-	 * size int64 value
-	 **/
+	/** size int64 value **/
 	public static final int SIZE_INT64 = 8;
 
 	/** size int128 value **/
@@ -54,14 +44,10 @@ public final class BinaryParser
 	/** size of double value **/
 	public static final int SIZE_DOUBLE = 8;
 
-	/**
-	 * length of array size value
-	 **/
-	public static final int SIZE_ARRAY_SIZE_LENGTH = SIZE_INT16;
+	/** length of array size value **/
+	public static final int SIZE_ARRAY_LENGTH = SIZE_INT16;
 
-	/**
-	 * max value of byte
-	 */
+	/** max value of byte */
 	public static final int BYTE_MAX_SIZE = 255;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,9 +141,8 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	@SuppressWarnings("RedundantThrows")
 	@Contract(pure = true)
-	public static long readInteger(@NotNull Iterator<Byte> iterator_, int size_) throws Exception
+	public static long readInteger(@NotNull Iterator<Byte> iterator_, int size_)
 	{
 		long value = 0;
 		for (int i = 0; i < size_; ++i)
@@ -175,15 +160,13 @@ public final class BinaryParser
 	 * @param entityTypesEnum_ enum represents entity class types.
 	 *
 	 * @return read enumerator.
-	 *
-	 * @throws Exception if enum cannot be read
 	 */
 	@Contract(pure = true)
 	@NotNull
 	public static <T extends Enum<T>> T readEnum(@NotNull Iterator<Byte> iterator_,
 		@NotNull Class<T> entityTypesEnum_)
-		throws Exception
 	{
+
 		long value = 0;
 		for (int i = 0; i < SIZE_INT8; ++i)
 		{
@@ -191,11 +174,18 @@ public final class BinaryParser
 		}
 
 		// get entity class
-		Method method = entityTypesEnum_.getMethod("values");
-		@SuppressWarnings("unchecked")
-		T[] values = (T[])method.invoke(null);
+		try
+		{
+			Method method = entityTypesEnum_.getMethod("values");
+			@SuppressWarnings("unchecked")
+			T[] values = (T[])method.invoke(null);
 
-		return values[(int)value];
+			return values[(int)value];
+		}
+		catch (Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	/**
@@ -223,53 +213,52 @@ public final class BinaryParser
 	 * read array of integer values stored in byte array.
 	 *
 	 * @param iterator_ iterator in buffer where the array is stored.
-	 * @param size_     list value size in bytes.
+	 * @param size_     array value size in bytes.
 	 *
 	 * @return read array.
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static List<Long> readList(@NotNull Iterator<@NotNull Byte> iterator_, int size_)
-		throws Exception
+	public static <T extends Number> List<T> readIntegers(@NotNull Iterator<Byte> iterator_,
+		int size_)
 	{
 		// read array size
-		int size = (int)readInteger(iterator_, SIZE_ARRAY_SIZE_LENGTH);
+		int size = (int)readInteger(iterator_, SIZE_ARRAY_LENGTH);
 
 		// create array
-		ArrayList<Long> list = new ArrayList<>(size);
+		List<T> list = new ArrayList<>(size);
 
 		// read elements
 		for (int i = 0; i < size; ++i)
 		{
-			list.add(readInteger(iterator_, size_));
+			//noinspection unchecked
+			list.add((T)(Long)readInteger(iterator_, size_));
 		}
 
 		return list;
 	}
 
 	/**
-	 * read array of integer values stored in byte array.
+	 * read array of real numbers stored in byte array.
 	 *
 	 * @param iterator_ iterator in buffer where the array is stored.
-	 * @param size_     list value size in bytes.
 	 *
 	 * @return read array.
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static List<Byte> readByteList(@NotNull Iterator<@NotNull Byte> iterator_, int size_)
-		throws Exception
+	public static List<Double> readReals(@NotNull Iterator<Byte> iterator_)
 	{
 		// read array size
-		int size = (int)readInteger(iterator_, SIZE_ARRAY_SIZE_LENGTH);
+		int size = (int)readInteger(iterator_, SIZE_ARRAY_LENGTH);
 
 		// create array
-		List<Byte> list = new ArrayList<>(size);
+		ArrayList<Double> list = new ArrayList<>(size);
 
 		// read elements
 		for (int i = 0; i < size; ++i)
 		{
-			list.add((byte)readInteger(iterator_, size_));
+			list.add(readReal(iterator_));
 		}
 
 		return list;
@@ -282,30 +271,35 @@ public final class BinaryParser
 	 * @param class_    deserializable object class.
 	 *
 	 * @return read array.
-	 *
-	 * @throws Exception if array can not be read.
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <T> List<T> readList(@NotNull Iterator<@NotNull Byte> iterator_,
-		@NotNull Class<T> class_) throws Exception
+	public static <T> List<T> readObjects(@NotNull Iterator<Byte> iterator_,
+		@NotNull Class<T> class_)
 	{
 		// read array size
-		int size = (int)readInteger(iterator_, SIZE_ARRAY_SIZE_LENGTH);
+		int size = (int)readInteger(iterator_, SIZE_ARRAY_LENGTH);
 
 		// create array
 		ArrayList<T> list = new ArrayList<>(size);
 
 		// read elements
-		Constructor<T> constructor = class_.getDeclaredConstructor(Iterator.class);
-		for (int i = 0; i < size; ++i)
+		try
 		{
-			// create object
-			T object = constructor.newInstance(iterator_);
-			list.add(object);
-		}
+			Constructor<T> constructor = class_.getDeclaredConstructor(Iterator.class);
+			for (int i = 0; i < size; ++i)
+			{
+				// create object
+				T object = constructor.newInstance(iterator_);
+				list.add(object);
+			}
 
-		return list;
+			return list;
+		}
+		catch (Exception e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	/**
@@ -316,8 +310,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int write(@NotNull List<@NotNull Byte> object_,
-		@NotNull List<@NotNull Byte> buffer_)
+	public static int write(@NotNull List<Byte> object_, @NotNull List<Byte> buffer_)
 	{
 		buffer_.addAll(object_);
 
@@ -411,14 +404,14 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends BinarySerializable> int writeCollection(
+	public static <T extends BinarySerializable> int writeObjects(
 		@NotNull Collection<@NotNull T> collection_,
 		@NotNull List<Byte> buffer_)
 	{
 		int size = 0;
 
 		// write size
-		size += writeInteger(collection_.size(), SIZE_ARRAY_SIZE_LENGTH, buffer_);
+		size += writeInteger(collection_.size(), SIZE_ARRAY_LENGTH, buffer_);
 
 		// write array
 		for (T element : collection_)
@@ -439,7 +432,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends @NotNull Number> int writeCollection(
+	public static <T extends @NotNull Number> int writeIntegers(
 		@NotNull List<@NotNull T> collection_,
 		int elementSize_,
 		@NotNull List<Byte> buffer_)
@@ -447,12 +440,38 @@ public final class BinaryParser
 		int size = 0;
 
 		// write size
-		size += writeInteger(collection_.size(), SIZE_ARRAY_SIZE_LENGTH, buffer_);
+		size += writeInteger(collection_.size(), SIZE_ARRAY_LENGTH, buffer_);
 
 		// write array
 		for (T element : collection_)
 		{
 			size += writeInteger(element.longValue(), elementSize_, buffer_);
+		}
+
+		return size;
+	}
+
+	/**
+	 * write collection of double elements to buffer.
+	 *
+	 * @param collection_ collection of elements to write. Collection will be stored at the order that
+	 *                    provided collection defines.
+	 * @param buffer_     buffer to write to .
+	 *
+	 * @return number of written bytes.
+	 */
+	public static <T extends Number> int writeReals(@NotNull List<@NotNull T> collection_,
+		@NotNull List<Byte> buffer_)
+	{
+		int size = 0;
+
+		// write size
+		size += writeInteger(collection_.size(), SIZE_ARRAY_LENGTH, buffer_);
+
+		// write array
+		for (T d : collection_)
+		{
+			size += writeReal((Double)d, buffer_);
 		}
 
 		return size;
@@ -467,13 +486,13 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends Enum<?>> int writeCollection(@NotNull List<@NotNull T> collection_,
+	public static <T extends Enum<?>> int writeEnums(@NotNull List<@NotNull T> collection_,
 		@NotNull List<Byte> buffer_)
 	{
 		int size = 0;
 
 		// write size
-		size += writeInteger(collection_.size(), SIZE_ARRAY_SIZE_LENGTH, buffer_);
+		size += writeInteger(collection_.size(), SIZE_ARRAY_LENGTH, buffer_);
 
 		// write array
 		for (T element : collection_)
@@ -485,27 +504,27 @@ public final class BinaryParser
 	}
 
 	/**
-	 * write double value to byte array.
+	 * write real value to byte array.
 	 *
 	 * @param value_  value to write.
 	 * @param buffer_ buffer to write to.
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeDouble(double value_, @NotNull List<Byte> buffer_)
+	public static int writeReal(double value_, @NotNull List<Byte> buffer_)
 	{
 		return writeInteger(Double.doubleToRawLongBits(value_), SIZE_DOUBLE, buffer_);
 	}
 
 	/**
-	 * read double value from byte array.
+	 * read real value from byte array.
 	 *
 	 * @param iterator_ iterator in buffer where the value is stored.
 	 *
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static double readDouble(@NotNull Iterator<@NotNull Byte> iterator_) throws Exception
+	public static double readReal(@NotNull Iterator<Byte> iterator_)
 	{
 		return Double.longBitsToDouble(readInteger(iterator_, SIZE_DOUBLE));
 	}
@@ -531,7 +550,7 @@ public final class BinaryParser
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static double readFloat(@NotNull Iterator<@NotNull Byte> iterator_) throws Exception
+	public static double readFloat(@NotNull Iterator<Byte> iterator_)
 	{
 		return Float.intBitsToFloat((int)readInteger(iterator_, SIZE_FLOAT));
 	}

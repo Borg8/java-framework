@@ -76,7 +76,7 @@ public abstract class Serialized implements Serializable
 
 	/** tag represents the instance. Have to be valid filename **/
 	@NotNull
-	public final String tag;
+	public final transient String tag;
 
 	/** file encryptor **/
 	@Nullable
@@ -150,9 +150,9 @@ public abstract class Serialized implements Serializable
 	}
 
 	/**
-	 * save current state.
+	 * store the state.
 	 *
-	 * @return {@code true} if state was saved successfully, {@code false} otherwise.
+	 * @return {@code true} if the state was saved successfully, {@code false} otherwise.
 	 */
 	@SuppressWarnings("null") // compiler issues
 	public final boolean saveState()
