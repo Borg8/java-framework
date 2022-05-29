@@ -150,6 +150,14 @@ public abstract class Serialized implements Serializable
 	}
 
 	/**
+	 * @return number of opened transactions.
+	 */
+	public final int getTransactions()
+	{
+		return mTransactions;
+	}
+
+	/**
 	 * store the state.
 	 *
 	 * @return {@code true} if the state was saved successfully, {@code false} otherwise.

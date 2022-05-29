@@ -360,10 +360,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeInteger(long value_,
-		int size_,
-		int index_,
-		@NotNull List<Byte> buffer_)
+	public static int writeInteger(long value_, int size_, int index_, @NotNull List<Byte> buffer_)
 	{
 		for (int i = 0; i < size_; ++i)
 		{
@@ -404,8 +401,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends BinarySerializable> int writeObjects(
-		@NotNull Collection<@NotNull T> collection_,
+	public static <T extends BinarySerializable> int writeObjects(@NotNull Collection<T> collection_,
 		@NotNull List<Byte> buffer_)
 	{
 		int size = 0;
@@ -432,8 +428,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends @NotNull Number> int writeIntegers(
-		@NotNull List<@NotNull T> collection_,
+	public static <T extends @NotNull Number> int writeIntegers(@NotNull List<T> collection_,
 		int elementSize_,
 		@NotNull List<Byte> buffer_)
 	{
@@ -452,6 +447,34 @@ public final class BinaryParser
 	}
 
 	/**
+	 * write array of primitive integer elements to buffer.
+	 *
+	 * @param array_       array of elements to write. Collection will be stored at the order that
+	 *                     provided collection defines.
+	 * @param elementSize_ size of every element.
+	 * @param buffer_      buffer to write to .
+	 *
+	 * @return number of written bytes.
+	 */
+	public static int writeIntegers(int @NotNull [] array_,
+		int elementSize_,
+		@NotNull List<Byte> buffer_)
+	{
+		int size = 0;
+
+		// write size
+		size += writeInteger(array_.length, SIZE_ARRAY_LENGTH, buffer_);
+
+		// write array
+		for (int element : array_)
+		{
+			size += writeInteger(element, elementSize_, buffer_);
+		}
+
+		return size;
+	}
+
+	/**
 	 * write collection of double elements to buffer.
 	 *
 	 * @param collection_ collection of elements to write. Collection will be stored at the order that
@@ -460,7 +483,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends Number> int writeReals(@NotNull List<@NotNull T> collection_,
+	public static <T extends Number> int writeReals(@NotNull List<T> collection_,
 		@NotNull List<Byte> buffer_)
 	{
 		int size = 0;
@@ -478,6 +501,31 @@ public final class BinaryParser
 	}
 
 	/**
+	 * write array of double elements to buffer.
+	 *
+	 * @param array_  array of elements to write. Collection will be stored at the order that
+	 *                provided collection defines.
+	 * @param buffer_ buffer to write to .
+	 *
+	 * @return number of written bytes.
+	 */
+	public static int writeReals(double @NotNull [] array_, @NotNull List<Byte> buffer_)
+	{
+		int size = 0;
+
+		// write size
+		size += writeInteger(array_.length, SIZE_ARRAY_LENGTH, buffer_);
+
+		// write array
+		for (double d : array_)
+		{
+			size += writeReal(d, buffer_);
+		}
+
+		return size;
+	}
+
+	/**
 	 * write collection of enums elements to buffer.
 	 *
 	 * @param collection_ collection of elements to write. Collection will be stored at the order that
@@ -486,7 +534,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends Enum<?>> int writeEnums(@NotNull List<@NotNull T> collection_,
+	public static <T extends Enum<?>> int writeEnums(@NotNull List<T> collection_,
 		@NotNull List<Byte> buffer_)
 	{
 		int size = 0;

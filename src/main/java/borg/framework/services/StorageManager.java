@@ -101,7 +101,7 @@ public final class StorageManager
 	 * @param file_ file to delete.
 	 *
 	 * @return {@code true} if the file or whole directory was deleted, {@code false} otherwise, but
-	 * if the file is directory, then it possible than some files were deleted.
+	 * if the file is directory, then it is possible that some files were deleted.
 	 */
 	public static boolean delete(@NotNull File file_)
 	{
