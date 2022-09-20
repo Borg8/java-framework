@@ -67,7 +67,10 @@ public final class BinaryParser
 		 *
 		 * @return size of serialized object.
 		 */
-		int serialize(@NotNull List<Byte> buffer_);
+		default int serialize(@NotNull List<Byte> buffer_)
+		{
+			return 0;
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////

@@ -17,10 +17,10 @@ public final class NetworkTools
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** read connection **/
-	public static final int TIMEOUT_CONNECT = (int)(10 * TimeManager.SECOND);
+	public static final int TIMEOUT_CONNECT = (int)(15 * TimeManager.SECOND);
 
 	/** read timeout **/
-	public static final int TIMEOUT_READ = (int)TimeManager.SECOND;
+	public static final int TIMEOUT_READ = (int)TimeManager.SECOND * 10;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants

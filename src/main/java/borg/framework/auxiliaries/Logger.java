@@ -155,10 +155,10 @@ public final class Logger
 	/** stack holder **/
 	private static final Throwable sStackHolder = new Throwable();
 
-	/**	root class to log **/
+	/** root class to log **/
 	private static String sRoot = null;
 
-	/** maximum stack log depth  **/
+	/** maximum stack log depth **/
 	private static int sDepth = 0;
 
 	/** is stack ready **/

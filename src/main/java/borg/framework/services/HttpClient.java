@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import borg.framework.auxiliaries.Logger;
+import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.structures.HttpResponse;
 import borg.framework.structures.NetworkResult;
 
@@ -51,7 +52,7 @@ public final class HttpClient
 	@Contract(pure = true)
 	private HttpClient()
 	{
-		// nothing to do here
+		setTimeouts(NetworkTools.TIMEOUT_CONNECT, NetworkTools.TIMEOUT_READ);
 	}
 
 	/**

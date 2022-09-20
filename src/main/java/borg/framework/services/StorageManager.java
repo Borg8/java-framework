@@ -10,9 +10,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
-import java.util.logging.Level;
-
-import borg.framework.auxiliaries.Logger;
 
 public final class StorageManager
 {
@@ -283,21 +280,9 @@ public final class StorageManager
 	@Contract(pure = true)
 	public static byte @NotNull [] readFile(@NotNull File file_) throws Exception
 	{
-		FileInputStream stream = getFileInputStream(file_);
-		try
+		try (FileInputStream stream = getFileInputStream(file_))
 		{
 			return readFile(stream);
-		}
-		finally
-		{
-			try
-			{
-				stream.close();
-			}
-			catch (Exception e_)
-			{
-				Logger.log(Level.WARNING, e_);
-			}
 		}
 	}
 
@@ -313,30 +298,28 @@ public final class StorageManager
 	@Contract(pure = true)
 	public static byte @NotNull [] readFile(@NotNull final InputStream stream_) throws Exception
 	{
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		byte[] buffer = new byte[SIZE_CHUNK];
-
-		for (; ; )
+		try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream())
 		{
-			// read chunk
-			int len;
-			len = stream_.read(buffer, 0, buffer.length);
+			byte[] buffer = new byte[SIZE_CHUNK];
 
-			// if last chunk was read
-			if (len < 0)
+			for (; ; )
 			{
-				break;
+				// read chunk
+				int len;
+				len = stream_.read(buffer, 0, buffer.length);
+
+				// if last chunk was read
+				if (len < 0)
+				{
+					break;
+				}
+
+				// write chunk
+				byteStream.write(buffer, 0, len);
 			}
 
-			// write chunk
-			byteStream.write(buffer, 0, len);
+			return byteStream.toByteArray();
 		}
-
-		byte[] array = byteStream.toByteArray();
-
-		byteStream.close();
-
-		return array;
 	}
 
 	/**
@@ -433,22 +416,9 @@ public final class StorageManager
 	private static void writeFile(@NotNull File file_, byte @NotNull [] content_, boolean append_)
 		throws Exception
 	{
-		OutputStream stream = getFileOutputStream(file_, append_);
-
-		try
+		try (OutputStream stream = getFileOutputStream(file_, append_))
 		{
 			stream.write(content_);
-		}
-		finally
-		{
-			try
-			{
-				stream.close();
-			}
-			catch (Exception e_)
-			{
-				Logger.log(Level.WARNING, e_);
-			}
 		}
 	}
 
@@ -456,11 +426,10 @@ public final class StorageManager
 		@NotNull InputStream stream_,
 		boolean append_) throws Exception
 	{
-		FileOutputStream outputStream = getFileOutputStream(file_, append_);
-		byte[] buffer = new byte[SIZE_CHUNK];
-
-		try
+		try (FileOutputStream outputStream = getFileOutputStream(file_, append_))
 		{
+			byte[] buffer = new byte[SIZE_CHUNK];
+
 			for (; ; )
 			{
 				// read chunk
@@ -475,17 +444,6 @@ public final class StorageManager
 				{
 					break;
 				}
-			}
-		}
-		finally
-		{
-			try
-			{
-				outputStream.close();
-			}
-			catch (Exception e_)
-			{
-				Logger.log(Level.WARNING, e_);
 			}
 		}
 	}

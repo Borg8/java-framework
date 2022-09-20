@@ -138,7 +138,11 @@ public class HttpRequest implements Serializable
 				stream.write(separator);
 
 				// write uri
-				stream.write(uri.getRawQuery().getBytes());
+				String query = uri.getRawQuery();
+				if (query != null)
+				{
+					stream.write(query.getBytes());
+				}
 				stream.write(separator);
 
 				// write HTTP 1.1

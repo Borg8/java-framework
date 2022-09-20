@@ -409,7 +409,6 @@ public class TasksManager
 					}
 					catch (Exception e)
 					{
-						Logger.log(e); // TODO remove
 						// nothing to do here
 					}
 				}
