@@ -323,6 +323,21 @@ public final class StorageManager
 	}
 
 	/**
+	 * skip in file.
+	 *
+	 * @param stream_ file input stream.
+	 * @param bytes_  number of bytes to skip (can be negative).
+	 */
+	public static void skip(@NotNull FileInputStream stream_, long bytes_) throws Exception
+	{
+		do
+		{
+			long skipped = stream_.skip(bytes_);
+			bytes_ -= skipped;
+		} while (bytes_ != 0);
+	}
+
+	/**
 	 * create output stream for given file.
 	 *
 	 * @param name_   - file path.

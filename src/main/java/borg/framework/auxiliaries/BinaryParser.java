@@ -277,7 +277,7 @@ public final class BinaryParser
 	 */
 	@NotNull
 	@Contract(pure = true)
-	public static <T> List<T> readObjects(@NotNull Iterator<Byte> iterator_,
+	public static <T extends BinarySerializable> List<T> readObjects(@NotNull Iterator<Byte> iterator_,
 		@NotNull Class<T> class_)
 	{
 		// read array size
@@ -290,6 +290,7 @@ public final class BinaryParser
 		try
 		{
 			Constructor<T> constructor = class_.getDeclaredConstructor(Iterator.class);
+			constructor.setAccessible(true);
 			for (int i = 0; i < size; ++i)
 			{
 				// create object
@@ -431,7 +432,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends @NotNull Number> int writeIntegers(@NotNull List<T> collection_,
+	public static <T extends Number> int writeIntegers(@NotNull List<T> collection_,
 		int elementSize_,
 		@NotNull List<Byte> buffer_)
 	{
