@@ -13,6 +13,11 @@ public class RangeArrayList<T> extends ArrayList<T>
 		super(collection_);
 	}
 
+	public RangeArrayList()
+	{
+		super();
+	}
+
 	public RangeArrayList(int capacity_)
 	{
 		super(capacity_);

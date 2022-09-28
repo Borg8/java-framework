@@ -140,7 +140,7 @@ public final class TextParser
 		char dateSeparator_,
 		int precision_)
 	{
-		Calendar sCalendar = Calendar.getInstance(TimeZone.getTimeZone("ET"));
+		Calendar sCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		sCalendar.setTimeInMillis(timestamp_);
 		StringBuilder builder = new StringBuilder();
 
