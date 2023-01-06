@@ -42,7 +42,7 @@ public final class BinaryParser
 	public static final int SIZE_DOUBLE = 8;
 
 	/** length of array size value **/
-	public static final int SIZE_ARRAY_LENGTH = SIZE_INT16;
+	public static final int SIZE_ARRAY_LENGTH = 3;
 
 	/** max value of byte */
 	public static final int BYTE_MAX_SIZE = 255;
@@ -68,7 +68,7 @@ public final class BinaryParser
 		 *
 		 * @return size of serialized object.
 		 */
-		default int serialize(@NotNull Writer writer_)
+		default int serialize(@SuppressWarnings("unused") @NotNull Writer writer_)
 		{
 			return 0;
 		}
@@ -140,7 +140,13 @@ public final class BinaryParser
 		public byte @NotNull [] extractContent()
 		{
 			byte[] content = new byte[mIndex];
-			System.arraycopy(mBuffer, 0, content, 0, mIndex);
+
+			if (mIndex > 0)
+			{
+				System.arraycopy(mBuffer, 0, content, 0, mIndex);
+				mBuffer = content;
+			}
+
 			return content;
 		}
 
@@ -298,24 +304,22 @@ public final class BinaryParser
 	 *
 	 * @return read array.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static <T extends Number> List<T> readIntegers(@NotNull Reader reader_, int size_)
+	public static long @NotNull [] readIntegers(@NotNull Reader reader_, int size_)
 	{
 		// read array size
 		int size = (int)readInteger(reader_, SIZE_ARRAY_LENGTH);
 
 		// create array
-		List<T> list = new ArrayList<>(size);
+		long[] numbers = new long[size];
 
 		// read elements
 		for (int i = 0; i < size; ++i)
 		{
-			//noinspection unchecked
-			list.add((T)(Long)readInteger(reader_, size_));
+			numbers[i] = readInteger(reader_, size_);
 		}
 
-		return list;
+		return numbers;
 	}
 
 	/**
@@ -325,23 +329,22 @@ public final class BinaryParser
 	 *
 	 * @return read array.
 	 */
-	@NotNull
 	@Contract(pure = true)
-	public static List<Double> readReals(@NotNull Reader reader_)
+	public static double @NotNull [] readReals(@NotNull Reader reader_)
 	{
 		// read array size
 		int size = (int)readInteger(reader_, SIZE_ARRAY_LENGTH);
 
 		// create array
-		ArrayList<Double> list = new ArrayList<>(size);
+		double[] reals = new double[size];
 
 		// read elements
 		for (int i = 0; i < size; ++i)
 		{
-			list.add(readReal(reader_));
+			reals[i] = readReal(reader_);
 		}
 
-		return list;
+		return reals;
 	}
 
 	/**

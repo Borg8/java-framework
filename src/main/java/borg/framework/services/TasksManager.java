@@ -150,7 +150,7 @@ public class TasksManager
 	}
 
 	/**
-	 * run task on main thread. If called from main thread, then the task will executed synchronously.
+	 * run task on main thread. If called from main thread, then the task will be executed synchronously.
 	 *
 	 * @param task_  task to run.
 	 * @param param_ task parameter.
@@ -383,8 +383,6 @@ public class TasksManager
 		//noinspection InfiniteLoopStatement
 		for (; ; )
 		{
-			// TODO sleep in no tasks
-
 			// loop timer
 			long next = TimeManager.loop();
 

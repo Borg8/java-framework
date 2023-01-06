@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
 import borg.framework.structures.HttpResponse;
 import borg.framework.structures.NetworkResult;
@@ -42,32 +41,14 @@ public final class HttpClient
 	/** read timeout **/
 	private int mReadTimeout;
 
-	/** single instance of HttpPoster */
-	private static HttpClient sInstance = null;
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Contract(pure = true)
-	private HttpClient()
+	public HttpClient()
 	{
 		setTimeouts(NetworkTools.TIMEOUT_CONNECT, NetworkTools.TIMEOUT_READ);
-	}
-
-	/**
-	 * @return single instance of HttpPoster.
-	 */
-	@NotNull
-	public static synchronized HttpClient getInstance()
-	{
-		if (sInstance == null)
-		{
-			// create single instance of HttpPoster
-			sInstance = new HttpClient();
-		}
-
-		return sInstance;
 	}
 
 	/**
@@ -125,7 +106,7 @@ public final class HttpClient
 				}
 				catch (Exception e)
 				{
-					Logger.log(e);
+//					Logger.log(e);
 					break;
 				}
 
@@ -139,7 +120,7 @@ public final class HttpClient
 					}
 					catch (Exception e)
 					{
-						Logger.log(e);
+//						Logger.log(e);
 
 						// unable to send
 						result = NetworkResult.UNABLE_TO_SEND;
@@ -198,7 +179,7 @@ public final class HttpClient
 				}
 				catch (Exception e)
 				{
-					Logger.log(e);
+//					Logger.log(e);
 
 					// unable to read
 					result = NetworkResult.UNABLE_TO_READ;
@@ -232,7 +213,7 @@ public final class HttpClient
 			}
 			catch (Exception e)
 			{
-				Logger.log(e);
+//				Logger.log(e);
 			}
 		}
 		if (out != null)
@@ -243,7 +224,7 @@ public final class HttpClient
 			}
 			catch (Exception e)
 			{
-				Logger.log(e);
+//				Logger.log(e);
 			}
 		}
 		if (connection != null)
@@ -282,7 +263,7 @@ public final class HttpClient
 		}
 		catch (Exception e)
 		{
-			Logger.log(e);
+//			Logger.log(e);
 		}
 
 		return null;
