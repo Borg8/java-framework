@@ -2,6 +2,7 @@ package borg.framework.auxiliaries;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.zip.CRC32;
+
+import borg.framework.collections.ByteArray;
 
 public final class BinaryParser
 {
@@ -46,14 +49,6 @@ public final class BinaryParser
 
 	/** max value of byte */
 	public static final int BYTE_MAX_SIZE = 255;
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Constants
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private static final int MIN_SIZE_BUFFER = 16;
-
-	private static final float MULTIPLIER_BUFFER = 1.5f;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
@@ -104,56 +99,35 @@ public final class BinaryParser
 	public static final class Writer
 	{
 		/** buffer to write to **/
-		private byte[] mBuffer;
+		private final ByteArray mBuffer;
 
-		/** current buffer index **/
-		private int mIndex;
 
 		public Writer()
 		{
-			mBuffer = new byte[MIN_SIZE_BUFFER];
-			mIndex = 0;
+			mBuffer = new ByteArray();
 		}
 
 		void write(byte b_)
 		{
-			// if not enough space in the buffer
-			if (mBuffer.length == mIndex)
-			{
-				// reallocate buffer
-				byte[] buffer = new byte[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
-				System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
-				mBuffer = buffer;
-			}
-
-			// write byte
-			mBuffer[mIndex] = b_;
-			++mIndex;
+			mBuffer.push(b_);
 		}
 
 		@Contract(pure = true)
+		@Unmodifiable
 		public byte @NotNull [] getContent()
 		{
-			return mBuffer;
+			return mBuffer.getContent();
 		}
 
 		public byte @NotNull [] extractContent()
 		{
-			byte[] content = new byte[mIndex];
-
-			if (mIndex > 0)
-			{
-				System.arraycopy(mBuffer, 0, content, 0, mIndex);
-				mBuffer = content;
-			}
-
-			return content;
+			return mBuffer.extractContent();
 		}
 
 		@Contract(pure = true)
 		public int getContentLength()
 		{
-			return mIndex;
+			return mBuffer.length();
 		}
 	}
 

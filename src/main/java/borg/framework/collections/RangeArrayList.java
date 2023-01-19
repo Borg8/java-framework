@@ -1,4 +1,4 @@
-package borg.framework.structures;
+package borg.framework.collections;
 
 import org.intellij.lang.annotations.Flow;
 import org.jetbrains.annotations.NotNull;
