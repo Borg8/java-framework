@@ -86,6 +86,14 @@ public class DoubleArray extends PrimitiveArray<Double>
 		//noinspection unchecked
 		return (S)subArray;
 	}
+
+	@Override
+	public void removeRange(int from_, int to_)
+	{
+		System.arraycopy(mBuffer, to_, mBuffer, from_, mIndex - to_);
+		mIndex -= to_ - from_;
+	}
+
 	@Override
 	public void clear()
 	{

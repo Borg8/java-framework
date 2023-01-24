@@ -11,10 +11,8 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -23,6 +21,7 @@ import javax.net.ssl.SSLSocketFactory;
 import borg.framework.auxiliaries.Auxiliary;
 import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
+import borg.framework.collections.ByteArray;
 import borg.framework.structures.HttpRequest;
 import borg.framework.structures.HttpResponse;
 import borg.framework.structures.NetworkResult;
@@ -401,7 +400,7 @@ public class WebSocket
 		boolean mask_,
 		byte @NotNull [] payload_)
 	{
-		List<Byte> buffer = new ArrayList<>();
+		ByteArray buffer = new ByteArray();
 
 		// add fin
 		int b = (fin_? 1: 0) << 7;
@@ -419,7 +418,7 @@ public class WebSocket
 		b |= opcode_.ordinal();
 
 		// add byte
-		buffer.add((byte)b);
+		buffer.push((byte)b);
 
 		// add key mask
 		b = (mask_? 1: 0) << 7;
@@ -429,7 +428,7 @@ public class WebSocket
 		{
 			// add length
 			b |= payload_.length;
-			buffer.add((byte)b);
+			buffer.push((byte)b);
 		}
 		else
 		{
@@ -438,24 +437,24 @@ public class WebSocket
 			{
 				// add length
 				b |= 0x7e;
-				buffer.add((byte)b);
-				buffer.add((byte)((payload_.length >>> 8) & 0xff));
-				buffer.add((byte)(payload_.length & 0xff));
+				buffer.push((byte)b);
+				buffer.push((byte)((payload_.length >>> 8) & 0xff));
+				buffer.push((byte)(payload_.length & 0xff));
 			}
 			else
 			{
 				// add length
 				b |= 0x7f;
-				buffer.add((byte)b);
+				buffer.push((byte)b);
 				long l = payload_.length;
-				buffer.add((byte)((l >>> 56) & 0xff));
-				buffer.add((byte)((l >>> 48) & 0xff));
-				buffer.add((byte)((l >>> 40) & 0xff));
-				buffer.add((byte)((l >>> 32) & 0xff));
-				buffer.add((byte)((l >>> 24) & 0xff));
-				buffer.add((byte)((l >>> 16) & 0xff));
-				buffer.add((byte)((l >>> 8) & 0xff));
-				buffer.add((byte)(l & 0xff));
+				buffer.push((byte)((l >>> 56) & 0xff));
+				buffer.push((byte)((l >>> 48) & 0xff));
+				buffer.push((byte)((l >>> 40) & 0xff));
+				buffer.push((byte)((l >>> 32) & 0xff));
+				buffer.push((byte)((l >>> 24) & 0xff));
+				buffer.push((byte)((l >>> 16) & 0xff));
+				buffer.push((byte)((l >>> 8) & 0xff));
+				buffer.push((byte)(l & 0xff));
 			}
 		}
 
@@ -469,18 +468,18 @@ public class WebSocket
 			};
 		for (byte value : key)
 		{
-			buffer.add(value);
+			buffer.push(value);
 		}
 
 		// add encrypted data
 		int j = 0;
 		for (byte value : payload_)
 		{
-			buffer.add((byte)(value ^ key[j]));
+			buffer.push((byte)(value ^ key[j]));
 			j = j == 3? 0: j + 1;
 		}
 
-		return ArraysManager.bytesFromList(buffer);
+		return buffer.extractContent();
 	}
 
 	private final TasksManager.Task<Void> socketTask = new TasksManager.Task<>()

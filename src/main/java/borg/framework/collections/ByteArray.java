@@ -19,6 +19,12 @@ public class ByteArray extends PrimitiveArray<Byte>
 		mBuffer = new byte[capacity_];
 	}
 
+	public ByteArray(byte... data_)
+	{
+		mBuffer = data_;
+		mIndex = mBuffer.length;
+	}
+
 	@Contract(pure = true)
 	public byte get(int ix_)
 	{
@@ -85,6 +91,13 @@ public class ByteArray extends PrimitiveArray<Byte>
 
 		//noinspection unchecked
 		return (S)subArray;
+	}
+
+	@Override
+	public void removeRange(int from_, int to_)
+	{
+		System.arraycopy(mBuffer, to_, mBuffer, from_, mIndex - to_);
+		mIndex -= to_ - from_;
 	}
 
 	@Override

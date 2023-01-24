@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.Iterator;
 
-public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
+abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 {
 	protected static final int MIN_SIZE_BUFFER = 16;
 
@@ -20,6 +20,8 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 	{
 		return mIndex;
 	}
+
+	public abstract void removeRange(int from_, int to_);
 
 	public abstract void clear();
 
@@ -55,5 +57,4 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 			}
 		};
 	}
-
 }
