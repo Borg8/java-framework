@@ -96,20 +96,14 @@ public final class BinaryParser
 		}
 	}
 
-	public static final class Writer
+	public static class Writer
 	{
 		/** buffer to write to **/
 		private final ByteArray mBuffer;
 
-
 		public Writer()
 		{
 			mBuffer = new ByteArray();
-		}
-
-		void write(byte b_)
-		{
-			mBuffer.push(b_);
 		}
 
 		@Contract(pure = true)
@@ -129,6 +123,17 @@ public final class BinaryParser
 		{
 			return mBuffer.length();
 		}
+
+		protected void write(byte b_)
+		{
+			mBuffer.push(b_);
+		}
+
+		protected void clear()
+		{
+			mBuffer.clear();
+		}
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////

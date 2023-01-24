@@ -4,17 +4,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-public class ByteArray
+public class ByteArray extends PrimitiveArray<Byte>
 {
-	private static final int MIN_SIZE_BUFFER = 16;
-
-	private static final float MULTIPLIER_BUFFER = 1.5f;
-
 	/** buffer to write to **/
 	private byte[] mBuffer;
-
-	/** current buffer index **/
-	private int mIndex;
 
 	public ByteArray()
 	{
@@ -24,6 +17,17 @@ public class ByteArray
 	public ByteArray(int capacity_)
 	{
 		mBuffer = new byte[capacity_];
+	}
+
+	@Contract(pure = true)
+	public byte get(int ix_)
+	{
+		if (ix_ < mIndex)
+		{
+			return mBuffer[ix_];
+		}
+
+		throw new ArrayIndexOutOfBoundsException(String.format("%d of maximum %d", ix_, mIndex - 1));
 	}
 
 	@Contract(pure = true)
@@ -45,12 +49,6 @@ public class ByteArray
 		}
 
 		return content;
-	}
-
-	@Contract(pure = true)
-	public int length()
-	{
-		return mIndex;
 	}
 
 	public void push(byte b_)
@@ -76,8 +74,31 @@ public class ByteArray
 		return mBuffer[mIndex];
 	}
 
+	@Override
+	@Contract(pure = true)
+	@NotNull
+	public <S extends PrimitiveArray<Byte>> S subArray(int fromIx_, int toIx_)
+	{
+		int length = toIx_ - fromIx_;
+		ByteArray subArray = new ByteArray(length);
+		System.arraycopy(mBuffer, fromIx_, subArray.mBuffer, 0, length);
+
+		//noinspection unchecked
+		return (S)subArray;
+	}
+
+	@Override
 	public void clear()
 	{
 		mIndex = 0;
+		mBuffer = new byte[MIN_SIZE_BUFFER];
 	}
+
+	@Override
+	@NotNull
+	protected Byte getObj(int ix_)
+	{
+		return mBuffer[ix_];
+	}
+
 }
