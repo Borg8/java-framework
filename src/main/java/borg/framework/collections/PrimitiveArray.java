@@ -21,6 +21,12 @@ abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 		return mIndex;
 	}
 
+	@Contract(pure = true)
+	public final boolean isEmpty()
+	{
+		return mIndex == 0;
+	}
+
 	public abstract void removeRange(int from_, int to_);
 
 	public abstract void clear();

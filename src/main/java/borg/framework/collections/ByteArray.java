@@ -37,6 +37,12 @@ public class ByteArray extends PrimitiveArray<Byte>
 	}
 
 	@Contract(pure = true)
+	public byte last()
+	{
+		return mBuffer[mIndex - 1];
+	}
+
+	@Contract(pure = true)
 	@Unmodifiable
 	public byte @NotNull [] getContent()
 	{

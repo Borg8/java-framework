@@ -19,6 +19,12 @@ public class LongArray extends PrimitiveArray<Long>
 		mBuffer = new long[capacity_];
 	}
 
+	public LongArray(long @NotNull ... elements_)
+	{
+		mBuffer = elements_;
+		mIndex = elements_.length;
+	}
+
 	@Contract(pure = true)
 	public long get(int ix_)
 	{
@@ -28,6 +34,12 @@ public class LongArray extends PrimitiveArray<Long>
 		}
 
 		throw new ArrayIndexOutOfBoundsException(String.format("%d of maximum %d", ix_, mIndex - 1));
+	}
+
+	@Contract(pure = true)
+	public long last()
+	{
+		return mBuffer[mIndex - 1];
 	}
 
 	@Contract(pure = true)

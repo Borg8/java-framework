@@ -4,23 +4,29 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-public class DoubleArray extends PrimitiveArray<Double>
+public class IntArray extends PrimitiveArray<Integer>
 {
 	/** buffer to write to **/
-	private double[] mBuffer;
+	private int[] mBuffer;
 
-	public DoubleArray()
+	public IntArray()
 	{
 		this(MIN_SIZE_BUFFER);
 	}
 
-	public DoubleArray(int capacity_)
+	public IntArray(int capacity_)
 	{
-		mBuffer = new double[capacity_];
+		mBuffer = new int[capacity_];
+	}
+
+	public IntArray(int @NotNull ... elements_)
+	{
+		mBuffer = elements_;
+		mIndex = elements_.length;
 	}
 
 	@Contract(pure = true)
-	public double get(int ix_)
+	public int get(int ix_)
 	{
 		if (ix_ < mIndex)
 		{
@@ -31,22 +37,22 @@ public class DoubleArray extends PrimitiveArray<Double>
 	}
 
 	@Contract(pure = true)
-	public double last()
+	public int last()
 	{
 		return mBuffer[mIndex - 1];
 	}
 
 	@Contract(pure = true)
 	@Unmodifiable
-	public double @NotNull [] getContent()
+	public int @NotNull [] getContent()
 	{
 		return mBuffer;
 	}
 
 	@Contract(pure = true)
-	public double @NotNull [] extractContent()
+	public int @NotNull [] extractContent()
 	{
-		double[] content = new double[mIndex];
+		int[] content = new int[mIndex];
 
 		if (mIndex > 0)
 		{
@@ -57,24 +63,24 @@ public class DoubleArray extends PrimitiveArray<Double>
 		return content;
 	}
 
-	public void push(double b_)
+	public void push(int b_)
 	{
 		// if not enough space in the buffer
 		if (mBuffer.length == mIndex)
 		{
 			// reallocate buffer
-			double[] buffer = new double[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
+			int[] buffer = new int[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
 			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
 			mBuffer = buffer;
 		}
 
-		// write double
+		// write int
 		mBuffer[mIndex] = b_;
 		++mIndex;
 	}
 
 	@Contract(pure = true)
-	public double pop()
+	public int pop()
 	{
 		--mIndex;
 		return mBuffer[mIndex];
@@ -83,10 +89,10 @@ public class DoubleArray extends PrimitiveArray<Double>
 	@Override
 	@Contract(pure = true)
 	@NotNull
-	public <S extends PrimitiveArray<Double>> S subArray(int fromIx_, int toIx_)
+	public <S extends PrimitiveArray<Integer>> S subArray(int fromIx_, int toIx_)
 	{
 		int length = toIx_ - fromIx_;
-		DoubleArray subArray = new DoubleArray(length);
+		IntArray subArray = new IntArray(length);
 		System.arraycopy(mBuffer, fromIx_, subArray.mBuffer, 0, length);
 
 		//noinspection unchecked
@@ -104,12 +110,12 @@ public class DoubleArray extends PrimitiveArray<Double>
 	public void clear()
 	{
 		mIndex = 0;
-		mBuffer = new double[MIN_SIZE_BUFFER];
+		mBuffer = new int[MIN_SIZE_BUFFER];
 	}
 
 	@Override
 	@NotNull
-	protected Double getObj(int ix_)
+	protected Integer getObj(int ix_)
 	{
 		return mBuffer[ix_];
 	}

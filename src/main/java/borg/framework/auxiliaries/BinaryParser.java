@@ -84,7 +84,7 @@ public final class BinaryParser
 		}
 
 		@Contract(pure = true)
-		public byte read()
+		byte read()
 		{
 			return mBuffer[mIndex++];
 		}
@@ -133,7 +133,6 @@ public final class BinaryParser
 		{
 			mBuffer.clear();
 		}
-
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,6 +298,31 @@ public final class BinaryParser
 		}
 
 		return numbers;
+	}
+
+	/**
+	 * read array of bytes stored in byte array.
+	 *
+	 * @param reader_ reader to use.
+	 *
+	 * @return read bytes array.
+	 */
+	@Contract(pure = true)
+	public static byte @NotNull [] readBytes(@NotNull Reader reader_)
+	{
+		// read array size
+		int size = (int)readInteger(reader_, SIZE_ARRAY_LENGTH);
+
+		// create array
+		byte[] bytes = new byte[size];
+
+		// read elements
+		for (int i = 0; i < size; ++i)
+		{
+			bytes[i] = (byte)readInteger(reader_, SIZE_INT8);
+		}
+
+		return bytes;
 	}
 
 	/**

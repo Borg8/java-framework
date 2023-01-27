@@ -580,6 +580,7 @@ public final class ArraysManager
 	 * @return built array.
 	 */
 	@Contract(pure = true)
+	@Deprecated
 	public static byte @NotNull [] bytesFromList(@NotNull List<Byte> data_)
 	{
 		int n = data_.size();
@@ -601,6 +602,7 @@ public final class ArraysManager
 	 */
 	@NotNull
 	@Contract(pure = true)
+	@Deprecated
 	public static List<Byte> listFromBytes(byte @NotNull [] data_)
 	{
 		ArrayList<Byte> list = new ArrayList<>(data_.length);

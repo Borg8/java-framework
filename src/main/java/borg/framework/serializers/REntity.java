@@ -5,6 +5,7 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -31,6 +32,7 @@ public abstract class REntity implements Serializable
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Serial
 	private static final long serialVersionUID = Constants.VERSION_FRAMEWORK;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
