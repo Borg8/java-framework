@@ -33,7 +33,7 @@ public class ByteArray extends PrimitiveArray<Byte>
 			return mBuffer[ix_];
 		}
 
-		throw new ArrayIndexOutOfBoundsException(String.format("%d of maximum %d", ix_, mIndex - 1));
+		throw new ArrayIndexOutOfBoundsException(String.format("index %d of %d", ix_, mIndex));
 	}
 
 	@Contract(pure = true)
@@ -94,6 +94,7 @@ public class ByteArray extends PrimitiveArray<Byte>
 		int length = toIx_ - fromIx_;
 		ByteArray subArray = new ByteArray(length);
 		System.arraycopy(mBuffer, fromIx_, subArray.mBuffer, 0, length);
+		subArray.mIndex = length;
 
 		//noinspection unchecked
 		return (S)subArray;

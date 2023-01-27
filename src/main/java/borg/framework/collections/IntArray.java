@@ -33,7 +33,7 @@ public class IntArray extends PrimitiveArray<Integer>
 			return mBuffer[ix_];
 		}
 
-		throw new ArrayIndexOutOfBoundsException(String.format("%d of maximum %d", ix_, mIndex - 1));
+		throw new ArrayIndexOutOfBoundsException(String.format("index %d of %d", ix_, mIndex));
 	}
 
 	@Contract(pure = true)
@@ -94,6 +94,7 @@ public class IntArray extends PrimitiveArray<Integer>
 		int length = toIx_ - fromIx_;
 		IntArray subArray = new IntArray(length);
 		System.arraycopy(mBuffer, fromIx_, subArray.mBuffer, 0, length);
+		subArray.mIndex = length;
 
 		//noinspection unchecked
 		return (S)subArray;

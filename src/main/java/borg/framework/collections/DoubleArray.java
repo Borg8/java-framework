@@ -27,7 +27,7 @@ public class DoubleArray extends PrimitiveArray<Double>
 			return mBuffer[ix_];
 		}
 
-		throw new ArrayIndexOutOfBoundsException(String.format("%d of maximum %d", ix_, mIndex - 1));
+		throw new ArrayIndexOutOfBoundsException(String.format("index %d of %d", ix_, mIndex));
 	}
 
 	@Contract(pure = true)
@@ -88,6 +88,7 @@ public class DoubleArray extends PrimitiveArray<Double>
 		int length = toIx_ - fromIx_;
 		DoubleArray subArray = new DoubleArray(length);
 		System.arraycopy(mBuffer, fromIx_, subArray.mBuffer, 0, length);
+		subArray.mIndex = length;
 
 		//noinspection unchecked
 		return (S)subArray;
