@@ -76,7 +76,7 @@ public final class HttpResponse implements Serializable
 				header = NetworkTools.parseHeader(line);
 				if (header != null)
 				{
-					headers.put(header.el1, header.el2);
+					headers.put(header.el1.toLowerCase(), header.el2.toLowerCase());
 				}
 				else
 				{
@@ -84,8 +84,18 @@ public final class HttpResponse implements Serializable
 				}
 			}
 
+			// get length
+			int length = -1;
+			try
+			{
+				length = Integer.parseInt(headers.get("content-length"));
+			}
+			catch (Exception e)
+			{
+				// nothing to do here
+			}
 			// read content
-			content = NetworkTools.readBytes(stream_);
+			content = NetworkTools.readBytes(stream_, length);
 		}
 
 		// build response

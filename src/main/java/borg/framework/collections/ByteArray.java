@@ -4,8 +4,13 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.io.Serial;
+
 public class ByteArray extends PrimitiveArray<Byte>
 {
+	@Serial
+	private static final long serialVersionUID = 1;
+
 	/** buffer to write to **/
 	private byte[] mBuffer;
 
@@ -61,6 +66,20 @@ public class ByteArray extends PrimitiveArray<Byte>
 		}
 
 		return content;
+	}
+
+	public void push(byte @NotNull [] bytes_)
+	{
+		int length = mIndex + bytes_.length;
+		if (mBuffer.length <= length)
+		{
+			// reallocate buffer
+			byte[] buffer = new byte[(int)(length * MULTIPLIER_BUFFER)];
+			System.arraycopy(mBuffer, 0, buffer, 0, mIndex);
+			mBuffer = buffer;
+		}
+		System.arraycopy(bytes_, 0, mBuffer, mIndex, bytes_.length);
+		mIndex = length;
 	}
 
 	public void push(byte b_)

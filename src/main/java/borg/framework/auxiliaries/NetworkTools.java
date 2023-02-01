@@ -4,9 +4,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import borg.framework.collections.ByteArray;
 import borg.framework.services.TimeManager;
 import borg.framework.structures.Pair;
 
@@ -25,8 +25,6 @@ public final class NetworkTools
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private static final int SIZE_CHUNK = 8192;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -154,26 +152,33 @@ public final class NetworkTools
 				switch (state)
 				{
 					// new header found
-					case NEW:
+					case NEW ->
+					{
 						header.append(lower(c));
-
 						state = HEADER;
 						continue;
+					}
 
-						// new value found
-					case COLON:
+					// new value found
+					case COLON ->
+					{
 						state = VALUE;
 						continue;
+					}
 
-						// next value character found
-					case VALUE:
+					// next value character found
+					case VALUE ->
+					{
 						value.append(lower(c));
 						continue;
+					}
 
-						// next header character found
-					default:
+					// next header character found
+					default ->
+					{
 						header.append(lower(c));
 						continue;
+					}
 				}
 			}
 
@@ -211,7 +216,7 @@ public final class NetworkTools
 		}
 
 		// prepare
-		ByteArrayOutputStream buffer = new ByteArrayOutputStream(SIZE_CHUNK);
+		ByteArray buffer = new ByteArray();
 		if (size_ < 0)
 		{
 			size_ = Integer.MAX_VALUE;
@@ -225,16 +230,16 @@ public final class NetworkTools
 				int b = stream_.read();
 
 				// if end of stream
-				if ((b <= 0) || (b == eof_))
+				if ((b < 0) || (b == eof_))
 				{
 					break;
 				}
 
 				// add byte
-				buffer.write(b);
+				buffer.push((byte)b);
 
 				// if all bytes read
-				if (buffer.size() >= size_)
+				if (buffer.length() >= size_)
 				{
 					break;
 				}
@@ -245,19 +250,11 @@ public final class NetworkTools
 			// nothing to do here
 		}
 
-		// close buffer
-		byte[] array = buffer.toByteArray();
+		// return content
+		byte[] array = buffer.extractContent();
 		if (array.length == 0)
 		{
 			array = null;
-		}
-		try
-		{
-			buffer.close();
-		}
-		catch (Exception e)
-		{
-			Logger.log(e);
 		}
 		return array;
 	}

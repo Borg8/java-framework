@@ -4,8 +4,13 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
+import java.io.Serial;
+
 public class LongArray extends PrimitiveArray<Long>
 {
+	@Serial
+	private static final long serialVersionUID = 1;
+
 	/** buffer to write to **/
 	private long[] mBuffer;
 

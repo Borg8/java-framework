@@ -3,14 +3,18 @@ package borg.framework.collections;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
 
 abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 {
+	@Serial
+	private static final long serialVersionUID = 1;
+
 	protected static final int MIN_SIZE_BUFFER = 16;
 
-	protected static final float MULTIPLIER_BUFFER = 1.5f;
+	protected static final float MULTIPLIER_BUFFER = 1.2f;
 
 	/** current buffer index **/
 	protected int mIndex;
@@ -41,7 +45,7 @@ abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 
 	@NotNull
 	@Override
-	public Iterator<T> iterator()
+	public final Iterator<T> iterator()
 	{
 		return new Iterator<>()
 		{

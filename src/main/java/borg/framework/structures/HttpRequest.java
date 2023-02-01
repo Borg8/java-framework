@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.HashMap;
@@ -15,9 +15,11 @@ import java.util.logging.Level;
 import borg.framework.Constants;
 import borg.framework.auxiliaries.Logger;
 import borg.framework.auxiliaries.NetworkTools;
+import borg.framework.collections.ByteArray;
 
 public class HttpRequest implements Serializable
 {
+	@Serial
 	private static final long serialVersionUID = Constants.VERSION_FRAMEWORK;
 
 	/** request method **/
@@ -33,9 +35,6 @@ public class HttpRequest implements Serializable
 	/** received data **/
 	public final byte @Nullable [] content;
 
-	/** serialization of the request **/
-	private transient byte @Nullable [] mSerialization;
-
 	@Contract(pure = true)
 	public HttpRequest(@NotNull String method_,
 		@NotNull URI uri_,
@@ -46,8 +45,6 @@ public class HttpRequest implements Serializable
 		uri = uri_;
 		headers = headers_;
 		content = content_;
-
-		mSerialization = null;
 	}
 
 	/**
@@ -125,58 +122,53 @@ public class HttpRequest implements Serializable
 	@Contract(pure = true)
 	public byte @NotNull [] serialize()
 	{
-		if (mSerialization == null)
+		ByteArray buffer = new ByteArray();
+		byte[] separator = " ".getBytes();
+		byte[] eol = "\r\n".getBytes();
+
+		try
 		{
-			ByteArrayOutputStream stream = new ByteArrayOutputStream(1024);
-			byte[] separator = " ".getBytes();
-			byte[] eol = "\r\n".getBytes();
+			// write method
+			buffer.push(method.getBytes());
+			buffer.push(separator);
 
-			try
+			// write uri
+			String query = uri.toString();
+			if (query != null)
 			{
-				// write method
-				stream.write(method.getBytes());
-				stream.write(separator);
-
-				// write uri
-				String query = uri.getRawQuery();
-				if (query != null)
-				{
-					stream.write(query.getBytes());
-				}
-				stream.write(separator);
-
-				// write HTTP 1.1
-				stream.write("HTTP/1.1\r\n".getBytes());
-
-				// write headers
-				if (headers != null)
-				{
-					separator = ":".getBytes();
-					for (Map.Entry<String, String> header : headers.entrySet())
-					{
-						stream.write(header.getKey().getBytes());
-						stream.write(separator);
-						stream.write(header.getValue().getBytes());
-						stream.write(eol);
-					}
-					stream.write(eol);
-				}
-
-				// write content
-				if (content != null)
-				{
-					stream.write(content);
-				}
+				buffer.push(query.getBytes());
 			}
-			catch (Exception e)
+			buffer.push(separator);
+
+			// write HTTP 1.1
+			buffer.push("HTTP/1.1\r\n".getBytes());
+
+			// write headers
+			if (headers != null)
 			{
-				Logger.log(e);
+				separator = ":".getBytes();
+				for (Map.Entry<String, String> header : headers.entrySet())
+				{
+					buffer.push(header.getKey().getBytes());
+					buffer.push(separator);
+					buffer.push(header.getValue().getBytes());
+					buffer.push(eol);
+				}
+				buffer.push(eol);
 			}
 
-			mSerialization = stream.toByteArray();
+			// write content
+			if (content != null)
+			{
+				buffer.push(content);
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.log(e);
 		}
 
-		return mSerialization;
+		return buffer.extractContent();
 	}
 
 	@Contract(" -> new")
