@@ -2,7 +2,6 @@ package borg.framework.collections;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.Serial;
 
@@ -24,12 +23,6 @@ public class ByteArray extends PrimitiveArray<Byte>
 		mBuffer = new byte[capacity_];
 	}
 
-	public ByteArray(byte... data_)
-	{
-		mBuffer = data_;
-		mIndex = mBuffer.length;
-	}
-
 	@Contract(pure = true)
 	public byte get(int ix_)
 	{
@@ -48,7 +41,6 @@ public class ByteArray extends PrimitiveArray<Byte>
 	}
 
 	@Contract(pure = true)
-	@Unmodifiable
 	public byte @NotNull [] getContent()
 	{
 		return mBuffer;
@@ -57,6 +49,11 @@ public class ByteArray extends PrimitiveArray<Byte>
 	@Contract(pure = true)
 	public byte @NotNull [] extractContent()
 	{
+		if (mIndex == mBuffer.length)
+		{
+			return mBuffer;
+		}
+
 		byte[] content = new byte[mIndex];
 
 		if (mIndex > 0)
@@ -66,20 +63,6 @@ public class ByteArray extends PrimitiveArray<Byte>
 		}
 
 		return content;
-	}
-
-	public void push(byte @NotNull [] bytes_)
-	{
-		int length = mIndex + bytes_.length;
-		if (mBuffer.length <= length)
-		{
-			// reallocate buffer
-			byte[] buffer = new byte[(int)(length * MULTIPLIER_BUFFER)];
-			System.arraycopy(mBuffer, 0, buffer, 0, mIndex);
-			mBuffer = buffer;
-		}
-		System.arraycopy(bytes_, 0, mBuffer, mIndex, bytes_.length);
-		mIndex = length;
 	}
 
 	public void push(byte b_)
@@ -139,5 +122,4 @@ public class ByteArray extends PrimitiveArray<Byte>
 	{
 		return mBuffer[ix_];
 	}
-
 }

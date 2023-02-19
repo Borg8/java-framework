@@ -67,4 +67,12 @@ abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 			}
 		};
 	}
+
+	@Override
+	@Contract(pure = true)
+	@NotNull
+	public final String toString()
+	{
+		return "length: " + length();
+	}
 }

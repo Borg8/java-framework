@@ -124,23 +124,25 @@ public final class TextParser
 	/**
 	 * convert time stamp to date in human representation.
 	 *
-	 * @param timestamp_ time stamp to convert.
+	 * @param timestamp_     time stamp to convert.
+	 * @param gmt_           GMT.
 	 * @param timeSeparator_ separator between time parts. If {@code \0} provided, then time will not
-	 *          be included.
+	 *                       be included.
 	 * @param dateSeparator_ separator between date parts. If {@code \0} provided, then date will not
-	 *          be included.
-	 * @param precision_ required precision, from {@link Calendar#YEAR} to
-	 *          {@link Calendar#MILLISECOND}.
+	 *                       be included.
+	 * @param precision_     required precision, from {@link Calendar#YEAR} to
+	 *                       {@link Calendar#MILLISECOND}.
 	 *
 	 * @return date in human representation.
 	 */
 	@NotNull
 	public static synchronized String getHumanDate(long timestamp_,
+		@NotNull String gmt_,
 		char timeSeparator_,
 		char dateSeparator_,
 		int precision_)
 	{
-		Calendar sCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		Calendar sCalendar = Calendar.getInstance(TimeZone.getTimeZone(gmt_));
 		sCalendar.setTimeInMillis(timestamp_);
 		StringBuilder builder = new StringBuilder();
 
@@ -244,7 +246,7 @@ public final class TextParser
 	 * @param l_ long to convert.
 	 *
 	 * @return string represents the long in hexadecimal base. The value can be parsed by
-	 *         {@link Long#parseLong(String)}.
+	 * {@link Long#parseLong(String)}.
 	 */
 	@NotNull
 	public static String toHexString(long l_)
@@ -299,8 +301,9 @@ public final class TextParser
 
 	/**
 	 * get age.
-	 * 
+	 *
 	 * @param birthday_ birthday in milliseconds.
+	 *
 	 * @return age in years.
 	 */
 	public static int getAge(long birthday_)

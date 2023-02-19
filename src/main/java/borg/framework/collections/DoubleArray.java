@@ -2,7 +2,6 @@ package borg.framework.collections;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.Serial;
 
@@ -42,7 +41,6 @@ public class DoubleArray extends PrimitiveArray<Double>
 	}
 
 	@Contract(pure = true)
-	@Unmodifiable
 	public double @NotNull [] getContent()
 	{
 		return mBuffer;
@@ -51,6 +49,11 @@ public class DoubleArray extends PrimitiveArray<Double>
 	@Contract(pure = true)
 	public double @NotNull [] extractContent()
 	{
+		if (mIndex == mBuffer.length)
+		{
+			return mBuffer;
+		}
+
 		double[] content = new double[mIndex];
 
 		if (mIndex > 0)

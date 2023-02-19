@@ -2,7 +2,6 @@ package borg.framework.collections;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.Serial;
 
@@ -24,12 +23,6 @@ public class LongArray extends PrimitiveArray<Long>
 		mBuffer = new long[capacity_];
 	}
 
-	public LongArray(long @NotNull ... elements_)
-	{
-		mBuffer = elements_;
-		mIndex = elements_.length;
-	}
-
 	@Contract(pure = true)
 	public long get(int ix_)
 	{
@@ -48,7 +41,6 @@ public class LongArray extends PrimitiveArray<Long>
 	}
 
 	@Contract(pure = true)
-	@Unmodifiable
 	public long @NotNull [] getContent()
 	{
 		return mBuffer;
@@ -57,6 +49,11 @@ public class LongArray extends PrimitiveArray<Long>
 	@Contract(pure = true)
 	public long @NotNull [] extractContent()
 	{
+		if (mIndex == mBuffer.length)
+		{
+			return mBuffer;
+		}
+
 		long[] content = new long[mIndex];
 
 		if (mIndex > 0)
