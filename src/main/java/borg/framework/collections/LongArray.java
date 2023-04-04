@@ -23,6 +23,12 @@ public class LongArray extends PrimitiveArray<Long>
 		mBuffer = new long[capacity_];
 	}
 
+	public LongArray(long @NotNull ... elements_)
+	{
+		mBuffer = elements_;
+		mIndex = elements_.length;
+	}
+
 	@Contract(pure = true)
 	public long get(int ix_)
 	{
@@ -67,18 +73,19 @@ public class LongArray extends PrimitiveArray<Long>
 
 	public void push(long b_)
 	{
-		// if not enough space in the buffer
-		if (mBuffer.length == mIndex)
-		{
-			// reallocate buffer
-			long[] buffer = new long[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
-			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
-			mBuffer = buffer;
-		}
-
 		// write long
+		_ensureSize(mIndex + 1);
 		mBuffer[mIndex] = b_;
 		++mIndex;
+	}
+
+	public void push(long @NotNull [] longs_)
+	{
+		// write longs
+		int length = mIndex + longs_.length;
+		_ensureSize(length);
+		System.arraycopy(longs_, 0, mBuffer, mIndex, longs_.length);
+		mIndex = length;
 	}
 
 	@Contract(pure = true)
@@ -121,5 +128,15 @@ public class LongArray extends PrimitiveArray<Long>
 	protected Long getObj(int ix_)
 	{
 		return mBuffer[ix_];
+	}
+
+	private void _ensureSize(int minSize_)
+	{
+		if (mBuffer.length < minSize_)
+		{
+			long[] buffer = new long[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, minSize_)];
+			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
+			mBuffer = buffer;
+		}
 	}
 }

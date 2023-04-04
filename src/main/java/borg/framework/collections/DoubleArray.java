@@ -23,6 +23,12 @@ public class DoubleArray extends PrimitiveArray<Double>
 		mBuffer = new double[capacity_];
 	}
 
+	public DoubleArray(double @NotNull ... elements_)
+	{
+		mBuffer = elements_;
+		mIndex = elements_.length;
+	}
+
 	@Contract(pure = true)
 	public double get(int ix_)
 	{
@@ -67,18 +73,19 @@ public class DoubleArray extends PrimitiveArray<Double>
 
 	public void push(double b_)
 	{
-		// if not enough space in the buffer
-		if (mBuffer.length == mIndex)
-		{
-			// reallocate buffer
-			double[] buffer = new double[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
-			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
-			mBuffer = buffer;
-		}
-
 		// write double
+		_ensureSize(mIndex + 1);
 		mBuffer[mIndex] = b_;
 		++mIndex;
+	}
+
+	public void push(double @NotNull [] doubles_)
+	{
+		// write doubles
+		int length = mIndex + doubles_.length;
+		_ensureSize(length);
+		System.arraycopy(doubles_, 0, mBuffer, mIndex, doubles_.length);
+		mIndex = length;
 	}
 
 	@Contract(pure = true)
@@ -121,5 +128,15 @@ public class DoubleArray extends PrimitiveArray<Double>
 	protected Double getObj(int ix_)
 	{
 		return mBuffer[ix_];
+	}
+
+	private void _ensureSize(int minSize_)
+	{
+		if (mBuffer.length < minSize_)
+		{
+			double[] buffer = new double[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, minSize_)];
+			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
+			mBuffer = buffer;
+		}
 	}
 }

@@ -159,7 +159,7 @@ public final class Logger
 	private static String sRoot = null;
 
 	/** maximum stack log depth **/
-	private static int sDepth = 0;
+	private static int sDepth = 10;
 
 	/** is stack ready **/
 	private static boolean sStackReady = false;
@@ -339,7 +339,7 @@ public final class Logger
 		while ((cause != null) && (i < sDepth))
 		{
 			// append cause
-			builder.append(", cause: ");
+			builder.append(",\n\ncause: ");
 			builder.append(cause);
 
 			// get next cause

@@ -23,6 +23,12 @@ public class ByteArray extends PrimitiveArray<Byte>
 		mBuffer = new byte[capacity_];
 	}
 
+	public ByteArray(byte @NotNull ... elements_)
+	{
+		mBuffer = elements_;
+		mIndex = elements_.length;
+	}
+
 	@Contract(pure = true)
 	public byte get(int ix_)
 	{
@@ -67,18 +73,19 @@ public class ByteArray extends PrimitiveArray<Byte>
 
 	public void push(byte b_)
 	{
-		// if not enough space in the buffer
-		if (mBuffer.length == mIndex)
-		{
-			// reallocate buffer
-			byte[] buffer = new byte[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
-			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
-			mBuffer = buffer;
-		}
-
 		// write byte
+		_ensureSize(mIndex + 1);
 		mBuffer[mIndex] = b_;
 		++mIndex;
+	}
+
+	public void push(byte @NotNull [] bytes_)
+	{
+		// write bytes
+		int length = mIndex + bytes_.length;
+		_ensureSize(length);
+		System.arraycopy(bytes_, 0, mBuffer, mIndex, bytes_.length);
+		mIndex = length;
 	}
 
 	@Contract(pure = true)
@@ -121,5 +128,15 @@ public class ByteArray extends PrimitiveArray<Byte>
 	protected Byte getObj(int ix_)
 	{
 		return mBuffer[ix_];
+	}
+
+	private void _ensureSize(int minSize_)
+	{
+		if (mBuffer.length < minSize_)
+		{
+			byte[] buffer = new byte[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, minSize_)];
+			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
+			mBuffer = buffer;
+		}
 	}
 }

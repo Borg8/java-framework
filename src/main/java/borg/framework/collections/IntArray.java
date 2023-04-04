@@ -23,6 +23,12 @@ public class IntArray extends PrimitiveArray<Integer>
 		mBuffer = new int[capacity_];
 	}
 
+	public IntArray(int @NotNull ... elements_)
+	{
+		mBuffer = elements_;
+		mIndex = elements_.length;
+	}
+
 	@Contract(pure = true)
 	public int get(int ix_)
 	{
@@ -67,18 +73,19 @@ public class IntArray extends PrimitiveArray<Integer>
 
 	public void push(int b_)
 	{
-		// if not enough space in the buffer
-		if (mBuffer.length == mIndex)
-		{
-			// reallocate buffer
-			int[] buffer = new int[(int)(mBuffer.length * MULTIPLIER_BUFFER)];
-			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
-			mBuffer = buffer;
-		}
-
 		// write int
+		_ensureSize(mIndex + 1);
 		mBuffer[mIndex] = b_;
 		++mIndex;
+	}
+
+	public void push(int @NotNull [] ints_)
+	{
+		// write ints
+		int length = mIndex + ints_.length;
+		_ensureSize(length);
+		System.arraycopy(ints_, 0, mBuffer, mIndex, ints_.length);
+		mIndex = length;
 	}
 
 	@Contract(pure = true)
@@ -121,5 +128,15 @@ public class IntArray extends PrimitiveArray<Integer>
 	protected Integer getObj(int ix_)
 	{
 		return mBuffer[ix_];
+	}
+
+	private void _ensureSize(int minSize_)
+	{
+		if (mBuffer.length < minSize_)
+		{
+			int[] buffer = new int[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, minSize_)];
+			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
+			mBuffer = buffer;
+		}
 	}
 }

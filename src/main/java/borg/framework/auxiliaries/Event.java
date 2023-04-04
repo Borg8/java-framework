@@ -1,10 +1,11 @@
 package borg.framework.auxiliaries;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Borg
@@ -16,31 +17,33 @@ public final class Event<T>
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Definitions
+	// Observer
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static abstract class Observer<T>
+	@FunctionalInterface
+	public interface Observer<T>
 	{
-		@NotNull
-		public final Object owner;
+		boolean action(T param_);
+	}
 
-		boolean isOnetime;
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	// Observer
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-		/**
-		 * @param owner_ instance where Observer was instantiated (usual it will be 'this').
-		 */
-		@Contract(pure = true)
-		public Observer(@NotNull Object owner_)
+	private static final class Details<T>
+	{
+		/** observer owner **/
+		@Nullable
+		final Object owner;
+
+		/** observer to execute **/
+		final Observer<T> observer;
+
+		Details(@Nullable Object owner_, @NotNull Observer<T> observer_)
 		{
 			owner = owner_;
+			observer = observer_;
 		}
-
-		/**
-		 * observer action for the event.
-		 *
-		 * @param param_ parameter received from the event.
-		 */
-		public abstract void action(T param_);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,10 +51,10 @@ public final class Event<T>
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** list of observers attached to the event **/
-	private final HashSet<Observer<T>> mObservers;
+	private final Map<Observer<T>, Details<T>> mObservers;
 
 	/** clone list of observers to maintain the main list **/
-	private final HashSet<Observer<T>> mObserversClone;
+	private final Map<Observer<T>, Details<T>> mObserversClone;
 
 	/** sign whether observers list is dirty **/
 	private boolean mIsObserversDirty;
@@ -65,8 +68,8 @@ public final class Event<T>
 
 	public Event()
 	{
-		mObservers = new HashSet<>();
-		mObserversClone = new HashSet<>();
+		mObservers = new HashMap<>();
+		mObserversClone = new HashMap<>();
 		mIsObserversDirty = false;
 		mIsDuringInvocation = false;
 	}
@@ -82,38 +85,22 @@ public final class Event<T>
 	/**
 	 * attaches a new observer to the event.
 	 *
+	 * @param owner_ observer owner.
 	 * @param observer_ the attached observer.
 	 */
-	public void attach(@NotNull Observer<T> observer_)
-	{
-		attach(observer_, false);
-	}
-
-	/**
-	 * attaches a new observer to the event. The observer will be detached after invocation.
-	 *
-	 * @param observer_ the attached observer.
-	 */
-	public void attachOnce(@NotNull Observer<T> observer_)
-	{
-		// if observer was attached
-		attach(observer_, true);
-	}
-
-	private void attach(@NotNull Observer<T> observer_, boolean isOnetime_)
+	public void attach(@Nullable Object owner_, @NotNull Event.Observer<T> observer_)
 	{
 		synchronized (this)
 		{
-			observer_.isOnetime = isOnetime_;
-
 			// if observer was attached
-			if (mObservers.add(observer_) == true)
+			Details<T> details = new Details<>(owner_, observer_);
+			if (mObservers.put(observer_, details) == null)
 			{
 				// if invocation is not executed
 				if (mIsDuringInvocation == false)
 				{
 					// add observer to observers clone list
-					mObserversClone.add(observer_);
+					mObserversClone.put(observer_, details);
 				}
 				else
 				{
@@ -134,7 +121,7 @@ public final class Event<T>
 		synchronized (this)
 		{
 			// if observer was removed
-			if (mObservers.remove(observer_) == true)
+			if (mObservers.remove(observer_) != null)
 			{
 				// if invocation is not executed
 				if (mIsDuringInvocation == false)
@@ -156,18 +143,17 @@ public final class Event<T>
 	 *
 	 * @param owner_ instance of object that owned the removed observers.
 	 */
-	@SuppressWarnings("unchecked")
 	public void detach(@NotNull Object owner_)
 	{
 		synchronized (this)
 		{
 			// detach all observers of the owner from observers list
-			for (Observer<T> observer: (HashSet<Observer<T>>)mObservers.clone())
+			for (Details<T> observer : new ArrayList<>(mObservers.values()))
 			{
 				// if observer belongs to the owner
 				if (observer.owner == owner_)
 				{
-					detach(observer);
+					detach(observer.observer);
 				}
 			}
 		}
@@ -200,8 +186,9 @@ public final class Event<T>
 	 * invokes all attached observers.
 	 *
 	 * @param param_ parameters to pass to observers.
+	 *
 	 * @return first occurred exception or {@code null} if no exception occurred during the
-	 *         invocation.
+	 * invocation.
 	 */
 	@Nullable
 	public Throwable invoke(@Nullable T param_)
@@ -216,18 +203,15 @@ public final class Event<T>
 			mIsDuringInvocation = true;
 
 			// invokes attached observers
-			for (Observer<T> observer: mObserversClone)
+			for (Details<T> observer : mObserversClone.values())
 			{
 				// invoke method
 				try
 				{
-					// if observer is one time
-					if (observer.isOnetime == true)
+					if (observer.observer.action(param_) == false)
 					{
-						detach(observer);
+						detach(observer.observer);
 					}
-
-					observer.action(param_);
 				}
 				catch (Throwable e)
 				{
@@ -245,7 +229,7 @@ public final class Event<T>
 				mObserversClone.clear();
 
 				// build new observer clone list
-				mObserversClone.addAll(mObservers);
+				mObserversClone.putAll(mObservers);
 			}
 
 			// roll back during invocation flag
