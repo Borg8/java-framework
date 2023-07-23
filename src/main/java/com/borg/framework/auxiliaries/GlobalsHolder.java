@@ -1,0 +1,10 @@
+package com.borg.framework.auxiliaries;
+
+public class GlobalsHolder
+{
+	private GlobalsHolder()
+	{
+		// private constructor to avoid instantiation
+	}
+
+}
