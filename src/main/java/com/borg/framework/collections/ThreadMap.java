@@ -121,7 +121,7 @@ public final class ThreadMap<K, V> implements Serializable
 	@NotNull
 	public Map<K, V> getMap()
 	{
-		long thread = Thread.currentThread().getId();
+		long thread = Thread.currentThread().threadId();
 		Map<K, V> map = mMaps.get(thread);
 		if (map == null)
 		{

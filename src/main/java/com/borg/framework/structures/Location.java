@@ -378,11 +378,11 @@ public class Location
 		results.mDistance = (float)(b * A * (sigma - deltaSigma));
 		float initialBearing = (float)Math.atan2(cosU2 * sinLambda,
 			cosU1 * sinU2 - sinU1 * cosU2 * cosLambda);
-		initialBearing *= 180.0 / Math.PI;
+		initialBearing *= (float)(180.0 / Math.PI);
 		results.mInitialBearing = initialBearing;
 		float finalBearing = (float)Math.atan2(cosU1 * sinLambda,
 			-sinU1 * cosU2 + cosU1 * sinU2 * cosLambda);
-		finalBearing *= 180.0 / Math.PI;
+		finalBearing *= (float)(180.0 / Math.PI);
 		results.mFinalBearing = finalBearing;
 		results.mLat1 = lat1;
 		results.mLat2 = lat2;
@@ -897,7 +897,7 @@ public class Location
 	public void setBearingAccuracyDegrees(float bearingAccuracyDegrees)
 	{
 		mBearingAccuracyDegrees = bearingAccuracyDegrees;
-		mFieldsMask |= HAS_BEARING_ACCURACY_MASK;
+		mFieldsMask |= (byte)HAS_BEARING_ACCURACY_MASK;
 	}
 
 	@Override

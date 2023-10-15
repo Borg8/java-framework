@@ -238,7 +238,7 @@ public final class Logger
 	@Nullable
 	public static String getSession()
 	{
-		return sSessions.get(Thread.currentThread().getId());
+		return sSessions.get(Thread.currentThread().threadId());
 	}
 
 	/**
@@ -248,7 +248,7 @@ public final class Logger
 	 */
 	public static void startSession(@Nullable String session_)
 	{
-		long id = Thread.currentThread().getId();
+		long id = Thread.currentThread().threadId();
 		if (session_ != null)
 		{
 			sSessions.put(id, session_);
@@ -485,7 +485,7 @@ public final class Logger
 				element.getLineNumber(),
 				Thread.currentThread().getName(),
 				thrown_,
-				sSessions.get(Thread.currentThread().getId())));
+				sSessions.get(Thread.currentThread().threadId())));
 
 		sStackReady = false;
 	}

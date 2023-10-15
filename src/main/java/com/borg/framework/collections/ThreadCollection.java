@@ -124,7 +124,7 @@ public final class ThreadCollection<E> implements Iterable<E>, Serializable
 	@NotNull
 	public Collection<E> getCollection()
 	{
-		return getCollection(Thread.currentThread().getId());
+		return getCollection(Thread.currentThread().threadId());
 	}
 	
 	

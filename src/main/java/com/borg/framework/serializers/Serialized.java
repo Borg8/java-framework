@@ -303,8 +303,7 @@ public abstract class Serialized implements Serializable
 	{
 		try
 		{
-			//noinspection ResultOfMethodCallIgnored
-			StorageManager.getFile(tag).delete();
+			StorageManager.delete(StorageManager.getFile(tag));
 		}
 		catch (Exception e)
 		{

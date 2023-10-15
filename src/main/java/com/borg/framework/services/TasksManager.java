@@ -1,5 +1,7 @@
 package com.borg.framework.services;
 
+import com.borg.framework.auxiliaries.Logger;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,8 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-
-import com.borg.framework.auxiliaries.Logger;
 
 public class TasksManager
 {
@@ -192,7 +192,7 @@ public class TasksManager
 		{
 			// poll task
 			Thread thread = Thread.currentThread();
-			thread.setName("looper " + thread.getId());
+			thread.setName("looper " + thread.threadId());
 
 			Logger.startSession(session);
 			for (; ; )
@@ -209,7 +209,6 @@ public class TasksManager
 					{
 						// get descriptor
 						Descriptor<Object> descriptor;
-						//noinspection SynchronizationOnLocalVariableOrMethodParameter
 						synchronized (thread)
 						{
 							// if tasks exists
@@ -229,7 +228,7 @@ public class TasksManager
 							{
 								Logger.log(e);
 							}
-							thread.setName("looper " + thread.getId());
+							thread.setName("looper " + thread.threadId());
 						}
 						else
 						{
@@ -240,7 +239,6 @@ public class TasksManager
 					// if the looper still exists
 					if (sLoopers.containsKey(thread))
 					{
-						//noinspection SynchronizationOnLocalVariableOrMethodParameter
 						synchronized (thread)
 						{
 							// wait for tasks
@@ -368,7 +366,7 @@ public class TasksManager
 				"name",
 				looper_.getName(),
 				"id",
-				looper_.getId());
+				looper_.threadId());
 		}
 
 		return queue != null;

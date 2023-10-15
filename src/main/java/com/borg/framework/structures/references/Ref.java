@@ -17,6 +17,11 @@ public final class Ref<T>
 	@NotNull
 	public String toString()
 	{
-		return value.toString();
+		if (value != null)
+		{
+			return value.toString();
+		}
+
+		return "";
 	}
 }

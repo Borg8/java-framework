@@ -1,21 +1,20 @@
 package com.borg.framework.services;
 
-import org.jetbrains.annotations.Contract;
+import com.borg.framework.structures.HttpResponse;
+import com.borg.framework.structures.NetworkResult;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
-import com.borg.framework.auxiliaries.NetworkTools;
-import com.borg.framework.structures.HttpResponse;
-import com.borg.framework.structures.NetworkResult;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public final class HttpClient
 {
@@ -36,30 +35,43 @@ public final class HttpClient
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** connection timeout **/
-	private int mConnectionTimeout;
+	private long mConnectionTimeout;
 
 	/** read timeout **/
-	private int mReadTimeout;
+	private long mReadTimeout;
+
+	/** default headers **/
+	private final Map<String, String> mDefaultHeaders;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	@Contract(pure = true)
 	public HttpClient()
 	{
-		setTimeouts(NetworkTools.TIMEOUT_CONNECT, NetworkTools.TIMEOUT_READ);
+		setTimeouts(TimeManager.SECOND * 5, TimeManager.SECOND * 5);
+
+		mDefaultHeaders = new HashMap<>();
+	}
+
+	/**
+	 * set default headers.
+	 *
+	 * @param headers_ default headers.
+	 */
+	public void setDefaultHeaders(@NotNull Map<String, String> headers_)
+	{
+		mDefaultHeaders.clear();
+		mDefaultHeaders.putAll(headers_);
 	}
 
 	/**
 	 * send HTTP POST (blocking operation).
 	 *
-	 * @param url_      URL to send to post.
-	 * @param method_   request method.
-	 * @param headers_  request headers.
-	 * @param content_  request content.
-	 * @param redirect_ if {@code true} then redirection will be followed (even between different
-	 *                  protocols).
+	 * @param url_     URL to send to post.
+	 * @param method_  request method.
+	 * @param headers_ request headers.
+	 * @param content_ request content.
 	 *
 	 * @return response on HTTP request.
 	 */
@@ -67,206 +79,100 @@ public final class HttpClient
 	public HttpResponse sendRequest(@NotNull String url_,
 		@NotNull String method_,
 		@Nullable Map<String, String> headers_,
-		byte @Nullable [] content_,
-		boolean redirect_)
+		byte @Nullable [] content_)
 	{
-		// initiate pessimistic response parameters
-		NetworkResult result = NetworkResult.NOT_CONNECTED;
-		byte[] response = null;
-		HashMap<String, String> headers = null;
-		int code = -1;
+		// build client
+		OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
+		clientBuilder.connectTimeout(mConnectionTimeout, TimeUnit.MILLISECONDS);
+		clientBuilder.readTimeout(mReadTimeout, TimeUnit.MILLISECONDS);
+		OkHttpClient client = clientBuilder.build();
 
-		// send request
-		HttpURLConnection connection;
-		OutputStream out = null;
-		InputStream in = null;
-		//noinspection ConstantConditions
-		do
+		// build request
+		Request.Builder requestBuilder = new Request.Builder().url(url_);
+
+		// add headers
+		for (Map.Entry<String, String> entry : mDefaultHeaders.entrySet())
 		{
-			// create connection
-			connection = createConnection(url_);
-
-			// if connection created
-			if (connection != null)
-			{
-				// add headers
-				if (headers_ != null)
-				{
-					for (Entry<String, String> entry : headers_.entrySet())
-					{
-						connection.setRequestProperty(entry.getKey(), entry.getValue());
-					}
-				}
-
-				// connect
-				try
-				{
-					connection.setRequestMethod(method_);
-					connection.connect();
-				}
-				catch (Exception e)
-				{
-//					Logger.log(e);
-					break;
-				}
-
-				// send request
-				if (content_ != null)
-				{
-					try
-					{
-						out = connection.getOutputStream();
-						out.write(content_);
-					}
-					catch (Exception e)
-					{
-//						Logger.log(e);
-
-						// unable to send
-						result = NetworkResult.UNABLE_TO_SEND;
-						break;
-					}
-				}
-
-				// read response
-				try
-				{
-					code = connection.getResponseCode();
-
-					// if error not occurred
-					if (code < 400)
-					{
-						// if redirection occurred
-						// TODO use HttpURLConnection.setFollowRedirects()
-						if ((redirect_ == true) && (code >= 300))
-						{
-							// get redirection location
-							List<String> respHeaders = connection.getHeaderFields().get("Location");
-							if ((respHeaders != null) && (respHeaders.isEmpty() == false))
-							{
-								// close connection
-								if (out != null)
-								{
-									out.close();
-								}
-								connection.disconnect();
-
-								// get new URL
-								url_ = respHeaders.get(0);
-
-								// redirect
-								return sendRequest(url_, method_, headers_, content_, redirect_);
-							}
-
-							in = connection.getInputStream();
-							result = NetworkResult.UNEXPECTED_RESPONSE;
-						}
-						else
-						{
-							in = connection.getInputStream();
-							result = NetworkResult.SUCCESS;
-						}
-					}
-					else
-					{
-						in = connection.getErrorStream();
-						result = NetworkResult.UNEXPECTED_RESPONSE;
-					}
-					if (in != null)
-					{
-						response = StorageManager.readFile(in);
-					}
-				}
-				catch (Exception e)
-				{
-//					Logger.log(e);
-
-					// unable to read
-					result = NetworkResult.UNABLE_TO_READ;
-					break;
-				}
-
-				// read headers
-				Map<String, List<String>> respHeaders = connection.getHeaderFields();
-				if (respHeaders != null)
-				{
-					headers = new HashMap<>();
-					for (Entry<String, List<String>> entry : respHeaders.entrySet())
-					{
-						String key = entry.getKey();
-						if (key != null)
-						{
-							key = key.toLowerCase();
-						}
-						headers.put(key, entry.getValue().get(0));
-					}
-				}
-			}
-		} while (false);
-
-		// free resources
-		if (in != null)
+			requestBuilder.addHeader(entry.getKey(), entry.getValue());
+		}
+		if (headers_ != null)
 		{
-			try
+			for (Map.Entry<String, String> entry : headers_.entrySet())
 			{
-				in.close();
-			}
-			catch (Exception e)
-			{
-//				Logger.log(e);
+				requestBuilder.addHeader(entry.getKey(), entry.getValue());
 			}
 		}
-		if (out != null)
+
+		// send the request
+		Request request = switch (method_)
 		{
-			try
+			case "GET" -> requestBuilder.get().build();
+
+			case "POST" ->
 			{
-				out.close();
+				if (content_ == null)
+				{
+					content_ = new byte[0];
+				}
+				yield requestBuilder.post(RequestBody.create(content_)).build();
 			}
-			catch (Exception e)
+
+			case "PUT" ->
 			{
-//				Logger.log(e);
+				if (content_ == null)
+				{
+					content_ = new byte[0];
+				}
+				yield requestBuilder.put(RequestBody.create(content_)).build();
 			}
-		}
-		if (connection != null)
+
+			case "PATCH" ->
+			{
+				if (content_ == null)
+				{
+					content_ = new byte[0];
+				}
+				yield requestBuilder.patch(RequestBody.create(content_)).build();
+			}
+
+			case "DELETE" -> requestBuilder.delete().build();
+
+			default -> throw new Error("unsupported method: " + method_);
+		};
+
+		// process the response
+		try (Response response = client.newCall(request).execute())
 		{
-			connection.disconnect();
+			// build result
+			NetworkResult result = NetworkResult.SUCCESS;
+			if (response.code() >= 300)
+			{
+				result = NetworkResult.UNEXPECTED_RESPONSE;
+			}
+
+			// build headers
+			Map<String, String> headers = new HashMap<>();
+			for (Map.Entry<String, List<String>> header : response.headers().toMultimap().entrySet())
+			{
+				StringBuilder stringBuilder = new StringBuilder();
+				for (String value : header.getValue())
+				{
+					stringBuilder.append(value);
+					stringBuilder.append(";");
+				}
+				headers.put(header.getKey(), stringBuilder.toString());
+			}
+
+			// build body
+			byte[] body = response.body() == null? null: response.body().bytes();
+
+			return new HttpResponse(result, response.code(), headers, body);
 		}
-
-		return new HttpResponse(result, code, headers, response);
-	}
-
-	/**
-	 * create HTTP connection to URL (blocking operation).
-	 *
-	 * @param url_ URL to create connection to.
-	 *
-	 * @return created connection to URL or {@code null} if connection cannot be created.
-	 */
-	@Nullable
-	@Contract(pure = true)
-	public HttpURLConnection createConnection(@NotNull String url_)
-	{
-		try
+		catch (Exception e_)
 		{
-			// create the connection
-			HttpURLConnection connection = (HttpURLConnection)new URL(url_).openConnection();
-
-			// set timeouts
-			connection.setConnectTimeout(mConnectionTimeout);
-			connection.setReadTimeout(mReadTimeout);
-
-			// set connection properties
-			connection.setDoOutput(true);
-			connection.setDoInput(true);
-
-			return connection;
+			byte[] message = e_.getMessage() == null? null: e_.getMessage().getBytes();
+			return new HttpResponse(NetworkResult.FAILURE, -1, null, message);
 		}
-		catch (Exception e)
-		{
-//			Logger.log(e);
-		}
-
-		return null;
 	}
 
 	/**
@@ -275,7 +181,7 @@ public final class HttpClient
 	 * @param connection_ connection timeout.
 	 * @param read_       read timeout.
 	 */
-	public void setTimeouts(int connection_, int read_)
+	public void setTimeouts(long connection_, long read_)
 	{
 		mConnectionTimeout = connection_;
 		mReadTimeout = read_;
