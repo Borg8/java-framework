@@ -59,49 +59,68 @@ public final class HttpResponse implements Serializable
 	@NotNull
 	public static HttpResponse readResponse(@NotNull InputStream stream_)
 	{
-		// read code
-		String line = NetworkTools.readLine(stream_);
-		assert line != null;
-		int code = NetworkTools.parseCode(line);
+		// prepare
 		Map<String, String> headers = null;
 		byte[] content = null;
-		if (code > 0)
-		{
-			// read headers
-			headers = new HashMap<>();
-			for (; ; )
-			{
-				// parse header
-				Pair<String, String> header;
-				line = NetworkTools.readLine(stream_);
-				assert line != null;
-				header = NetworkTools.parseHeader(line);
-				if (header != null)
-				{
-					headers.put(header.el1.toLowerCase(), header.el2.toLowerCase());
-				}
-				else
-				{
-					break;
-				}
-			}
+		int code = -1;
+		NetworkResult result = NetworkResult.UNABLE_TO_READ;
 
-			// get length
-			int length = -1;
-			try
+		// read code
+		String line = NetworkTools.readLine(stream_);
+		if (line != null)
+		{
+			code = NetworkTools.parseCode(line);
+			if (code > 0)
 			{
-				length = Integer.parseInt(headers.get("content-length"));
+				// read headers
+				headers = new HashMap<>();
+				for (; ; )
+				{
+					// parse header
+					Pair<String, String> header;
+					line = NetworkTools.readLine(stream_);
+					assert line != null;
+					header = NetworkTools.parseHeader(line);
+					if (header != null)
+					{
+						headers.put(header.el1.toLowerCase(), header.el2.toLowerCase());
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				// get length
+				int length = -1;
+				try
+				{
+					length = Integer.parseInt(headers.get("content-length"));
+				}
+				catch (Exception e)
+				{
+					// if chunked
+					if ("chunked".equals(headers.get("transfer-encoding")) == true)
+					{
+						// read size
+						line = NetworkTools.readLine(stream_);
+						assert line != null;
+						length = Integer.parseInt(line.trim(), 16);
+					}
+				}
+
+				// read content
+				if (length > 0)
+				{
+					content = NetworkTools.readBytes(stream_, length);
+				}
+
+				result = NetworkResult.SUCCESS;
 			}
-			catch (Exception e)
-			{
-				// nothing to do here
-			}
-			// read content
-			content = NetworkTools.readBytes(stream_, length);
 		}
 
 		// build response
-		return new HttpResponse(NetworkResult.SUCCESS, code, headers, content);
+		return new HttpResponse(result, code, headers, content);
 	}
 
 	/**

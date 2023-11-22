@@ -1,5 +1,13 @@
 package com.borg.framework.services;
 
+import com.borg.framework.auxiliaries.Auxiliary;
+import com.borg.framework.auxiliaries.Logger;
+import com.borg.framework.auxiliaries.NetworkTools;
+import com.borg.framework.collections.ByteArray;
+import com.borg.framework.structures.HttpRequest;
+import com.borg.framework.structures.HttpResponse;
+import com.borg.framework.structures.NetworkResult;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,14 +25,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.net.ssl.SSLSocketFactory;
-
-import com.borg.framework.auxiliaries.Auxiliary;
-import com.borg.framework.auxiliaries.Logger;
-import com.borg.framework.auxiliaries.NetworkTools;
-import com.borg.framework.collections.ByteArray;
-import com.borg.framework.structures.HttpRequest;
-import com.borg.framework.structures.HttpResponse;
-import com.borg.framework.structures.NetworkResult;
 
 public class WebSocket
 {
@@ -60,8 +60,6 @@ public class WebSocket
 	private static final String HEADER_UPGRADE = "upgrade";
 
 	private static final String HEADER_AGENT = "user-agent";
-
-	private static final String HEADER_AUTHORIZATION = "authorization";
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Definitions
@@ -108,9 +106,21 @@ public class WebSocket
 		/**
 		 * data received.
 		 *
+		 * @param this_ websocket.
 		 * @param data_ received data.
 		 */
-		void dataReceived(byte @NotNull [] data_);
+		void dataReceived(@NotNull WebSocket this_, byte @NotNull [] data_);
+
+		/**
+		 * socket closing message.
+		 *
+		 * @param this_    websocket.
+		 * @param message_ close message.
+		 */
+		@SuppressWarnings("unused")
+		default void close(@NotNull WebSocket this_, byte @NotNull [] message_)
+		{
+		}
 
 		/**
 		 * socket disconnected.
@@ -141,13 +151,11 @@ public class WebSocket
 	// Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	@Contract(pure = true)
 	public WebSocket(@NotNull String url_, @NotNull Listener listener_)
 	{
 		this(createUrl(url_), listener_);
 	}
 
-	@Contract(pure = true)
 	public WebSocket(@NotNull URL url_, @NotNull Listener listener_)
 	{
 		url = url_;
@@ -169,16 +177,13 @@ public class WebSocket
 	/**
 	 * connect websocket. Blocking operation.
 	 *
-	 * @param timeout_  connection timeout, 0 for infinite.
-	 * @param user_     user name, if required.
-	 * @param password_ password, if required.
+	 * @param timeout_ connection timeout, 0 for infinite.
+	 * @param headers_ headers to send with the connection.
 	 *
 	 * @return operation response.
 	 */
 	@NotNull
-	public synchronized HttpResponse connect(long timeout_,
-		@Nullable String user_,
-		@Nullable String password_)
+	public synchronized HttpResponse connect(long timeout_, @Nullable Map<String, String> headers_)
 	{
 		// set default parameters
 		int code = -1;
@@ -215,11 +220,9 @@ public class WebSocket
 				requestHeaders.put(HEADER_KEY, mKey);
 				requestHeaders.put(HEADER_UPGRADE, "websocket");
 				requestHeaders.put(HEADER_AGENT, AGENT_WEBSOCKET);
-				if (user_ != null)
+				if (headers_ != null)
 				{
-					String credentials = user_ + ":" + password_;
-					credentials = new String(Base64.getEncoder().encode(credentials.getBytes()));
-					requestHeaders.put(HEADER_AUTHORIZATION, "Basic " + credentials);
+					requestHeaders.putAll(headers_);
 				}
 
 				HttpRequest request = new HttpRequest("GET", new URI(url.getPath()), requestHeaders, null);
@@ -241,7 +244,7 @@ public class WebSocket
 					if (code < 300)
 					{
 						// start listening
-						TasksManager.runOnThread(socketTask);
+						_getSocketTask().start();
 
 						// start keepalive
 						setKeepalive(mKeepalive);
@@ -383,6 +386,7 @@ public class WebSocket
 	{
 		// generate key
 		byte[] key = new byte[LENGTH_KEY];
+		//noinspection ExplicitArrayFilling
 		for (int i = 0; i < LENGTH_KEY; ++i)
 		{
 			key[i] = (byte)Auxiliary.random();
@@ -482,10 +486,11 @@ public class WebSocket
 		return buffer.extractContent();
 	}
 
-	private final TasksManager.Task<Void> socketTask = new TasksManager.Task<>()
+	@Contract(pure = true)
+	@NotNull
+	private Thread _getSocketTask()
 	{
-		@Override
-		public void run(Void param_)
+		return new Thread(() ->
 		{
 			Thread.currentThread().setName("websocket reader from " + url);
 
@@ -521,13 +526,19 @@ public class WebSocket
 									// send keepalive
 									write(new byte[0], Opcode.PONG);
 									break;
+
 								case PONG:
-									// nothing to do here
+									break;
+
+								case CLOSE:
+									// send 1000
+									write(new byte[] { 3, (byte)232 }, Opcode.CLOSE);
+									mListener.close(this, data);
 									break;
 
 								default:
 									// invoke observers
-									mListener.dataReceived(data);
+									mListener.dataReceived(this, data);
 									break;
 							}
 						}
@@ -536,7 +547,7 @@ public class WebSocket
 							Logger.log(Level.WARNING, "invalid opcode: " + code);
 
 							// invoke observers
-							mListener.dataReceived(data);
+							mListener.dataReceived(this, data);
 						}
 					}
 					catch (Exception e)
@@ -559,8 +570,8 @@ public class WebSocket
 			// disconnect
 			disconnect();
 			mListener.disconnected();
-		}
-	};
+		});
+	}
 
 	@NotNull
 	@Contract(pure = true)
