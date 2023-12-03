@@ -104,40 +104,25 @@ public final class HttpClient
 		}
 
 		// send the request
+		if (content_ == null)
+		{
+			content_ = new byte[0];
+		}
 		Request request = switch (method_)
 		{
 			case "GET" -> requestBuilder.get().build();
 
-			case "POST" ->
-			{
-				if (content_ == null)
-				{
-					content_ = new byte[0];
-				}
-				yield requestBuilder.post(RequestBody.create(content_)).build();
-			}
+			case "POST" -> requestBuilder.post(RequestBody.create(content_)).build();
 
-			case "PUT" ->
-			{
-				if (content_ == null)
-				{
-					content_ = new byte[0];
-				}
-				yield requestBuilder.put(RequestBody.create(content_)).build();
-			}
+			case "PUT" -> requestBuilder.put(RequestBody.create(content_)).build();
 
-			case "PATCH" ->
-			{
-				if (content_ == null)
-				{
-					content_ = new byte[0];
-				}
-				yield requestBuilder.patch(RequestBody.create(content_)).build();
-			}
+			case "PATCH" -> requestBuilder.patch(RequestBody.create(content_)).build();
 
 			case "DELETE" -> requestBuilder.delete().build();
 
-			default -> throw new Error("unsupported method: " + method_);
+			case "HEAD" -> requestBuilder.head().build();
+
+			default -> requestBuilder.method(method_, RequestBody.create(content_)).build();
 		};
 
 		// process the response
