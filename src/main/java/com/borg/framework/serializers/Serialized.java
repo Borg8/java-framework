@@ -92,7 +92,7 @@ public abstract class Serialized implements Serializable
 	private transient int mTransactions;
 
 	/** is state should be saved after transaction **/
-	private transient boolean mIsSaved;
+	private transient boolean mIsDirty;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -144,7 +144,7 @@ public abstract class Serialized implements Serializable
 		if (mTransactions == 0)
 		{
 			// if state should be saved
-			if (mIsSaved == true)
+			if (mIsDirty == true)
 			{
 				saveState();
 			}
@@ -170,7 +170,7 @@ public abstract class Serialized implements Serializable
 		// if transaction is closed
 		if (mTransactions == 0)
 		{
-			mIsSaved = false;
+			mIsDirty = false;
 
 			// if serializer is defined
 			if (mSerializer != null)
@@ -210,7 +210,7 @@ public abstract class Serialized implements Serializable
 			return false;
 		}
 
-		mIsSaved = true;
+		mIsDirty = true;
 
 		return true;
 	}
