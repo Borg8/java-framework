@@ -1,7 +1,5 @@
 package borg.framework.services;
 
-import borg.framework.auxiliaries.Logger;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import borg.framework.auxiliaries.Logger;
 
 public class TasksManager
 {
@@ -72,6 +72,9 @@ public class TasksManager
 
 	/** is main loop sleep allowed **/
 	private static boolean sSleep = true;
+
+	/** is main loop done **/
+	private static boolean sDone;
 
 	/** main thread instance **/
 	private static final Thread sMain = Thread.currentThread();
@@ -377,9 +380,10 @@ public class TasksManager
 	 */
 	public static void loop()
 	{
+		sDone = false;
+
 		// start main loop
-		//noinspection InfiniteLoopStatement
-		for (; ; )
+		while(sDone == false)
 		{
 			// loop timer
 			long next = TimeManager.loop();
@@ -416,6 +420,16 @@ public class TasksManager
 		}
 	}
 
+	public static void exit()
+	{
+		sDone = true;
+
+		synchronized (sTasks)
+		{
+			sTasks.notify();
+		}
+	}
+
 	public static void continueLoop()
 	{
 		sSleep = false;
@@ -442,6 +456,7 @@ public class TasksManager
 			}
 			catch (Throwable e)
 			{
+				Logger.log(e);
 				throw new Error(e);
 			}
 
