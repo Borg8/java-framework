@@ -3,9 +3,8 @@ package borg.framework.auxiliaries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Borg
@@ -27,34 +26,14 @@ public final class Event<T>
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Observer
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private static final class Details<T>
-	{
-		/** observer owner **/
-		@Nullable
-		final Object owner;
-
-		/** observer to execute **/
-		final Observer<T> observer;
-
-		Details(@Nullable Object owner_, @NotNull Observer<T> observer_)
-		{
-			owner = owner_;
-			observer = observer_;
-		}
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Fields
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** list of observers attached to the event **/
-	private final Map<Observer<T>, Details<T>> mObservers;
+	private final Set<Observer<T>> mObservers;
 
 	/** clone list of observers to maintain the main list **/
-	private final Map<Observer<T>, Details<T>> mObserversClone;
+	private final Set<Observer<T>> mObserversClone;
 
 	/** sign whether observers list is dirty **/
 	private boolean mIsObserversDirty;
@@ -68,8 +47,8 @@ public final class Event<T>
 
 	public Event()
 	{
-		mObservers = new HashMap<>();
-		mObserversClone = new HashMap<>();
+		mObservers = new HashSet<>();
+		mObserversClone = new HashSet<>();
 		mIsObserversDirty = false;
 		mIsDuringInvocation = false;
 	}
@@ -85,22 +64,20 @@ public final class Event<T>
 	/**
 	 * attaches a new observer to the event.
 	 *
-	 * @param owner_ observer owner.
 	 * @param observer_ the attached observer.
 	 */
-	public void attach(@Nullable Object owner_, @NotNull Event.Observer<T> observer_)
+	public void attach(@NotNull Event.Observer<T> observer_)
 	{
 		synchronized (this)
 		{
-			// if observer was attached
-			Details<T> details = new Details<>(owner_, observer_);
-			if (mObservers.put(observer_, details) == null)
+			// if new observer was attached
+			if (mObservers.add(observer_) == true)
 			{
 				// if invocation is not executed
 				if (mIsDuringInvocation == false)
 				{
 					// add observer to observers clone list
-					mObserversClone.put(observer_, details);
+					mObserversClone.add(observer_);
 				}
 				else
 				{
@@ -121,7 +98,7 @@ public final class Event<T>
 		synchronized (this)
 		{
 			// if observer was removed
-			if (mObservers.remove(observer_) != null)
+			if (mObservers.remove(observer_) == true)
 			{
 				// if invocation is not executed
 				if (mIsDuringInvocation == false)
@@ -133,27 +110,6 @@ public final class Event<T>
 				{
 					// sign observers list as dirty
 					mIsObserversDirty = true;
-				}
-			}
-		}
-	}
-
-	/**
-	 * removes all observer of given owner.
-	 *
-	 * @param owner_ instance of object that owned the removed observers.
-	 */
-	public void detach(@NotNull Object owner_)
-	{
-		synchronized (this)
-		{
-			// detach all observers of the owner from observers list
-			for (Details<T> observer : new ArrayList<>(mObservers.values()))
-			{
-				// if observer belongs to the owner
-				if (observer.owner == owner_)
-				{
-					detach(observer.observer);
 				}
 			}
 		}
@@ -203,14 +159,14 @@ public final class Event<T>
 			mIsDuringInvocation = true;
 
 			// invokes attached observers
-			for (Details<T> observer : mObserversClone.values())
+			for (Observer<T> observer : mObserversClone)
 			{
 				// invoke method
 				try
 				{
-					if (observer.observer.action(param_) == false)
+					if (observer.action(param_) == false)
 					{
-						detach(observer.observer);
+						detach(observer);
 					}
 				}
 				catch (Throwable e)
@@ -229,7 +185,7 @@ public final class Event<T>
 				mObserversClone.clear();
 
 				// build new observer clone list
-				mObserversClone.putAll(mObservers);
+				mObserversClone.addAll(mObservers);
 			}
 
 			// roll back during invocation flag

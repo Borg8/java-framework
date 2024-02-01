@@ -83,7 +83,7 @@ public final class HttpResponse implements Serializable
 					header = NetworkTools.parseHeader(line);
 					if (header != null)
 					{
-						headers.put(header.el1.toLowerCase(), header.el2.toLowerCase());
+						headers.put(header.key.toLowerCase(), header.value.toLowerCase());
 					}
 					else
 					{

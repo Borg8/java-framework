@@ -83,7 +83,7 @@ public class HttpRequest implements Serializable
 					header = NetworkTools.parseHeader(line);
 					if (header != null)
 					{
-						headers.put(header.el1, header.el2);
+						headers.put(header.key, header.value);
 					}
 					else
 					{

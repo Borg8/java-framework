@@ -285,7 +285,7 @@ public final class TimeManager
 			sAsyncExecutors.put(handler_, timer);
 		}
 
-		TasksManager.continueLoop();
+		TasksManager.wakeLoop();
 	}
 
 	/**

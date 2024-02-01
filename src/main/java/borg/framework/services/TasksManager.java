@@ -176,7 +176,7 @@ public class TasksManager
 		else
 		{
 			// add task to queue
-			addTask(task_, param_);
+			_addTask(task_, param_);
 		}
 	}
 
@@ -389,7 +389,7 @@ public class TasksManager
 			long next = TimeManager.loop();
 
 			// run main thread tasks
-			runTask();
+			_runTask();
 
 			synchronized (sTasks)
 			{
@@ -420,6 +420,9 @@ public class TasksManager
 		}
 	}
 
+	/**
+	 * exit main loop.
+	 */
 	public static void exit()
 	{
 		sDone = true;
@@ -430,12 +433,15 @@ public class TasksManager
 		}
 	}
 
-	public static void continueLoop()
+	/**
+	 * wake main loop up.
+	 */
+	public static void wakeLoop()
 	{
 		sSleep = false;
 	}
 
-	private static boolean runTask()
+	private static boolean _runTask()
 	{
 		if (sTasks.isEmpty() == false)
 		{
@@ -466,7 +472,7 @@ public class TasksManager
 		return false;
 	}
 
-	private static <T> void addTask(@NotNull Task<T> task_, @Nullable T param_)
+	private static <T> void _addTask(@NotNull Task<T> task_, @Nullable T param_)
 	{
 		synchronized (sTasks)
 		{
