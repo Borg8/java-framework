@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.AlgorithmParameters;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -127,49 +126,6 @@ public final class ArraysManager
 	}
 
 	/**
-	 * convert list of Bytes to it hex representation. After conversion each Byte in the list will be
-	 * represented as two digit hexadecimal number, when each Byte in the list is an unsigned byte.
-	 *
-	 * @param list_ given list.
-	 *
-	 * @return string of hex representation of the list.
-	 */
-	@NotNull
-	@Contract(pure = true)
-	public static String getListAsHex(@NotNull List<Byte> list_)
-	{
-		StringBuilder builder = new StringBuilder();
-
-		// convert to string
-		for (byte b : list_)
-		{
-			// append 4 MSB
-			int i = (b & 0xf0) >> 4;
-			if (i < 10)
-			{
-				builder.append((char)('0' + i));
-			}
-			else
-			{
-				builder.append((char)('a' + i - 10));
-			}
-
-			// append 4 LSB
-			i = b & 0xf;
-			if (i < 10)
-			{
-				builder.append((char)('0' + i));
-			}
-			else
-			{
-				builder.append((char)('a' + i - 10));
-			}
-		}
-
-		return builder.toString();
-	}
-
-	/**
 	 * build byte array from it hex representation. All byte in string must be represented by two
 	 * digit hexadecimal number.
 	 *
@@ -235,73 +191,6 @@ public final class ArraysManager
 		}
 
 		return array;
-	}
-
-	/**
-	 * build list of bytes from it hex representation. All bytes in string must be represented by two
-	 * digit hexadecimal number.
-	 *
-	 * @param hex_ hex representation of list.
-	 *
-	 * @return list of bytes from given hex representation.
-	 */
-	@NotNull
-	public static ArrayList<Byte> buildListFromHex(@NotNull String hex_)
-	{
-		// create array
-		int n = hex_.length();
-		ArrayList<Byte> list = new ArrayList<>(n / 2);
-
-		for (int i = 0; i < n; i += 2)
-		{
-			// build byte
-			int msd = hex_.charAt(i);
-
-			// if MSD is a number
-			if (msd <= '9')
-			{
-				msd -= '0';
-			}
-			else
-			{
-				// if MSD is in a higher case
-				if (msd <= 'F')
-				{
-					msd -= 'A' - 10;
-				}
-				else
-				{
-					// MSD is in a lower case
-					msd -= 'a' - 10;
-				}
-			}
-
-			int lsd = hex_.charAt(i + 1);
-
-			// if LSD is a number
-			if (lsd <= '9')
-			{
-				lsd -= '0';
-			}
-			else
-			{
-				// if LSD is in a higher case
-				if (lsd <= 'F')
-				{
-					lsd -= 'A' - 10;
-				}
-				else
-				{
-					// LSD is in a lower case
-					lsd -= 'a' - 10;
-				}
-			}
-
-			// set byte
-			list.add((byte)((msd << 4) + lsd));
-		}
-
-		return list;
 	}
 
 	/**
@@ -570,47 +459,5 @@ public final class ArraysManager
 		decryptedArray = sCipher.doFinal(array_);
 
 		return decryptedArray;
-	}
-
-	/**
-	 * build bytes array from list of Bytes.
-	 *
-	 * @param data_ list to build from.
-	 *
-	 * @return built array.
-	 */
-	@Contract(pure = true)
-	@Deprecated
-	public static byte @NotNull [] bytesFromList(@NotNull List<Byte> data_)
-	{
-		int n = data_.size();
-		byte[] array = new byte[n];
-		for (int i = 0; i < n; ++i)
-		{
-			array[i] = data_.get(i);
-		}
-
-		return array;
-	}
-
-	/**
-	 * build list of Bytes from bytes array.
-	 *
-	 * @param data_ array to build from.
-	 *
-	 * @return built list.
-	 */
-	@NotNull
-	@Contract(pure = true)
-	@Deprecated
-	public static List<Byte> listFromBytes(byte @NotNull [] data_)
-	{
-		ArrayList<Byte> list = new ArrayList<>(data_.length);
-		for (byte b : data_)
-		{
-			list.add(b);
-		}
-
-		return list;
 	}
 }

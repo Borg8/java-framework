@@ -1,9 +1,5 @@
 package borg.framework.serializers;
 
-import borg.framework.Constants;
-import borg.framework.auxiliaries.Logger;
-import borg.framework.services.StorageManager;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +8,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+
+import borg.framework.Constants;
+import borg.framework.auxiliaries.Logger;
+import borg.framework.services.StorageManager;
 
 public abstract class Serialized implements Serializable
 {
@@ -165,7 +165,7 @@ public abstract class Serialized implements Serializable
 	 * @return {@code true} if the state was saved successfully, {@code false} otherwise.
 	 */
 	@SuppressWarnings("null") // compiler issues
-	public final boolean saveState()
+	public boolean saveState()
 	{
 		// if transaction is closed
 		if (mTransactions == 0)
@@ -221,7 +221,7 @@ public abstract class Serialized implements Serializable
 	 * @return true if state exists, false otherwise.
 	 */
 	@SuppressWarnings("null") // compiler issues
-	public final boolean readState()
+	public boolean readState()
 	{
 		// deserialize object
 		byte[] data;

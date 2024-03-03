@@ -17,6 +17,7 @@ import java.util.Map;
 import borg.framework.Constants;
 import borg.framework.auxiliaries.BinaryParser;
 import borg.framework.auxiliaries.Logger;
+import borg.framework.collections.IntArray;
 import borg.framework.services.ArraysManager;
 
 public abstract class REntity implements BinaryParser.BinarySerializable
@@ -570,15 +571,15 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 
 	@Contract(pure = true)
 	@NotNull
-	public static List<Integer> readIntegers(@Nullable HashMap<String, Object> map_,
+	public static IntArray readIntegers(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_)
 	{
 		List<Long> list = readField(map_, key_, new ArrayList<>());
 
-		List<Integer> integers = new ArrayList<>(list.size());
+		IntArray integers = new IntArray(list.size());
 		for (long l : list)
 		{
-			integers.add((int)l);
+			integers.push((int)l);
 		}
 
 		return integers;

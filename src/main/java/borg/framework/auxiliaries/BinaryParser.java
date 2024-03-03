@@ -1,11 +1,7 @@
 package borg.framework.auxiliaries;
 
-import borg.framework.collections.ByteArray;
-import borg.framework.serializers.RTyped;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -14,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.zip.CRC32;
+
+import borg.framework.collections.ByteArray;
+import borg.framework.serializers.RTyped;
 
 @SuppressWarnings("ExplicitArrayFilling")
 public final class BinaryParser
@@ -104,43 +103,8 @@ public final class BinaryParser
 		}
 	}
 
-	public static class Writer
+	public static class Writer extends ByteArray
 	{
-		/** buffer to write to **/
-		private final ByteArray mBuffer;
-
-		public Writer()
-		{
-			mBuffer = new ByteArray();
-		}
-
-		@Contract(pure = true)
-		@Unmodifiable
-		public byte @NotNull [] getContent()
-		{
-			return mBuffer.getContent();
-		}
-
-		public byte @NotNull [] extractContent()
-		{
-			return mBuffer.extractContent();
-		}
-
-		@Contract(pure = true)
-		public int getContentLength()
-		{
-			return mBuffer.length();
-		}
-
-		protected void write(byte b_)
-		{
-			mBuffer.push(b_);
-		}
-
-		protected void clear()
-		{
-			mBuffer.clear();
-		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -495,7 +459,7 @@ public final class BinaryParser
 	{
 		for (int i = 0; i < size_; ++i)
 		{
-			writer_.write((byte)(value_));
+			writer_.push((byte)(value_));
 			value_ >>= 8;
 		}
 
