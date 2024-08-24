@@ -7,6 +7,11 @@ public final class Ref<T>
 {
 	public T value;
 
+	public Ref()
+	{
+		this(null);
+	}
+
 	public Ref(T value_)
 	{
 		value = value_;

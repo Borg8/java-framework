@@ -4,159 +4,71 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
+import borg.framework.services.TimeManager;
+
+import static java.util.logging.Logger.getLogger;
 
 public final class Logger
 {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Public Constants
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Constants
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Definitions
+	// LogsFormatter
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static final class LogFormatter extends Formatter
+	public static final class LogsFormatter extends Formatter
 	{
-		private final StringBuilder builder = new StringBuilder();
-		private final ZoneId zoneId = ZoneId.systemDefault();
-
 		@Override
-		@Contract(pure = true)
 		@NotNull
 		public String format(@NotNull LogRecord record_)
 		{
-			builder.setLength(0);
-			builder.append("~");
-
-			// read parameters`
-			ZonedDateTime zdt = ZonedDateTime.ofInstant(record_.getInstant(), zoneId);
-			Object[] array = record_.getParameters();
-			Parameters params = null;
-			if ((array != null) && (array.length > 0))
-			{
-				Object object = record_.getParameters()[0];
-				if (object instanceof Parameters)
-				{
-					params = (Parameters)record_.getParameters()[0];
-				}
-			}
-			if (params == null)
-			{
-				params = new Parameters("", -1, "", null, null);
-			}
-
-			// time
-			builder.append(zdt.format(DateTimeFormatter.ofPattern("dd.LL HH:mm:ss.SSS")));
-			builder.append("|");
-
-			// level
-			builder.append(record_.getLevel());
-			builder.append("|");
-
-			// thread
-			builder.append(params.thread);
-			builder.append("|");
-
-			// session ID
-			if (params.session != null)
-			{
-				builder.append(params.session);
-			}
-			builder.append("|");
-
-			// location
-			builder.append("\n");
-			builder.append(params.className);
-			builder.append(":");
-			builder.append(params.line);
-
-			// message
-			builder.append("\n\n");
-			builder.append(record_.getMessage());
-
-			// thrown
-			if (params.thrown != null)
-			{
-				builder.append("\n\n");
-				StringWriter writer = new StringWriter();
-				PrintWriter printWriter = new PrintWriter(writer);
-				params.thrown.printStackTrace(printWriter);
-				printWriter.close();
-				try
-				{
-					writer.close();
-				}
-				catch (IOException e)
-				{
-					// nothing to do here
-				}
-				builder.append(writer);
-			}
-			builder.append("|\n\n");
-
-			return builder.toString();
-		}
-	}
-
-	private static final class Parameters
-	{
-		public final String className;
-
-		public final int line;
-
-		public final String thread;
-
-		@Nullable
-		public final Throwable thrown;
-
-		@Nullable
-		public final String session;
-
-		Parameters(@NotNull String className_,
-			int line_,
-			@NotNull String thread_,
-			@Nullable Throwable thrown_,
-			@Nullable String session_)
-		{
-			className = className_;
-			line = line_;
-			thread = thread_;
-			thrown = thrown_;
-			session = session_;
+			return record_.getMessage() + System.lineSeparator();
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Fields
+	// Listener
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public interface Listener
+	{
+		/**
+		 * log message received.
+		 *
+		 * @param level_   log level.
+		 * @param message_ log message.
+		 * @param e_       log exception.
+		 */
+		void log(@NotNull Level level_, @NotNull String message_, @Nullable Throwable e_);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	// Variables
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/** logger instance **/
-	private static final java.util.logging.Logger sLogger =
-		java.util.logging.Logger.getLogger("borg.framework");
+	private static final java.util.logging.Logger sLogger = getLogger("borg.framework");
 
 	/** stack holder **/
 	private static final Throwable sStackHolder = new Throwable();
 
 	/** root class to log **/
-	private static String sRoot = null;
+	private static Set<String> sRoots = null;
 
 	/** maximum stack log depth **/
 	private static int sDepth = 10;
@@ -164,8 +76,8 @@ public final class Logger
 	/** is stack ready **/
 	private static boolean sStackReady = false;
 
-	/** started sessions. Map from thread ID to the session name **/
-	private static final Map<Long, String> sSessions = new HashMap<>();
+	/** logs listeners **/
+	private static final List<Listener> sListeners = new ArrayList<>();
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	// Methods
@@ -173,13 +85,15 @@ public final class Logger
 
 	static
 	{
-		Handler handler = new ConsoleHandler();
-		handler.setFormatter(new LogFormatter());
+		TIME_FORMAT.setTimeZone(TimeZone.getDefault());
+
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setLevel(Level.ALL);
+		handler.setFormatter(new LogsFormatter());
 		sLogger.addHandler(handler);
 		sLogger.setUseParentHandlers(false);
 	}
 
-	@Contract(pure = true)
 	private Logger()
 	{
 		// nothing to do here
@@ -188,75 +102,52 @@ public final class Logger
 	/**
 	 * configure logger.
 	 *
-	 * @param root_  root class to log.
 	 * @param depth_ exceptions depth.
 	 * @param level_ minimum log level.
 	 * @param file_  log output file to add, if {@code null} then all handlers will be removed.
+	 * @param roots_ root package to log.
 	 */
-	public static void configure(@Nullable Class<?> root_,
-		int depth_,
+	public static void configure(int depth_,
 		@NotNull Level level_,
-		@Nullable String file_)
+		@Nullable String file_,
+		String... roots_)
 	{
 		sLogger.setLevel(level_);
 
-		if (root_ != null)
+		if ((roots_ != null) && (roots_.length > 0))
 		{
-			sRoot = root_.getName();
+			sRoots = Set.of(roots_);
 		}
 		else
 		{
-			sRoot = null;
+			sRoots = null;
 		}
 		sDepth = depth_;
+
 		if (file_ != null)
 		{
 			try
 			{
 				FileHandler handler = new FileHandler(file_);
-				handler.setFormatter(new LogFormatter());
+				handler.setLevel(level_);
+				handler.setFormatter(new LogsFormatter());
 				sLogger.addHandler(handler);
 			}
 			catch (Exception e)
 			{
-				Logger.log(e);
-			}
-		}
-		else
-		{
-			for (Handler handler : sLogger.getHandlers())
-			{
-				sLogger.removeHandler(handler);
-				handler.close();
+				throw new Error(e);
 			}
 		}
 	}
 
 	/**
-	 * @return current session name.
-	 */
-	@Nullable
-	public static String getSession()
-	{
-		return sSessions.get(Thread.currentThread().threadId());
-	}
-
-	/**
-	 * start session for the thread.
+	 * add log listener.
 	 *
-	 * @param session_ session to start, {@code null} to stop session.
+	 * @param listener_ listener to add.
 	 */
-	public static void startSession(@Nullable String session_)
+	public static void addListener(@NotNull Listener listener_)
 	{
-		long id = Thread.currentThread().threadId();
-		if (session_ != null)
-		{
-			sSessions.put(id, session_);
-		}
-		else
-		{
-			sSessions.remove(id);
-		}
+		sListeners.add(listener_);
 	}
 
 	/**
@@ -275,21 +166,36 @@ public final class Logger
 
 		// get build stack trace
 		int n = traceElements_.length - 1;
+		StackTraceElement filtred = null;
 		for (int i = start_ + 1; i < n; ++i)
 		{
 			StackTraceElement element = traceElements_[i];
-			if (element.getClassName().equals(sRoot) == false)
+			boolean log = sRoots == null;
+			if (log == false)
 			{
-				builder.append(element.getMethodName());
-				builder.append('(');
-				builder.append(element.getFileName());
-				builder.append(':');
-				builder.append(element.getLineNumber());
-				builder.append(")\n");
+				String name = element.getClassName();
+				for (String root : sRoots)
+				{
+					if (name.startsWith(root))
+					{
+						log = true;
+						break;
+					}
+				}
+			}
+			if (log)
+			{
+				// if element was filtered
+				if (filtred != null)
+				{
+					_addElement(builder, filtred);
+					filtred = null;
+				}
+				_addElement(builder, element);
 			}
 			else
 			{
-				break;
+				filtred = element;
 			}
 		}
 
@@ -365,10 +271,10 @@ public final class Logger
 	 */
 	public static void snapshot(@NotNull Level level_, @Nullable String message_, Object... state_)
 	{
-		// build stack trace
-		buildStack();
-		StackTraceElement[] stackTrace = sStackHolder.getStackTrace();
-		String stack = stackTrace(stackTrace, 1);
+		if (message_ == null)
+		{
+			message_ = "";
+		}
 
 		// build state
 		String state = null;
@@ -389,22 +295,20 @@ public final class Logger
 			}
 		}
 
-		// build function
-		String className = stackTrace[2].getClassName();
-		String method = stackTrace[2].getMethodName();
-		int line = stackTrace[2].getLineNumber();
+		// build stack trace
+		buildStack();
+		StackTraceElement[] stackTrace = sStackHolder.getStackTrace();
+		String stack = stackTrace(stackTrace, 1);
 
-		// build message
-		String message = String.format("snapshot from: %s#%s:%d%s\n\n%s\n\n%s",
-			className,
-			method,
-			line,
-			message_ == null? "": " - " + message_,
+		// create message
+		String message = String.format("%s\n%s\n\n%s\n%s",
+			message_,
 			state == null? "": state,
+			_systemDetails(),
 			stack);
 
 		// log
-		log(level_, message);
+		_log(level_, message, null);
 	}
 
 	/**
@@ -412,10 +316,10 @@ public final class Logger
 	 *
 	 * @param message_ message to log.
 	 */
-	public static void log(@NotNull Object message_)
+	public static void log(@NotNull String message_)
 	{
 		buildStack();
-		log(Level.INFO, message_);
+		log(Level.ALL, message_);
 	}
 
 	/**
@@ -424,10 +328,22 @@ public final class Logger
 	 * @param level_   log level.
 	 * @param message_ message to log.
 	 */
-	public static void log(@NotNull Level level_, @NotNull Object message_)
+	public static void log(@NotNull Level level_, @NotNull String message_)
 	{
 		buildStack();
 		log(level_, message_, null);
+	}
+
+	/**
+	 * log exception.
+	 *
+	 * @param level_ log level.
+	 * @param e_     exception to log.
+	 */
+	public static void log(@NotNull Level level_, @NotNull Throwable e_)
+	{
+		buildStack();
+		log(level_, null, e_);
 	}
 
 	/**
@@ -437,8 +353,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Throwable e_)
 	{
-		buildStack();
-		log((String)null, e_);
+		log(Level.SEVERE, e_);
 	}
 
 	/**
@@ -459,7 +374,7 @@ public final class Logger
 	 * @param condition_ condition to test.
 	 * @param message_   message to log if the condition is {@code false}.
 	 */
-	public static void log(boolean condition_, @NotNull Object message_)
+	public static void log(boolean condition_, @NotNull String message_)
 	{
 		if (condition_ == false)
 		{
@@ -468,26 +383,45 @@ public final class Logger
 		}
 	}
 
-	private static void log(@NotNull Level level_,
-		@Nullable Object message_,
-		@Nullable Throwable thrown_)
+	/**
+	 * log message.
+	 *
+	 * @param level_   log level.
+	 * @param message_ message to log.
+	 * @param e_       exception to log.
+	 */
+	public static void log(@NotNull Level level_, @Nullable String message_, @Nullable Throwable e_)
 	{
 		if (message_ == null)
 		{
 			message_ = "";
 		}
 
+		// add stack title to the log
 		buildStack();
 		StackTraceElement element = sStackHolder.getStackTrace()[2];
-		sLogger.log(level_,
-			message_.toString(),
-			new Parameters(element.getClassName(),
-				element.getLineNumber(),
-				Thread.currentThread().getName(),
-				thrown_,
-				sSessions.get(Thread.currentThread().threadId())));
+		long now = TimeManager.getRealTime();
+		String message = String.format("%s: %s:%d (%s)\n%s\n",
+			TIME_FORMAT.format(now),
+			element.getFileName(),
+			element.getLineNumber(),
+			_systemDetails(),
+			message_);
 
+		// log
+		_log(level_, message, e_);
+	}
+
+	private static void _log(@NotNull Level level_, @NotNull String message_, @Nullable Throwable e_)
+	{
 		sStackReady = false;
+
+		sLogger.log(level_, message_, e_);
+
+		for (Listener listener : sListeners)
+		{
+			listener.log(level_, message_, e_);
+		}
 	}
 
 	private static void buildStack()
@@ -497,5 +431,29 @@ public final class Logger
 			sStackHolder.fillInStackTrace();
 			sStackReady = true;
 		}
+	}
+
+	private static void _addElement(@NotNull StringBuilder builder_,
+		@NotNull StackTraceElement element_)
+	{
+		String file = element_.getFileName();
+		if (file != null)
+		{
+			builder_.append(element_.getMethodName());
+			builder_.append('(');
+			builder_.append(element_.getFileName());
+			builder_.append(':');
+			builder_.append(element_.getLineNumber());
+			builder_.append(")\n");
+		}
+	}
+
+	@NotNull
+	@Contract(pure = true)
+	private static String _systemDetails()
+	{
+		return String.format("%s | %s",
+			Thread.currentThread().getName(),
+			TextParser.timestampToTime(GlobalsHolder.getUptime()));
 	}
 }

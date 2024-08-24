@@ -4,11 +4,15 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import borg.framework.auxiliaries.Logger;
@@ -100,46 +104,71 @@ public class TasksManager
 	/**
 	 * run new task.
 	 *
+	 * @param name_ name of the task.
 	 * @param task_ task to run.
 	 *
 	 * @return task identifier or null if the task was not created.
 	 */
 	@NotNull
-	@Contract("_, -> new")
-	public static Thread runOnThread(@NotNull Task<Void> task_)
+	public static Thread runOnThread(String name_, @NotNull Task<Void> task_)
 	{
-		return runOnThread(task_, null);
+		return runOnThread(name_, task_, null);
 	}
 
 	/**
 	 * run new task.
 	 *
+	 * @param name_  name of the task.
 	 * @param task_  task to run.
 	 * @param param_ parameter to pass to the task.
 	 *
 	 * @return task identifier or {@code null} if the task was not created.
 	 */
 	@NotNull
-	@Contract("_, _ -> new")
-	public static <T> Thread runOnThread(@NotNull Task<T> task_, @Nullable T param_)
+	public static <T> Thread runOnThread(@NotNull String name_,
+		@NotNull Task<T> task_,
+		@Nullable T param_)
 	{
-		String session = Logger.getSession();
 		Thread thread = new Thread(() ->
 		{
 			// run the task
-			try
-			{
-				Logger.startSession(session);
-				task_.run(param_);
-			}
-			catch (Throwable e)
-			{
-				Logger.log(e);
-			}
+			Thread.currentThread().setName(name_);
+			task_.run(param_);
 		});
 
 		thread.start();
 		return thread;
+	}
+
+	/**
+	 * execute multiple tasks. The function will return after all tasks are completed.
+	 *
+	 * @param tasks_ tasks to run.
+	 * @param pool_  number of threads to run the tasks on.
+	 */
+	public static void executeTasks(@NotNull Collection<Runnable> tasks_, int pool_)
+	{
+		// create executor
+		try(ExecutorService executor = Executors.newFixedThreadPool(pool_))
+		{
+			// submit all tasks
+			for (Runnable task: tasks_)
+			{
+				executor.submit(task);
+			}
+			executor.shutdown();
+
+			// wait for all tasks to complete
+			if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS) == false)
+			{
+				executor.shutdownNow();
+				throw new Error("tasks did not complete");
+			}
+		}
+		catch (InterruptedException e)
+		{
+			throw new Error(e);
+		}
 	}
 
 	/**
@@ -190,14 +219,12 @@ public class TasksManager
 	public static Thread startLooper()
 	{
 		// create looper thread
-		String session = Logger.getSession();
 		Thread looper = new Thread(() ->
 		{
 			// poll task
 			Thread thread = Thread.currentThread();
 			thread.setName("looper " + thread.threadId());
 
-			Logger.startSession(session);
 			for (; ; )
 			{
 				// get looper queue
@@ -329,13 +356,11 @@ public class TasksManager
 		@Nullable T param_)
 	{
 		// if from looper thread
-		String session = Logger.getSession();
 		if (looper_ == Thread.currentThread())
 		{
 			// run the task
 			try
 			{
-				Logger.startSession(session);
 				task_.run(param_);
 			}
 			catch (Throwable e)
@@ -357,7 +382,7 @@ public class TasksManager
 			synchronized (looper_)
 			{
 				// add task to the queue
-				queue.add(new Descriptor<>(task_, session, param_));
+				queue.add(new Descriptor<>(task_, "", param_));
 
 				// invoke looper
 				looper_.notify();
@@ -383,7 +408,7 @@ public class TasksManager
 		sDone = false;
 
 		// start main loop
-		while(sDone == false)
+		while (sDone == false)
 		{
 			// loop timer
 			long next = TimeManager.loop();
@@ -457,7 +482,6 @@ public class TasksManager
 			{
 				// execute task
 				assert task != null;
-				Logger.startSession(task.session);
 				task.task.run(task.param);
 			}
 			catch (Throwable e)
@@ -476,7 +500,7 @@ public class TasksManager
 	{
 		synchronized (sTasks)
 		{
-			sTasks.add(new Descriptor<>(task_, Logger.getSession(), param_));
+			sTasks.add(new Descriptor<>(task_, "", param_));
 			sTasks.notify();
 		}
 	}

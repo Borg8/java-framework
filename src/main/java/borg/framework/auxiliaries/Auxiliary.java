@@ -1,7 +1,9 @@
 package borg.framework.auxiliaries;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Random;
 
 public final class Auxiliary
@@ -46,11 +48,7 @@ public final class Auxiliary
 	 */
 	public static void seedRandom(long seed_)
 	{
-		// if reset value is valid
-		if ((seed_ != 0) && (seed_ != 0x9068ffff464fffffL))
-		{
-			random.setSeed(seed_);
-		}
+		random.setSeed(seed_);
 	}
 
 	/**
@@ -139,11 +137,53 @@ public final class Auxiliary
 	{
 		try
 		{
-			Thread.sleep(time_);
+			if (time_ > 0)
+			{
+				Thread.sleep(time_);
+			}
 		}
 		catch (Exception e)
 		{
 			throw new Error(e);
 		}
+	}
+
+	/**
+	 * build URL.
+	 *
+	 * @param components_ components of the URL.
+	 *
+	 * @return URL.
+	 */
+	@NotNull
+	@Contract(pure = true)
+	public static String buildPath(String @NotNull ... components_)
+	{
+		StringBuilder builder = new StringBuilder();
+		char s = File.separatorChar;
+		for (String component : components_)
+		{
+			int last = builder.length() - 1;
+			if (last >= 0)
+			{
+				if (component.charAt(0) != s)
+				{
+					if (builder.charAt(last) != s)
+					{
+						builder.append(s);
+					}
+				}
+				else
+				{
+					if (builder.charAt(last) == s)
+					{
+						builder.deleteCharAt(last);
+					}
+				}
+			}
+			builder.append(component);
+		}
+
+		return builder.toString();
 	}
 }

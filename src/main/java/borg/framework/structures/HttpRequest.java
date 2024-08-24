@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 import borg.framework.Constants;
 import borg.framework.auxiliaries.Logger;
@@ -110,7 +109,7 @@ public class HttpRequest implements Serializable
 		}
 		catch (Exception e2_)
 		{
-			Logger.log(Level.FINE, e2_);
+			Logger.log(e2_);
 		}
 
 		return null;

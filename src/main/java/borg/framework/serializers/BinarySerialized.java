@@ -1,8 +1,5 @@
 package borg.framework.serializers;
 
-import borg.framework.Constants;
-import borg.framework.auxiliaries.Logger;
-
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +10,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.logging.Level;
+
+import borg.framework.Constants;
+import borg.framework.auxiliaries.Logger;
 
 public class BinarySerialized extends Serialized
 {
@@ -133,7 +132,7 @@ public class BinarySerialized extends Serialized
 		}
 		catch (Exception e)
 		{
-			Logger.log(Level.WARNING, e);
+			Logger.log(e);
 		}
 
 		return null;
@@ -150,7 +149,7 @@ public class BinarySerialized extends Serialized
 		}
 		catch (Throwable e)
 		{
-			Logger.log(Level.WARNING, e);
+			Logger.log(e);
 		}
 
 		return null;

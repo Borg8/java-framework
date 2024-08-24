@@ -88,10 +88,8 @@ public class TcpServer
 			}
 
 			// accept connections
-			TasksManager.runOnThread(param1_ ->
+			TasksManager.runOnThread("HTTP server on " + mPort, param1_ ->
 			{
-				Thread.currentThread().setName("HTTP server on " + mPort);
-
 				try
 				{
 					// accept connections
@@ -102,10 +100,8 @@ public class TcpServer
 						Socket socket = mServer.accept();
 
 						// invoke listener
-						TasksManager.runOnThread(param2_ ->
+						TasksManager.runOnThread("Accepted socket: " + socket.getInetAddress(), param2_ ->
 						{
-							Thread.currentThread().setName("Accepted socket: " + socket.getInetAddress());
-
 							try
 							{
 								listener_.onAccept(socket);
