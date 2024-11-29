@@ -21,15 +21,15 @@ import static java.util.logging.Logger.getLogger;
 
 public final class Logger
 {
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Constants
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+	/*************************************************************************************************
+	 * Constants
+	 ************************************************************************************************/
 
-	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// LogsFormatter
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+	/*************************************************************************************************
+	 * LogsFormatter
+	 ************************************************************************************************/
 
 	public static final class LogsFormatter extends Formatter
 	{
@@ -37,13 +37,15 @@ public final class Logger
 		@NotNull
 		public String format(@NotNull LogRecord record_)
 		{
-			return record_.getMessage() + System.lineSeparator();
+			return String.format("%s%s\n\n",
+				record_.getMessage(),
+				record_.getThrown() == null? "": exceptionLog(record_.getThrown()));
 		}
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Listener
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+	/*************************************************************************************************
+	 * Listener
+	 ************************************************************************************************/
 
 	public interface Listener
 	{
@@ -57,9 +59,9 @@ public final class Logger
 		void log(@NotNull Level level_, @NotNull String message_, @Nullable Throwable e_);
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Variables
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+	/*************************************************************************************************
+	 * Variables
+	 ************************************************************************************************/
 
 	/** logger instance **/
 	private static final java.util.logging.Logger sLogger = getLogger("borg.framework");
@@ -79,9 +81,9 @@ public final class Logger
 	/** logs listeners **/
 	private static final List<Listener> sListeners = new ArrayList<>();
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	// Methods
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+	/*************************************************************************************************
+	 * Methods
+	 ************************************************************************************************/
 
 	static
 	{
@@ -154,7 +156,7 @@ public final class Logger
 	 * get stack trace as string.
 	 *
 	 * @param traceElements_ stack trace elements.
-	 * @param start_         number of elements to skip.
+	 * @param start_         element to start from.
 	 *
 	 * @return built string.
 	 */
@@ -167,7 +169,7 @@ public final class Logger
 		// get build stack trace
 		int n = traceElements_.length - 1;
 		StackTraceElement filtred = null;
-		for (int i = start_ + 1; i < n; ++i)
+		for (int i = start_; i < n; ++i)
 		{
 			StackTraceElement element = traceElements_[i];
 			boolean log = sRoots == null;
@@ -255,7 +257,7 @@ public final class Logger
 		}
 
 		// append stack trace
-		builder.append(";stack: ");
+		builder.append("\n");
 		builder.append(stackTrace(e_.getStackTrace(), 0));
 
 		return builder.toString();
@@ -298,7 +300,7 @@ public final class Logger
 		// build stack trace
 		buildStack();
 		StackTraceElement[] stackTrace = sStackHolder.getStackTrace();
-		String stack = stackTrace(stackTrace, 1);
+		String stack = stackTrace(stackTrace, 2);
 
 		// create message
 		String message = String.format("%s\n%s\n\n%s\n%s",
@@ -353,6 +355,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Throwable e_)
 	{
+		buildStack();
 		log(Level.SEVERE, e_);
 	}
 
@@ -401,8 +404,9 @@ public final class Logger
 		buildStack();
 		StackTraceElement element = sStackHolder.getStackTrace()[2];
 		long now = TimeManager.getRealTime();
-		String message = String.format("%s: %s:%d (%s)\n%s\n",
+		String message = String.format("%s: (%s) %s:%d (%s)\n%s\n",
 			TIME_FORMAT.format(now),
+			level_.getName(),
 			element.getFileName(),
 			element.getLineNumber(),
 			_systemDetails(),
