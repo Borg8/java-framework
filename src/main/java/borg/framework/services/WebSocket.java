@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
@@ -332,7 +331,7 @@ public class WebSocket
 	public void setKeepalive(long interval_)
 	{
 		mKeepalive = interval_;
-		mLastPong = TimeManager.getRealTime();
+		mLastPong = 0;
 
 		// if connected
 		if ((isConnected() == true) && (mKeepalive > 0))
@@ -552,7 +551,7 @@ public class WebSocket
 									break;
 
 								case PONG:
-									mLastPong = TimeManager.getRealTime();
+									mLastPong = 0;
 									break;
 
 								case CLOSE:
@@ -600,7 +599,7 @@ public class WebSocket
 
 	@NotNull
 	@Contract(pure = true)
-	private static URL createUrl(String url_)
+	private static URL createUrl(@NotNull String url_)
 	{
 		url_ = url_.replace("wss://", "https://");
 		url_ = url_.replace("ws://", "http://");
@@ -608,7 +607,7 @@ public class WebSocket
 		{
 			return new URL(url_);
 		}
-		catch (MalformedURLException e)
+		catch (Throwable e)
 		{
 			throw new Error(e);
 		}
@@ -666,7 +665,7 @@ public class WebSocket
 				write(new byte[0], Opcode.PING);
 
 				// reschedule
-				mLastPong = 0;
+				mLastPong = TimeManager.getRealTime();
 				TimeManager.asyncExecute((long)(mKeepalive * 1.1), _keepaliveWatchdog);
 			}
 		}

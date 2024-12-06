@@ -339,7 +339,7 @@ public final class BinaryParser
 		// read elements
 		for (int i = 0; i < size; ++i)
 		{
-			reals[i] = readReal(reader_);
+			reals[i] = readDouble(reader_);
 		}
 
 		return reals;
@@ -594,7 +594,7 @@ public final class BinaryParser
 		// write array
 		for (T d : collection_)
 		{
-			size += writeReal((Double)d, writer_);
+			size += writeDouble((Double)d, writer_);
 		}
 
 		return size;
@@ -619,7 +619,7 @@ public final class BinaryParser
 		// write array
 		for (double d : array_)
 		{
-			size += writeReal(d, writer_);
+			size += writeDouble(d, writer_);
 		}
 
 		return size;
@@ -652,27 +652,27 @@ public final class BinaryParser
 	}
 
 	/**
-	 * write real value to byte array.
+	 * write double value to byte array.
 	 *
 	 * @param value_  value to write.
 	 * @param writer_ writer to write with.
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeReal(double value_, @NotNull Writer writer_)
+	public static int writeDouble(double value_, @NotNull Writer writer_)
 	{
 		return writeInteger(Double.doubleToRawLongBits(value_), SIZE_DOUBLE, writer_);
 	}
 
 	/**
-	 * read real value from byte array.
+	 * read double value from byte array.
 	 *
 	 * @param reader_ reader to use.
 	 *
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static double readReal(@NotNull Reader reader_)
+	public static double readDouble(@NotNull Reader reader_)
 	{
 		return Double.longBitsToDouble(readInteger(reader_, SIZE_DOUBLE));
 	}
