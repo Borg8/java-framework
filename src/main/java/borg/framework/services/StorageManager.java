@@ -9,6 +9,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 public final class StorageManager
@@ -129,6 +133,30 @@ public final class StorageManager
 	public static boolean rename(@NotNull File file_, @NotNull String filename_)
 	{
 		return file_.renameTo(new File(filename_));
+	}
+
+	/**
+	 * move file.
+	 *
+	 * @param from_ source file.
+	 * @param to_   destination file.
+	 *
+	 * @return {@code true} if successfully move, {@code false} otherwise.
+	 */
+	public static boolean move(@NotNull File from_, @NotNull File to_)
+	{
+		try
+		{
+			Path from = Paths.get(from_.getAbsolutePath());
+			Path to = Paths.get(to_.getAbsolutePath());
+			Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
+
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
 	}
 
 	/**
