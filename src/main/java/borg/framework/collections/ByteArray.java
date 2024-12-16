@@ -88,6 +88,16 @@ public class ByteArray extends PrimitiveArray<Byte>
 		mIndex = length;
 	}
 
+	public void push(@NotNull ByteArray array_)
+	{
+		// write array
+		int n = array_.length();
+		int length = mIndex + n;
+		_ensureSize(length);
+		System.arraycopy(array_.mBuffer, 0, mBuffer, mIndex, n);
+		mIndex = length;
+	}
+
 	@Contract(pure = true)
 	public byte pop()
 	{

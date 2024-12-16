@@ -88,6 +88,16 @@ public class DoubleArray extends PrimitiveArray<Double>
 		mIndex = length;
 	}
 
+	public void push(@NotNull DoubleArray array_)
+	{
+		// write array
+		int n = array_.length();
+		int length = mIndex + n;
+		_ensureSize(length);
+		System.arraycopy(array_.mBuffer, 0, mBuffer, mIndex, n);
+		mIndex = length;
+	}
+
 	@Contract(pure = true)
 	public double pop()
 	{
