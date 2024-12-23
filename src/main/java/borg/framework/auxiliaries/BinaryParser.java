@@ -321,14 +321,14 @@ public final class BinaryParser
 	}
 
 	/**
-	 * read array of real numbers stored in byte array.
+	 * read array of doubles stored in byte array.
 	 *
 	 * @param reader_ reader to use.
 	 *
 	 * @return read array.
 	 */
 	@Contract(pure = true)
-	public static double @NotNull [] readReals(@NotNull Reader reader_)
+	public static double @NotNull [] readDoubles(@NotNull Reader reader_)
 	{
 		// read array size
 		int size = (int)readInteger(reader_, SIZE_ARRAY_LENGTH);
@@ -343,6 +343,31 @@ public final class BinaryParser
 		}
 
 		return reals;
+	}
+
+	/**
+	 * read array of floats stored in byte array.
+	 *
+	 * @param reader_ reader to use.
+	 *
+	 * @return read array.
+	 */
+	@Contract(pure = true)
+	public static float @NotNull [] readFloats(@NotNull Reader reader_)
+	{
+		// read array size
+		int size = (int)readInteger(reader_, SIZE_ARRAY_LENGTH);
+
+		// create array
+		float[] floats = new float[size];
+
+		// read elements
+		for (int i = 0; i < size; ++i)
+		{
+			floats[i] = readFloat(reader_);
+		}
+
+		return floats;
 	}
 
 	/**
@@ -575,7 +600,7 @@ public final class BinaryParser
 	}
 
 	/**
-	 * write collection of double elements to buffer.
+	 * write collection of doubles to buffer.
 	 *
 	 * @param collection_ collection of elements to write. Collection will be stored at the order that
 	 *                    provided collection defines.
@@ -583,7 +608,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static <T extends Number> int writeReals(@NotNull List<T> collection_,
+	public static <T extends Number> int writeDoubles(@NotNull List<T> collection_,
 		@NotNull Writer writer_)
 	{
 		int size = 0;
@@ -601,7 +626,7 @@ public final class BinaryParser
 	}
 
 	/**
-	 * write array of double elements to buffer.
+	 * write array of doubles to buffer.
 	 *
 	 * @param array_  array of elements to write. Collection will be stored at the order that
 	 *                provided collection defines.
@@ -609,7 +634,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeReals(double @NotNull [] array_, @NotNull Writer writer_)
+	public static int writeDoubles(double @NotNull [] array_, @NotNull Writer writer_)
 	{
 		int size = 0;
 
@@ -620,6 +645,31 @@ public final class BinaryParser
 		for (double d : array_)
 		{
 			size += writeDouble(d, writer_);
+		}
+
+		return size;
+	}
+
+	/**
+	 * write array of floats to buffer.
+	 *
+	 * @param array_  array of elements to write. Collection will be stored at the order that
+	 *                provided collection defines.
+	 * @param writer_ writer to write with.
+	 *
+	 * @return number of written bytes.
+	 */
+	public static int writeFloats(float @NotNull [] array_, @NotNull Writer writer_)
+	{
+		int size = 0;
+
+		// write size
+		size += writeInteger(array_.length, SIZE_ARRAY_LENGTH, writer_);
+
+		// write array
+		for (float f : array_)
+		{
+			size += writeFloat(f, writer_);
 		}
 
 		return size;
@@ -698,7 +748,7 @@ public final class BinaryParser
 	 * @return read value.
 	 */
 	@Contract(pure = true)
-	public static double readFloat(@NotNull Reader reader_)
+	public static float readFloat(@NotNull Reader reader_)
 	{
 		return Float.intBitsToFloat((int)readInteger(reader_, SIZE_FLOAT));
 	}
