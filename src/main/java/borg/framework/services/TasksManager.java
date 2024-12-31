@@ -149,10 +149,10 @@ public class TasksManager
 	public static void executeTasks(@NotNull Collection<Runnable> tasks_, int pool_)
 	{
 		// create executor
-		try(ExecutorService executor = Executors.newFixedThreadPool(pool_))
+		try (ExecutorService executor = Executors.newFixedThreadPool(pool_))
 		{
 			// submit all tasks
-			for (Runnable task: tasks_)
+			for (Runnable task : tasks_)
 			{
 				executor.submit(task);
 			}

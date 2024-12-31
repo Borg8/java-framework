@@ -21,23 +21,21 @@ public final class BinaryParser
 	 * Public Constants
 	 ************************************************************************************************/
 
-	/** size int8 value **/
-	public static final int SIZE_INT8 = 1;
+	/** size 8 bit value **/
+	public static final int SIZE_UINT8 = 1;
+	public static final int SIZE_INT8 = -1;
 
-	/** size int16 value **/
-	public static final int SIZE_INT16 = 2;
+	/** size 16 bit value **/
+	public static final int SIZE_UINT16 = 2;
+	public static final int SIZE_INT16 = -2;
 
-	/** size int24 value */
-	public static final int SIZE_INT24 = 3;
+	/** size 32 bit value **/
+	public static final int SIZE_UINT32 = 4;
+	public static final int SIZE_INT32 = -4;
 
-	/** size int32 value **/
-	public static final int SIZE_INT32 = 4;
-
-	/** size int64 value **/
-	public static final int SIZE_INT64 = 8;
-
-	/** size int128 value **/
-	public static final int SIZE_INT128 = 16;
+	/** size 64 bit value **/
+	public static final int SIZE_UINT64 = 8;
+	public static final int SIZE_INT64 = -8;
 
 	/** size of float value **/
 	public static final int SIZE_FLOAT = 4;
@@ -47,9 +45,6 @@ public final class BinaryParser
 
 	/** length of array size value **/
 	public static final int SIZE_ARRAY_LENGTH = 3;
-
-	/** max value of byte */
-	public static final int BYTE_MAX_SIZE = 255;
 
 	/*************************************************************************************************
 	 * Definitions
@@ -181,10 +176,21 @@ public final class BinaryParser
 	@Contract(pure = true)
 	public static long readInteger(@NotNull Reader reader_, int size_)
 	{
+		int size = size_ < 0? -size_: size_;
 		long value = 0;
-		for (int i = 0; i < size_; ++i)
+		for (int i = 0; i < size; ++i)
 		{
 			value += (reader_.read() & 0xffL) << (8 * i);
+		}
+
+		// if signed value
+		if (size_ < 0)
+		{
+			long shift = 1L << (size * 8 - 1);
+			if (value >= shift)
+			{
+				value -= shift << 1;
+			}
 		}
 
 		return value;
@@ -193,19 +199,18 @@ public final class BinaryParser
 	/**
 	 * read enum value from byte array
 	 *
-	 * @param reader_          reader to use.
-	 * @param entityTypesEnum_ enum represents entity class types.
+	 * @param reader_ reader to use.
+	 * @param enum_   enum represents entity class types.
 	 *
 	 * @return read enumerator.
 	 */
 	@Contract(pure = true)
 	@NotNull
-	public static <T extends Enum<T>> T readEnum(@NotNull Reader reader_,
-		@NotNull Class<T> entityTypesEnum_)
+	public static <T extends Enum<T>> T readEnum(@NotNull Reader reader_, @NotNull Class<T> enum_)
 	{
 
 		long value = 0;
-		for (int i = 0; i < SIZE_INT8; ++i)
+		for (int i = 0; i < SIZE_UINT8; ++i)
 		{
 			value += reader_.read() & 0xffL;
 		}
@@ -213,7 +218,7 @@ public final class BinaryParser
 		// get entity class
 		try
 		{
-			Method method = entityTypesEnum_.getMethod("values");
+			Method method = enum_.getMethod("values");
 			@SuppressWarnings("unchecked")
 			T[] values = (T[])method.invoke(null);
 
@@ -237,10 +242,21 @@ public final class BinaryParser
 	@Contract(pure = true)
 	public static long readInteger(byte @NotNull [] source_, int size_, int offset_)
 	{
+		int size = size_ < 0? -size_: size_;
 		long value = 0;
-		for (--size_; size_ >= 0; --size_)
+		for (--size; size >= 0; --size)
 		{
-			value = (value << 8) + (source_[size_ + offset_] & 0xff);
+			value = (value << 8) + (source_[size + offset_] & 0xff);
+		}
+
+		// if signed value
+		if (size_ < 0)
+		{
+			long shift = 1L << (size * 8 - 1);
+			if (value >= shift)
+			{
+				value -= shift << 1;
+			}
 		}
 
 		return value;
@@ -482,7 +498,8 @@ public final class BinaryParser
 	 */
 	public static int writeInteger(long value_, int size_, @NotNull Writer writer_)
 	{
-		for (int i = 0; i < size_; ++i)
+		int size = size_ < 0? -size_: size_;
+		for (int i = 0; i < size; ++i)
 		{
 			writer_.push((byte)(value_));
 			value_ >>= 8;
@@ -501,7 +518,7 @@ public final class BinaryParser
 	 */
 	public static int writeEnum(@NotNull Enum<?> enum_, @NotNull Writer writer_)
 	{
-		return writeInteger(enum_.ordinal(), SIZE_INT8, writer_);
+		return writeInteger(enum_.ordinal(), SIZE_UINT8, writer_);
 	}
 
 	/**
@@ -516,7 +533,8 @@ public final class BinaryParser
 	 */
 	public static int writeInteger(long value_, int size_, int index_, byte @NotNull [] buffer_)
 	{
-		for (int i = 0; i < size_; ++i)
+		int size = size_ < 0? -size_: size_;
+		for (int i = 0; i < size; ++i)
 		{
 			buffer_[i + index_] = (byte)(value_);
 			value_ >>= 8;
@@ -583,7 +601,7 @@ public final class BinaryParser
 	 *
 	 * @return number of written bytes.
 	 */
-	public static int writeIntegers(byte @NotNull [] array_, @NotNull Writer writer_)
+	public static int writeBytes(byte @NotNull [] array_, @NotNull Writer writer_)
 	{
 		int size = 0;
 
@@ -695,7 +713,7 @@ public final class BinaryParser
 		// write array
 		for (T element : collection_)
 		{
-			size += writeInteger(element.ordinal(), SIZE_INT8, writer_);
+			size += writeInteger(element.ordinal(), SIZE_UINT8, writer_);
 		}
 
 		return size;
