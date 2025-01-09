@@ -71,11 +71,11 @@ public class FloatArray extends PrimitiveArray<Float>
 		return content;
 	}
 
-	public void push(float b_)
+	public void push(float f_)
 	{
 		// write float
 		_ensureSize(mIndex + 1);
-		mBuffer[mIndex] = b_;
+		mBuffer[mIndex] = f_;
 		++mIndex;
 	}
 
