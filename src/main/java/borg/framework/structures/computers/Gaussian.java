@@ -1,10 +1,12 @@
 package borg.framework.structures.computers;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import borg.framework.collections.DoubleArray;
 
-public class Variance
+public class Gaussian
 {
 	/** all values **/
 	private final DoubleArray mValues;
@@ -12,9 +14,28 @@ public class Variance
 	/** summation of all values **/
 	private double mSum;
 
-	public Variance()
+	public Gaussian()
 	{
 		mValues = new DoubleArray();
+	}
+
+	/**
+	 * @return number of values.
+	 */
+	@Contract(pure = true)
+	public int getCount()
+	{
+		return mValues.length();
+	}
+
+	/**
+	 * @return all values.
+	 */
+	@Contract(pure = true)
+	@Unmodifiable
+	public double @NotNull [] getValues()
+	{
+		return mValues.extractContent();
 	}
 
 	/**
