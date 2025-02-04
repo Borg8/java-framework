@@ -31,17 +31,19 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 		return mIndex == 0;
 	}
 
+	// TODO test from_ to_ bounds
 	public abstract void removeRange(int from_, int to_);
 
 	public abstract void clear();
 
+	// TODO test from_ to_ bounds
 	@Contract(pure = true)
 	@NotNull
-	protected abstract T getObj(int ix_);
+	public abstract <S extends PrimitiveArray<T>> S subArray(int from_, int to_);
 
 	@Contract(pure = true)
 	@NotNull
-	public abstract <S extends PrimitiveArray<T>> S subArray(int fromIx_, int toIx_);
+	protected abstract T getObj(int ix_);
 
 	@NotNull
 	@Override

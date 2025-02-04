@@ -108,11 +108,11 @@ public class IntArray extends PrimitiveArray<Integer>
 	@Override
 	@Contract(pure = true)
 	@NotNull
-	public <S extends PrimitiveArray<Integer>> S subArray(int fromIx_, int toIx_)
+	public <S extends PrimitiveArray<Integer>> S subArray(int from_, int to_)
 	{
-		int length = toIx_ - fromIx_;
+		int length = to_ - from_;
 		IntArray subArray = new IntArray(length);
-		System.arraycopy(mBuffer, fromIx_, subArray.mBuffer, 0, length);
+		System.arraycopy(mBuffer, from_, subArray.mBuffer, 0, length);
 		subArray.mIndex = length;
 
 		//noinspection unchecked
