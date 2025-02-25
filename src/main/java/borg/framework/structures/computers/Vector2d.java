@@ -1,12 +1,12 @@
-package borg.framework.structures;
-
-import borg.framework.Constants;
+package borg.framework.structures.computers;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+
+import borg.framework.Constants;
 
 public class Vector2d implements Serializable
 {

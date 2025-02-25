@@ -154,7 +154,17 @@ public class TasksManager
 			// submit all tasks
 			for (Runnable task : tasks_)
 			{
-				executor.submit(task);
+				executor.submit(() ->
+				{
+					try
+					{
+						task.run();
+					}
+					catch (Throwable e)
+					{
+						Logger.log(e);
+					}
+				});
 			}
 			executor.shutdown();
 
