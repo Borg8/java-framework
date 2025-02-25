@@ -404,7 +404,7 @@ public final class Logger
 		buildStack();
 		StackTraceElement element = sStackHolder.getStackTrace()[2];
 		long now = TimeManager.getRealTime();
-		String message = String.format("%s: (%s) %s:%d (%s)\n%s\n",
+		String message = String.format("%s: (%s) %s:%d (%s)\n%s",
 			TIME_FORMAT.format(now),
 			level_.getName(),
 			element.getFileName(),
