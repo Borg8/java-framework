@@ -68,10 +68,10 @@ public final class BinaryParser
 	public static final class Reader
 	{
 		/** buffer to read from **/
-		private final byte[] mBuffer;
+		final byte[] mBuffer;
 
 		/** current buffer index **/
-		private int mIndex;
+		int mIndex;
 
 		public Reader(byte @NotNull [] buffer_)
 		{
@@ -86,15 +86,15 @@ public final class BinaryParser
 		}
 
 		@Contract(pure = true)
-		byte touch()
+		public int getIndex()
 		{
-			return mBuffer[mIndex];
+			return mIndex;
 		}
 
 		@Contract(pure = true)
-		public boolean hasNext()
+		public int getLeft()
 		{
-			return mIndex < mBuffer.length;
+			return mBuffer.length - mIndex;
 		}
 	}
 
@@ -297,7 +297,7 @@ public final class BinaryParser
 	 * @return read bytes array.
 	 */
 	@Contract(pure = true)
-	public static byte @NotNull [] readBytes(@NotNull Reader reader_, int length_)
+	public static byte @NotNull [] readByteArray(@NotNull Reader reader_, int length_)
 	{
 		// create array
 		byte[] bytes = new byte[length_];
@@ -407,7 +407,7 @@ public final class BinaryParser
 			Method method = types_.getMethod("values");
 			RTyped<T>[] values = (RTyped<T>[])method.invoke(null);
 			assert values != null;
-			byte type = reader_.touch();
+			byte type = reader_.mBuffer[reader_.mIndex];
 			Class<T> entityClass = (Class<T>)values[((Number)type).intValue()].entityClass();
 
 			// get entity constructor
@@ -594,6 +594,35 @@ public final class BinaryParser
 	}
 
 	/**
+	 * write array of bytes elements to buffer with constant length.
+	 *
+	 * @param array_  array of elements to write.
+	 * @param length_ number of elements to write.
+	 * @param writer_ writer to write with.
+	 *
+	 * @return number of written bytes.
+	 */
+	public static int writeByteArray(byte @NotNull [] array_, int length_, @NotNull Writer writer_)
+	{
+		int size = 0;
+
+		// write array
+		int i;
+		int n = Math.min(length_, array_.length);
+		for (i = 0; i < n; ++i)
+		{
+			byte b = array_[i];
+			size += writeInteger(b, SIZE_INT8, writer_);
+		}
+		for (; i < length_; ++i)
+		{
+			size += writeInteger(0, SIZE_INT8, writer_);
+		}
+
+		return size;
+	}
+
+	/**
 	 * write array of bytes elements to buffer.
 	 *
 	 * @param array_  array of elements to write.
@@ -609,10 +638,7 @@ public final class BinaryParser
 		size += writeInteger(array_.length, SIZE_ARRAY_LENGTH, writer_);
 
 		// write array
-		for (byte element : array_)
-		{
-			size += writeInteger(element, SIZE_INT8, writer_);
-		}
+		size += writeByteArray(array_, array_.length, writer_);
 
 		return size;
 	}

@@ -71,6 +71,15 @@ public class ByteArray extends PrimitiveArray<Byte>
 		return content;
 	}
 
+	public void insert(int index_, byte b_)
+	{
+		// insert byte
+		_ensureSize(mIndex + 1);
+		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
+		mBuffer[index_] = b_;
+		++mIndex;
+	}
+
 	public void push(byte b_)
 	{
 		// write byte

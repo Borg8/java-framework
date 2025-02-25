@@ -6,12 +6,13 @@ import borg.framework.services.TimeManager;
 
 public class GlobalsHolder
 {
-	private static final long sStartTime = TimeManager.getSystemTime();
+	/** application start time **/
+	public static final long START_TIME = TimeManager.getSystemTime();
 
 	@Contract(pure = true)
 	public static long getUptime()
 	{
-		return TimeManager.getSystemTime() - sStartTime;
+		return TimeManager.getSystemTime() - START_TIME;
 	}
 
 	private GlobalsHolder()

@@ -71,11 +71,20 @@ public class DoubleArray extends PrimitiveArray<Double>
 		return content;
 	}
 
-	public void push(double b_)
+	public void insert(int index_, double d_)
+	{
+		// insert double
+		_ensureSize(mIndex + 1);
+		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
+		mBuffer[index_] = d_;
+		++mIndex;
+	}
+
+	public void push(double d_)
 	{
 		// write double
 		_ensureSize(mIndex + 1);
-		mBuffer[mIndex] = b_;
+		mBuffer[mIndex] = d_;
 		++mIndex;
 	}
 

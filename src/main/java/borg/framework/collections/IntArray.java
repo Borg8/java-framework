@@ -71,11 +71,20 @@ public class IntArray extends PrimitiveArray<Integer>
 		return content;
 	}
 
-	public void push(int b_)
+	public void insert(int index_, int i_)
+	{
+		// insert int
+		_ensureSize(mIndex + 1);
+		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
+		mBuffer[index_] = i_;
+		++mIndex;
+	}
+
+	public void push(int i_)
 	{
 		// write int
 		_ensureSize(mIndex + 1);
-		mBuffer[mIndex] = b_;
+		mBuffer[mIndex] = i_;
 		++mIndex;
 	}
 

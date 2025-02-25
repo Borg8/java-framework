@@ -25,7 +25,7 @@ public final class Logger
 	 * Constants
 	 ************************************************************************************************/
 
-	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
+	public static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	/*************************************************************************************************
 	 * LogsFormatter
@@ -314,6 +314,21 @@ public final class Logger
 	}
 
 	/**
+	 * assertion log.
+	 *
+	 * @param condition_ condition to test.
+	 * @param message_   message to log if the condition is {@code false}.
+	 */
+	public static void assertLog(boolean condition_, @NotNull String message_)
+	{
+		if (condition_ == false)
+		{
+			buildStack();
+			log(Level.SEVERE, message_);
+		}
+	}
+
+	/**
 	 * log message.
 	 *
 	 * @param message_ message to log.
@@ -456,7 +471,8 @@ public final class Logger
 	@Contract(pure = true)
 	private static String _systemDetails()
 	{
-		return String.format("%s | %s",
+		return String.format("%d-%s | %s",
+			TimeManager.getTick() - GlobalsHolder.START_TIME,
 			Thread.currentThread().getName(),
 			TextParser.timestampToTime(GlobalsHolder.getUptime()));
 	}
