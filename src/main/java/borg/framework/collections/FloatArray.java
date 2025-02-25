@@ -71,11 +71,20 @@ public class FloatArray extends PrimitiveArray<Float>
 		return content;
 	}
 
-	public void push(float b_)
+	public void insert(int index_, float f_)
+	{
+		// insert float
+		_ensureSize(mIndex + 1);
+		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
+		mBuffer[index_] = f_;
+		++mIndex;
+	}
+
+	public void push(float f_)
 	{
 		// write float
 		_ensureSize(mIndex + 1);
-		mBuffer[mIndex] = b_;
+		mBuffer[mIndex] = f_;
 		++mIndex;
 	}
 

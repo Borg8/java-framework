@@ -71,11 +71,20 @@ public class LongArray extends PrimitiveArray<Long>
 		return content;
 	}
 
-	public void push(long b_)
+	public void insert(int index_, long l_)
+	{
+		// insert long
+		_ensureSize(mIndex + 1);
+		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
+		mBuffer[index_] = l_;
+		++mIndex;
+	}
+
+	public void push(long l_)
 	{
 		// write long
 		_ensureSize(mIndex + 1);
-		mBuffer[mIndex] = b_;
+		mBuffer[mIndex] = l_;
 		++mIndex;
 	}
 
