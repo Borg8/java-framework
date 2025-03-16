@@ -140,6 +140,11 @@ public final class Logger
 				throw new Error(e);
 			}
 		}
+
+		log(String.format("log configured: %s\n%s\n%s",
+			level_,
+			file_ == null? "": file_,
+			roots_ == null? "": String.join(", ", roots_)));
 	}
 
 	/**

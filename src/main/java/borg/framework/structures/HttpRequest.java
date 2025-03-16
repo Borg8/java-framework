@@ -128,19 +128,18 @@ public class HttpRequest implements Serializable
 		try
 		{
 			// write method
-			buffer.push(method.getBytes());
-			buffer.push(separator);
+			byte[] bytes = method.getBytes();
+			buffer.push(bytes, 0, bytes.length);
+			buffer.push(separator, 0, separator.length);
 
 			// write uri
-			String query = uri.toString();
-			if (query != null)
-			{
-				buffer.push(query.getBytes());
-			}
-			buffer.push(separator);
+			byte[] query = uri.getPath().getBytes();
+			buffer.push(query, 0, query.length);
+			buffer.push(separator, 0, separator.length);
 
 			// write HTTP 1.1
-			buffer.push("HTTP/1.1\r\n".getBytes());
+			bytes = "HTTP/1.1\r\n".getBytes();
+			buffer.push(bytes, 0, bytes.length);
 
 			// write headers
 			if (headers != null)
@@ -148,18 +147,20 @@ public class HttpRequest implements Serializable
 				separator = ":".getBytes();
 				for (Map.Entry<String, String> header : headers.entrySet())
 				{
-					buffer.push(header.getKey().getBytes());
-					buffer.push(separator);
-					buffer.push(header.getValue().getBytes());
-					buffer.push(eol);
+					bytes = header.getKey().getBytes();
+					buffer.push(bytes, 0, bytes.length);
+					buffer.push(separator, 0, separator.length);
+					bytes = header.getValue().getBytes();
+					buffer.push(bytes, 0, bytes.length);
+					buffer.push(eol, 0, eol.length);
 				}
-				buffer.push(eol);
+				buffer.push(eol, 0, eol.length);
 			}
 
 			// write content
 			if (content != null)
 			{
-				buffer.push(content);
+				buffer.push(content, 0, content.length);
 			}
 		}
 		catch (Exception e)

@@ -74,7 +74,7 @@ public class IntArray extends PrimitiveArray<Integer>
 	public void insert(int index_, int i_)
 	{
 		// insert int
-		_ensureSize(mIndex + 1);
+		ensureSize(mIndex + 1);
 		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
 		mBuffer[index_] = i_;
 		++mIndex;
@@ -83,17 +83,17 @@ public class IntArray extends PrimitiveArray<Integer>
 	public void push(int i_)
 	{
 		// write int
-		_ensureSize(mIndex + 1);
+		ensureSize(mIndex + 1);
 		mBuffer[mIndex] = i_;
 		++mIndex;
 	}
 
-	public void push(int @NotNull [] ints_)
+	public void push(int @NotNull [] ints_, int offset_, int length_)
 	{
-		// write ints
-		int length = mIndex + ints_.length;
-		_ensureSize(length);
-		System.arraycopy(ints_, 0, mBuffer, mIndex, ints_.length);
+		// write bytes
+		int length = mIndex + length_;
+		ensureSize(length);
+		System.arraycopy(ints_, offset_, mBuffer, mIndex, length_);
 		mIndex = length;
 	}
 
@@ -102,7 +102,7 @@ public class IntArray extends PrimitiveArray<Integer>
 		// write array
 		int n = array_.length();
 		int length = mIndex + n;
-		_ensureSize(length);
+		ensureSize(length);
 		System.arraycopy(array_.mBuffer, 0, mBuffer, mIndex, n);
 		mIndex = length;
 	}
@@ -149,11 +149,11 @@ public class IntArray extends PrimitiveArray<Integer>
 		return mBuffer[ix_];
 	}
 
-	private void _ensureSize(int minSize_)
+	protected void ensureSize(int size_)
 	{
-		if (mBuffer.length < minSize_)
+		if (mBuffer.length < size_)
 		{
-			int[] buffer = new int[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, minSize_)];
+			int[] buffer = new int[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, size_)];
 			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
 			mBuffer = buffer;
 		}

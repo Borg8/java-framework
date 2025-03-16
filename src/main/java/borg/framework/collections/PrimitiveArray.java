@@ -31,6 +31,11 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 		return mIndex == 0;
 	}
 
+	public final void allocate(int capacity_)
+	{
+		ensureSize(mIndex + capacity_);
+	}
+
 	// TODO test from_ to_ bounds
 	public abstract void removeRange(int from_, int to_);
 
@@ -44,6 +49,8 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 	@Contract(pure = true)
 	@NotNull
 	protected abstract T getObj(int ix_);
+
+	protected abstract void ensureSize(int size_);
 
 	@NotNull
 	@Override

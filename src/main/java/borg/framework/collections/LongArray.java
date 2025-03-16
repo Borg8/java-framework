@@ -74,7 +74,7 @@ public class LongArray extends PrimitiveArray<Long>
 	public void insert(int index_, long l_)
 	{
 		// insert long
-		_ensureSize(mIndex + 1);
+		ensureSize(mIndex + 1);
 		System.arraycopy(mBuffer, index_, mBuffer, index_ + 1, mIndex - index_);
 		mBuffer[index_] = l_;
 		++mIndex;
@@ -83,17 +83,17 @@ public class LongArray extends PrimitiveArray<Long>
 	public void push(long l_)
 	{
 		// write long
-		_ensureSize(mIndex + 1);
+		ensureSize(mIndex + 1);
 		mBuffer[mIndex] = l_;
 		++mIndex;
 	}
 
-	public void push(long @NotNull [] longs_)
+	public void push(long @NotNull [] longs_, int offset_, int length_)
 	{
-		// write longs
-		int length = mIndex + longs_.length;
-		_ensureSize(length);
-		System.arraycopy(longs_, 0, mBuffer, mIndex, longs_.length);
+		// write bytes
+		int length = mIndex + length_;
+		ensureSize(length);
+		System.arraycopy(longs_, offset_, mBuffer, mIndex, length_);
 		mIndex = length;
 	}
 
@@ -102,7 +102,7 @@ public class LongArray extends PrimitiveArray<Long>
 		// write array
 		int n = array_.length();
 		int length = mIndex + n;
-		_ensureSize(length);
+		ensureSize(length);
 		System.arraycopy(array_.mBuffer, 0, mBuffer, mIndex, n);
 		mIndex = length;
 	}
@@ -149,11 +149,11 @@ public class LongArray extends PrimitiveArray<Long>
 		return mBuffer[ix_];
 	}
 
-	private void _ensureSize(int minSize_)
+	protected void ensureSize(int size_)
 	{
-		if (mBuffer.length < minSize_)
+		if (mBuffer.length < size_)
 		{
-			long[] buffer = new long[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, minSize_)];
+			long[] buffer = new long[(int)Math.max(mBuffer.length * MULTIPLIER_BUFFER, size_)];
 			System.arraycopy(mBuffer, 0, buffer, 0, mBuffer.length);
 			mBuffer = buffer;
 		}
