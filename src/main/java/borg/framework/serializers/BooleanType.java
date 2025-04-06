@@ -1,6 +1,6 @@
 package borg.framework.serializers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,13 +18,13 @@ public enum BooleanType
 	@Nullable
 	public final Boolean bool;
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	BooleanType(@Nullable Boolean bool_)
 	{
 		bool = bool_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public static BooleanType fromBoolean(@Nullable Boolean bool_)
 	{

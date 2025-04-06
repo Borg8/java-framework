@@ -1,5 +1,6 @@
 package borg.framework.services;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +57,7 @@ public final class TimeManager
 		/**
 		 * @return system time in milliseconds.
 		 */
-		@Contract(pure = true)
+		@CheckReturnValue
 		long getTime();
 	}
 
@@ -122,7 +123,7 @@ public final class TimeManager
 	 * Methods
 	 ************************************************************************************************/
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private TimeManager()
 	{
 		// private constructor to prevent instantiation

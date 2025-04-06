@@ -1,8 +1,5 @@
 package borg.framework.services;
 
-import borg.framework.structures.HttpResponse;
-import borg.framework.structures.NetworkResult;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import borg.framework.structures.HttpResponse;
+import borg.framework.structures.NetworkResult;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -111,17 +110,11 @@ public final class HttpClient
 		Request request = switch (method_)
 		{
 			case "GET" -> requestBuilder.get().build();
-
 			case "POST" -> requestBuilder.post(RequestBody.create(content_)).build();
-
 			case "PUT" -> requestBuilder.put(RequestBody.create(content_)).build();
-
 			case "PATCH" -> requestBuilder.patch(RequestBody.create(content_)).build();
-
 			case "DELETE" -> requestBuilder.delete().build();
-
 			case "HEAD" -> requestBuilder.head().build();
-
 			default -> requestBuilder.method(method_, RequestBody.create(content_)).build();
 		};
 

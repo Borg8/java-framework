@@ -1,6 +1,6 @@
 package borg.framework.serializers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +57,7 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @return encrypted object to store.
 		 */
-		@Contract(pure = true)
+		@CheckReturnValue
 		byte @Nullable [] encrypt(@NotNull Serialized object_, byte @NotNull [] data_);
 
 		/**
@@ -68,7 +68,7 @@ public abstract class Serialized implements Serializable
 		 *
 		 * @return decrypted object to deserialize.
 		 */
-		@Contract(pure = true)
+		@CheckReturnValue
 		byte @Nullable [] decrypt(@NotNull Serialized object_, byte @NotNull [] data_);
 	}
 
@@ -103,7 +103,7 @@ public abstract class Serialized implements Serializable
 	 * @param encryptor_ encryptor to set.
 	 * @param serliazer_ serializer to set.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected Serialized(@NotNull String tag_,
 		@Nullable Encryptor encryptor_,
 		@Nullable Serializer serliazer_)
@@ -119,7 +119,7 @@ public abstract class Serialized implements Serializable
 	/**
 	 * @param tag_ unique tag of the state. Have to be valid filename.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected Serialized(@NotNull String tag_)
 	{
 		this(tag_, null, null);
@@ -311,10 +311,10 @@ public abstract class Serialized implements Serializable
 		}
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected abstract byte @Nullable [] serialize();
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@Nullable
 	protected abstract Serialized deserialize(byte @NotNull [] data_);
 }

@@ -1,6 +1,6 @@
 package borg.framework.structures;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -17,14 +17,14 @@ public final class Pair<T, S> implements Serializable
 
 	public S value;
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public Pair(T element1_, S element2_)
 	{
 		key = element1_;
 		value = element2_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	@Override
 	public String toString()

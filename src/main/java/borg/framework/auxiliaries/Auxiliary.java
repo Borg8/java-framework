@@ -1,6 +1,6 @@
 package borg.framework.auxiliaries;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public final class Auxiliary
 		seedRandom(System.currentTimeMillis());
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private Auxiliary()
 	{
 		// private constructor to prevent instantiation
@@ -59,7 +59,7 @@ public final class Auxiliary
 	 *
 	 * @return random number from Gauss distribution.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static double randomGauss(double mu_, double sigma_)
 	{
 		return mu_ + random.nextGaussian() * sigma_;
@@ -68,7 +68,7 @@ public final class Auxiliary
 	/**
 	 * @return random positive integer of 31 bit
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static int random()
 	{
 		return random.nextInt() & 0x7fffffff;
@@ -82,7 +82,7 @@ public final class Auxiliary
 	 *
 	 * @return random integer in the given range (from min_ to max_ - 1).
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static int random(int min_, int max_)
 	{
 		return (random() % (max_ - min_)) + min_;
@@ -95,7 +95,7 @@ public final class Auxiliary
 	 *
 	 * @return random integer in range 0 to given max.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static int random(int max_)
 	{
 		return random() % max_;
@@ -109,7 +109,7 @@ public final class Auxiliary
 	 *
 	 * @return random real number in the given range.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static double random(double min_, double max_)
 	{
 		return random.nextDouble() * (max_ - min_) + min_;
@@ -122,7 +122,7 @@ public final class Auxiliary
 	 *
 	 * @return random real number in range 0 to given max.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static double random(double max_)
 	{
 		return random.nextDouble() * max_;
@@ -156,7 +156,7 @@ public final class Auxiliary
 	 * @return URL.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static String buildPath(String @NotNull ... components_)
 	{
 		StringBuilder builder = new StringBuilder();

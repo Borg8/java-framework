@@ -1,6 +1,6 @@
 package borg.framework.structures.computers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -22,7 +22,7 @@ public class Gaussian
 	/**
 	 * @return number of values.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public int getCount()
 	{
 		return mValues.length();
@@ -31,7 +31,7 @@ public class Gaussian
 	/**
 	 * @return all values.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	@Unmodifiable
 	public double @NotNull [] getValues()
 	{
@@ -41,7 +41,7 @@ public class Gaussian
 	/**
 	 * @return mean.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getMean()
 	{
 		int n = mValues.length();
@@ -56,7 +56,7 @@ public class Gaussian
 	/**
 	 * @return variance.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getVariance()
 	{
 		int n = mValues.length();
@@ -78,7 +78,7 @@ public class Gaussian
 	/**
 	 * @return variance of values than smaller than mean.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getLeftVariance()
 	{
 		int n = mValues.length();
@@ -110,7 +110,7 @@ public class Gaussian
 	/**
 	 * @return variance of values than greater than mean.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getRightVariance()
 	{
 		int n = mValues.length();

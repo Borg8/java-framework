@@ -1,5 +1,6 @@
 package borg.framework.structures;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +26,7 @@ public class TypedEntity<T extends Enum<T>>
 	 * Methods
 	 ************************************************************************************************/
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public TypedEntity(@NotNull T type_)
 	{
 		type = type_;

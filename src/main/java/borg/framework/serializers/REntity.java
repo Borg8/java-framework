@@ -1,5 +1,6 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
@@ -64,7 +65,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 	}
 
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final HashMap<String, Object> toMap()
 	{
 		// build map
@@ -135,7 +136,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 	 *
 	 * @return built entity list.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T extends REntity, E extends Enum<E> & RTyped<? super T>> ArrayList<T> buildTypedList(
 		@Nullable ArrayList<HashMap<String, Object>> maps_,
 		@NotNull Class<E> types_,
@@ -274,7 +275,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return null;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static int serialize(boolean boolean_)
 	{
 		return serialize(BooleanType.fromBoolean(boolean_).ordinal());
@@ -352,7 +353,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return null;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static <T> T readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		@Nullable T default_)
@@ -370,7 +371,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static double readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		double default_)
@@ -387,7 +388,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static long readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		long default_)
@@ -404,7 +405,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static Boolean readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		@Nullable Boolean default_)
@@ -421,7 +422,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static byte[] readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		byte @Nullable [] default_)
@@ -439,7 +440,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 	}
 
 	@Nullable
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static <T extends REntity> T readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		@NotNull Class<T> class_)
@@ -471,7 +472,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 	}
 
 	@Nullable
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static <T> T readField(@Nullable HashMap<String, Object> map_, @NotNull String key_)
 	{
 		if (map_ != null)
@@ -488,7 +489,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 	}
 
 	@SuppressWarnings("unchecked") // exception will be thrown
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static <T> ArrayList<T> readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
 		@Nullable ArrayList<T> default_)
@@ -505,7 +506,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected static <T extends REntity> List<T> readField(
 		@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
@@ -545,7 +546,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	protected static <T extends Enum<T>> T readField(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_,
@@ -569,7 +570,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 		return default_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public static IntArray readIntegers(@Nullable HashMap<String, Object> map_,
 		@NotNull String key_)

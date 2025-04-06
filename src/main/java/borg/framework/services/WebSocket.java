@@ -1,6 +1,6 @@
 package borg.framework.services;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -183,7 +183,7 @@ public class WebSocket
 	/**
 	 * @return {@code true} if the websocket is connected.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public boolean isConnected()
 	{
 		return mSocket != null;
@@ -403,12 +403,11 @@ public class WebSocket
 	}
 
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static String generateKey()
 	{
 		// generate key
 		byte[] key = new byte[LENGTH_KEY];
-		//noinspection ExplicitArrayFilling
 		for (int i = 0; i < LENGTH_KEY; ++i)
 		{
 			key[i] = (byte)Auxiliary.random();
@@ -418,7 +417,7 @@ public class WebSocket
 	}
 
 	@SuppressWarnings("ConstantConditions")
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static byte @NotNull [] _buildFrame(boolean fin_,
 		boolean rsv1_,
 		boolean rsv2_,
@@ -509,7 +508,7 @@ public class WebSocket
 		return buffer.extractContent();
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	private Thread _getSocketTask()
 	{
@@ -545,25 +544,15 @@ public class WebSocket
 						{
 							switch (Opcode.values()[code])
 							{
-								case PING:
-									// send keepalive
-									write(new byte[0], Opcode.PONG);
-									break;
-
-								case PONG:
-									mLastPong = 0;
-									break;
-
-								case CLOSE:
+								case PING -> write(new byte[0], Opcode.PONG);
+								case PONG -> mLastPong = 0;
+								case CLOSE ->
+								{
 									// send 1000
 									write(new byte[] { 3, (byte)232 }, Opcode.CLOSE);
 									mListener.close(this, data);
-									break;
-
-								default:
-									// invoke observers
-									mListener.dataReceived(this, data);
-									break;
+								}
+								default -> mListener.dataReceived(this, data);
 							}
 						}
 						else
@@ -598,7 +587,7 @@ public class WebSocket
 	}
 
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static URL createUrl(@NotNull String url_)
 	{
 		url_ = url_.replace("wss://", "https://");
@@ -613,7 +602,7 @@ public class WebSocket
 		}
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static byte @Nullable [] _readData(@NotNull InputStream stream_)
 	{
 		try

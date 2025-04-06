@@ -1,6 +1,6 @@
 package borg.framework.serializers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +68,7 @@ public class BinarySerialized extends Serialized
 	 *
 	 * @return serialized object.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] write(@NotNull Serializable object_)
 	{
 		// serialize code
@@ -103,7 +103,7 @@ public class BinarySerialized extends Serialized
 	 * @return deserialized object.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T extends Serializable> T read(byte @NotNull [] array_)
 	{
 		try
@@ -123,7 +123,7 @@ public class BinarySerialized extends Serialized
 	}
 
 	@Override
-	@Contract(pure = true)
+	@CheckReturnValue
 	protected byte @Nullable [] serialize()
 	{
 		try
@@ -139,7 +139,7 @@ public class BinarySerialized extends Serialized
 	}
 
 	@Override
-	@Contract(pure = true)
+	@CheckReturnValue
 	@Nullable
 	protected Serialized deserialize(byte @NotNull [] data_)
 	{

@@ -1,5 +1,6 @@
 package borg.framework.auxiliaries;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -217,7 +218,7 @@ public final class Logger
 	 * @return built string.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static String exceptionLog(@NotNull Throwable e_)
 	{
 		return exceptionLog(Thread.currentThread(), e_);
@@ -232,7 +233,7 @@ public final class Logger
 	 * @return built string.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static String exceptionLog(@NotNull Thread thread_, @NotNull Throwable e_)
 	{
 		StringBuilder builder = new StringBuilder();
@@ -473,7 +474,7 @@ public final class Logger
 	}
 
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static String _systemDetails()
 	{
 		return String.format("%d-%s | %s",

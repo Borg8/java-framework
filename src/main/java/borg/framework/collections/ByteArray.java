@@ -1,6 +1,6 @@
 package borg.framework.collections;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -29,7 +29,7 @@ public class ByteArray extends PrimitiveArray<Byte>
 		mIndex = elements_.length;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte get(int ix_)
 	{
 		if (ix_ < mIndex)
@@ -40,19 +40,19 @@ public class ByteArray extends PrimitiveArray<Byte>
 		throw new ArrayIndexOutOfBoundsException(String.format("index %d of %d", ix_, mIndex));
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte last()
 	{
 		return mBuffer[mIndex - 1];
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte @NotNull [] getContent()
 	{
 		return mBuffer;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte @NotNull [] extractContent()
 	{
 		if (mIndex == mBuffer.length)
@@ -107,7 +107,7 @@ public class ByteArray extends PrimitiveArray<Byte>
 		mIndex = length;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte pop()
 	{
 		--mIndex;
@@ -115,7 +115,7 @@ public class ByteArray extends PrimitiveArray<Byte>
 	}
 
 	@Override
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public <S extends PrimitiveArray<Byte>> S subArray(int from_, int to_)
 	{

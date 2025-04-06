@@ -125,7 +125,7 @@ public final class TextParser
 	 * convert time stamp to date in human representation.
 	 *
 	 * @param timestamp_     time stamp to convert.
-	 * @param gmt_           GMT.
+	 * @param timezone_      time zone to use.
 	 * @param timeSeparator_ separator between time parts. If {@code \0} provided, then time will not
 	 *                       be included.
 	 * @param dateSeparator_ separator between date parts. If {@code \0} provided, then date will not
@@ -137,12 +137,12 @@ public final class TextParser
 	 */
 	@NotNull
 	public static synchronized String getHumanDate(long timestamp_,
-		@NotNull String gmt_,
+		@NotNull TimeZone timezone_,
 		char timeSeparator_,
 		char dateSeparator_,
 		int precision_)
 	{
-		Calendar sCalendar = Calendar.getInstance(TimeZone.getTimeZone(gmt_));
+		Calendar sCalendar = Calendar.getInstance(timezone_);
 		sCalendar.setTimeInMillis(timestamp_);
 		StringBuilder builder = new StringBuilder();
 

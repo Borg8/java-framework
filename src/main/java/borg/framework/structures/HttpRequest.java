@@ -1,6 +1,6 @@
 package borg.framework.structures;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public class HttpRequest implements Serializable
 	/** received data **/
 	public final byte @Nullable [] content;
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public HttpRequest(@NotNull String method_,
 		@NotNull URI uri_,
 		@Nullable Map<String, String> headers_,
@@ -118,7 +118,7 @@ public class HttpRequest implements Serializable
 	/**
 	 * @return request serialized as bytes array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte @NotNull [] serialize()
 	{
 		ByteArray buffer = new ByteArray();
@@ -171,7 +171,7 @@ public class HttpRequest implements Serializable
 		return buffer.extractContent();
 	}
 
-	@Contract(" -> new")
+	@CheckReturnValue
 	@Override
 	@NotNull
 	public String toString()

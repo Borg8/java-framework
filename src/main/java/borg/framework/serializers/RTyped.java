@@ -1,11 +1,11 @@
 package borg.framework.serializers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 
 import borg.framework.auxiliaries.BinaryParser;
 
 public interface RTyped<T extends BinaryParser.BinarySerializable>
 {
-	@Contract(pure = true)
+	@CheckReturnValue
 	Class<? extends T> entityClass();
 }

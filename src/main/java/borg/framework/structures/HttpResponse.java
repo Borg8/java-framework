@@ -1,10 +1,6 @@
 package borg.framework.structures;
 
-import borg.framework.Constants;
-import borg.framework.auxiliaries.Logger;
-import borg.framework.auxiliaries.NetworkTools;
-
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +11,10 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
+
+import borg.framework.Constants;
+import borg.framework.auxiliaries.Logger;
+import borg.framework.auxiliaries.NetworkTools;
 
 public final class HttpResponse implements Serializable
 {
@@ -35,7 +35,7 @@ public final class HttpResponse implements Serializable
 	/** received data **/
 	public final byte @Nullable [] content;
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public HttpResponse(@NotNull NetworkResult result_,
 		int code_,
 		@Nullable Map<String, String> headers_,
@@ -55,7 +55,7 @@ public final class HttpResponse implements Serializable
 		}
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public static HttpResponse readResponse(@NotNull InputStream stream_)
 	{
@@ -126,7 +126,7 @@ public final class HttpResponse implements Serializable
 	/**
 	 * @return request serialized as bytes array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public byte @NotNull [] serialize()
 	{
 		ByteArrayOutputStream stream = new ByteArrayOutputStream(1024);
@@ -173,7 +173,7 @@ public final class HttpResponse implements Serializable
 		return stream.toByteArray();
 	}
 
-	@Contract(" -> new")
+	@CheckReturnValue
 	@Override
 	@NotNull
 	public String toString()

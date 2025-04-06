@@ -1,6 +1,6 @@
 package borg.framework.services;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +49,7 @@ public class TcpServer
 	 * Methods
 	 ************************************************************************************************/
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public TcpServer()
 	{
 		mPort = -1;

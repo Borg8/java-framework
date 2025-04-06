@@ -1,6 +1,6 @@
 package borg.framework.structures.computers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 public final class Mean
@@ -22,7 +22,7 @@ public final class Mean
 		reset();
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getAverage()
 	{
 		if (mCounter > 0)
@@ -33,25 +33,25 @@ public final class Mean
 		return Double.NaN;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getCount()
 	{
 		return mCounter;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getSum()
 	{
 		return mSum;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getMin()
 	{
 		return mMin;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public double getMax()
 	{
 		return mMax;
@@ -87,7 +87,7 @@ public final class Mean
 	}
 
 	@Override
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public String toString()
 	{

@@ -1,6 +1,6 @@
 package borg.framework.services;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.AlgorithmParameters;
@@ -91,7 +91,7 @@ public final class ArraysManager
 	 * @return string of hex representation of array.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static String getArrayAsHex(byte @NotNull [] array_)
 	{
 		StringBuilder builder = new StringBuilder();
@@ -133,7 +133,7 @@ public final class ArraysManager
 	 *
 	 * @return array from given hex representation.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] buildArrayFromHex(@NotNull String hex_)
 	{
 		// create array
@@ -201,7 +201,7 @@ public final class ArraysManager
 	 *
 	 * @return true if first collection contain second collection. False otherwise.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T> boolean isContain(@NotNull Collection<T> first_, @NotNull Collection<T> second_)
 	{
 		// if size of first collection smaller than second
@@ -230,7 +230,7 @@ public final class ArraysManager
 	 *
 	 * @return true if both collection contains same elements, false otherwise.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T> boolean areEqual(@NotNull Collection<T> first_,
 		@NotNull Collection<T> second_)
 	{
@@ -252,7 +252,7 @@ public final class ArraysManager
 	 *
 	 * @return true if both lists contains same elements in same order, false otherwise.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T> boolean areEqual(@NotNull List<T> first_, @NotNull List<T> second_)
 	{
 		// if both lists is same size
@@ -346,7 +346,7 @@ public final class ArraysManager
 	 * @throws Exception if encryption was failed.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static Pair<byte[], byte[]> encrypt(byte @NotNull [] array_, byte @NotNull [] key_)
 		throws Exception
 	{
@@ -407,7 +407,7 @@ public final class ArraysManager
 	 *
 	 * @throws Exception if encryption was failed.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] encrypt(byte @NotNull [] array_,
 		byte @NotNull [] key_,
 		byte @NotNull [] iv_)
@@ -440,7 +440,7 @@ public final class ArraysManager
 	 *
 	 * @throws Exception when decryption failed.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] decrypt(byte @NotNull [] array_,
 		byte @NotNull [] key_,
 		byte @NotNull [] iv_)

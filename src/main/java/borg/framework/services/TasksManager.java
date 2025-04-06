@@ -1,6 +1,6 @@
 package borg.framework.services;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +87,7 @@ public class TasksManager
 	 * Methods
 	 ************************************************************************************************/
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private TasksManager()
 	{
 		// private constructor to prevent instantiation
@@ -224,7 +224,7 @@ public class TasksManager
 	 *
 	 * @return started looper.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public static Thread startLooper()
 	{

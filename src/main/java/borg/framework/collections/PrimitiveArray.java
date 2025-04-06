@@ -1,6 +1,6 @@
 package borg.framework.collections;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -19,13 +19,13 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 	/** current buffer index **/
 	protected int mIndex;
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final int length()
 	{
 		return mIndex;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final boolean isEmpty()
 	{
 		return mIndex == 0;
@@ -42,11 +42,11 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 	public abstract void clear();
 
 	// TODO test from_ to_ bounds
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public abstract <S extends PrimitiveArray<T>> S subArray(int from_, int to_);
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	protected abstract T getObj(int ix_);
 
@@ -61,14 +61,14 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 			private int ix = 0;
 
 			@Override
-			@Contract(pure = true)
+			@CheckReturnValue
 			public boolean hasNext()
 			{
 				return ix < mIndex;
 			}
 
 			@Override
-			@Contract(pure = true)
+			@CheckReturnValue
 			@NotNull
 			public T next()
 			{
@@ -78,7 +78,7 @@ public abstract class PrimitiveArray<T> implements Serializable, Iterable<T>
 	}
 
 	@Override
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public final String toString()
 	{

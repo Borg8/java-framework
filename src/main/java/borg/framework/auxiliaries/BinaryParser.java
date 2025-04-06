@@ -1,6 +1,6 @@
 package borg.framework.auxiliaries;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -79,19 +79,19 @@ public final class BinaryParser
 			mIndex = 0;
 		}
 
-		@Contract(pure = true)
+		@CheckReturnValue
 		byte read()
 		{
 			return mBuffer[mIndex++];
 		}
 
-		@Contract(pure = true)
+		@CheckReturnValue
 		public int getIndex()
 		{
 			return mIndex;
 		}
 
-		@Contract(pure = true)
+		@CheckReturnValue
 		public int getLeft()
 		{
 			return mBuffer.length - mIndex;
@@ -121,7 +121,7 @@ public final class BinaryParser
 	 *
 	 * @return crc32 value.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static long crcValue(byte @NotNull [] data_)
 	{
 		// reset last value
@@ -142,7 +142,7 @@ public final class BinaryParser
 	 * @return hex string represent the integer.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static String integerToHex(long integer_, int size_)
 	{
 		builder.setLength(0);
@@ -173,7 +173,7 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static long readInteger(@NotNull Reader reader_, int size_)
 	{
 		int size = size_ < 0? -size_: size_;
@@ -204,7 +204,7 @@ public final class BinaryParser
 	 *
 	 * @return read enumerator.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public static <T extends Enum<T>> T readEnum(@NotNull Reader reader_, @NotNull Class<T> enum_)
 	{
@@ -239,7 +239,7 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static long readInteger(byte @NotNull [] source_, int size_, int offset_)
 	{
 		int size = size_ < 0? -size_: size_;
@@ -270,7 +270,7 @@ public final class BinaryParser
 	 *
 	 * @return read array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static long @NotNull [] readIntegers(@NotNull Reader reader_, int size_)
 	{
 		// read array size
@@ -296,7 +296,7 @@ public final class BinaryParser
 	 *
 	 * @return read bytes array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] readByteArray(@NotNull Reader reader_, int length_)
 	{
 		// create array
@@ -318,7 +318,7 @@ public final class BinaryParser
 	 *
 	 * @return read bytes array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] readBytes(@NotNull Reader reader_)
 	{
 		// read array size
@@ -343,7 +343,7 @@ public final class BinaryParser
 	 *
 	 * @return read array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static double @NotNull [] readDoubles(@NotNull Reader reader_)
 	{
 		// read array size
@@ -368,7 +368,7 @@ public final class BinaryParser
 	 *
 	 * @return read array.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static float @NotNull [] readFloats(@NotNull Reader reader_)
 	{
 		// read array size
@@ -396,7 +396,7 @@ public final class BinaryParser
 	 */
 	@SuppressWarnings("unchecked")
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T extends BinarySerializable, E extends Enum<E> & RTyped<? super T>> T readTyped(
 		@NotNull Reader reader_,
 		@NotNull Class<E> types_)
@@ -430,7 +430,7 @@ public final class BinaryParser
 	 * @return read array.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T extends BinarySerializable> List<T> readObjects(@NotNull Reader reader_,
 		@NotNull Class<T> class_)
 	{
@@ -469,7 +469,7 @@ public final class BinaryParser
 	 * @return read typed objects.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static <T extends BinarySerializable, E extends Enum<E> & RTyped<? super T>> List<T> readTypedObjects(
 		@NotNull Reader reader_,
 		@NotNull Class<E> types_)
@@ -765,7 +765,7 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static double readDouble(@NotNull Reader reader_)
 	{
 		return Double.longBitsToDouble(readInteger(reader_, SIZE_DOUBLE));
@@ -791,7 +791,7 @@ public final class BinaryParser
 	 *
 	 * @return read value.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static float readFloat(@NotNull Reader reader_)
 	{
 		return Float.intBitsToFloat((int)readInteger(reader_, SIZE_FLOAT));

@@ -1,6 +1,6 @@
 package borg.framework.structures.computers;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
@@ -91,7 +91,7 @@ public class Vector2d implements Serializable
 	/**
 	 * @return vector direction in radians. 0 radians when (x == 0) && (y < 0).
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final double getDirection()
 	{
 		// if vector coordinates was changed
@@ -110,7 +110,7 @@ public class Vector2d implements Serializable
 	/**
 	 * @return vector length.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final double getSize()
 	{
 		// compute size
@@ -127,7 +127,7 @@ public class Vector2d implements Serializable
 	/**
 	 * @return size^2 (works faster than {@link Vector2d#getSize()}).
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final double getSize2()
 	{
 		return x * x + y * y;
@@ -172,7 +172,7 @@ public class Vector2d implements Serializable
 	 *
 	 * @return dotting result.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public final double product(@NotNull Vector2d vector_)
 	{
 		return (x * vector_.x) + (y * vector_.y);
@@ -269,7 +269,7 @@ public class Vector2d implements Serializable
 	}
 
 	@Override
-	@Contract(pure = true)
+	@CheckReturnValue
 	@NotNull
 	public String toString()
 	{

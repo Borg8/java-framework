@@ -1,5 +1,6 @@
 package borg.framework.serializers;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -36,7 +37,7 @@ public final class EntityParser
 	 * Methods
 	 ************************************************************************************************/
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private EntityParser()
 	{
 		// private constructor to prevent instantiation.

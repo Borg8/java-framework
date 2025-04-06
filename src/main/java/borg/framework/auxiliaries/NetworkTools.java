@@ -1,6 +1,6 @@
 package borg.framework.auxiliaries;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public final class NetworkTools
 	 *
 	 * @return read bytes, or {@code null} if the stream is not readable.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @Nullable [] readBytes(@NotNull InputStream stream_)
 	{
 		return read(stream_, -1, (char)-1);
@@ -56,7 +56,7 @@ public final class NetworkTools
 	 *
 	 * @return read bytes, or {@code null} if the stream is not readable.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @Nullable [] readBytes(@NotNull InputStream stream_, int length_)
 	{
 		return read(stream_, length_, (char)-1);
@@ -70,7 +70,7 @@ public final class NetworkTools
 	 * @return read line or {@code null} if the stream is not readable.
 	 */
 	@Nullable
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static String readLine(@NotNull InputStream stream_)
 	{
 		byte[] line = read(stream_, -1, '\n');
@@ -89,7 +89,7 @@ public final class NetworkTools
 	 *
 	 * @return HTTP request code or negative number if was not parsed.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static int parseCode(@NotNull String line_)
 	{
 		try
@@ -110,7 +110,7 @@ public final class NetworkTools
 	 * @return parsed header, if succeeded.
 	 */
 	@Nullable
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static Pair<String, String> parseHeader(@NotNull String line_)
 	{
 		// define flags
@@ -196,7 +196,7 @@ public final class NetworkTools
 		return null;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static char lower(char c_)
 	{
 		if ((c_ >= 'A') && (c_ <= 'Z'))
@@ -207,7 +207,7 @@ public final class NetworkTools
 		return c_;
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private static byte @Nullable [] read(@NotNull InputStream stream_, int size_, char eof_)
 	{
 		if (size_ == 0)

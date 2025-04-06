@@ -1,6 +1,6 @@
 package borg.framework.services;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +40,7 @@ public final class StorageManager
 	 * Methods
 	 ************************************************************************************************/
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	private StorageManager()
 	{
 		// private constructor to prevent instantiation
@@ -56,7 +56,7 @@ public final class StorageManager
 	 * @throws Exception if file name is not valid.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static File getFile(@NotNull String name_) throws Exception
 	{
 		return new File(name_).getCanonicalFile();
@@ -290,7 +290,7 @@ public final class StorageManager
 		writeFile(file_, stream_, true);
 	}
 
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] readFile(@NotNull String name_) throws Exception
 	{
 		return readFile(getFile(name_));
@@ -305,7 +305,7 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] readFile(@NotNull File file_) throws Exception
 	{
 		try (FileInputStream stream = getFileInputStream(file_))
@@ -323,7 +323,7 @@ public final class StorageManager
 	 *
 	 * @throws Exception when file was not found.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static byte @NotNull [] readFile(@NotNull final InputStream stream_) throws Exception
 	{
 		try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream())
@@ -376,7 +376,7 @@ public final class StorageManager
 	 * @throws Exception some IO exception.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static FileOutputStream getFileOutputStream(@NotNull String name_, boolean append_)
 		throws Exception
 	{
@@ -394,7 +394,7 @@ public final class StorageManager
 	 * @throws Exception some IO exception.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static FileOutputStream getFileOutputStream(@NotNull File file_, boolean append_)
 		throws Exception
 	{
@@ -414,7 +414,7 @@ public final class StorageManager
 	 * @throws Exception some IO exception.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static FileInputStream getFileInputStream(@NotNull String name_) throws Exception
 	{
 		return getFileInputStream(getFile(name_));
@@ -430,7 +430,7 @@ public final class StorageManager
 	 * @throws Exception some IO exception.
 	 */
 	@NotNull
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static FileInputStream getFileInputStream(@NotNull File file_) throws Exception
 	{
 		// create at the external storage
@@ -444,7 +444,7 @@ public final class StorageManager
 	 *
 	 * @return true if string is valid filename, false otherwise.
 	 */
-	@Contract(pure = true)
+	@CheckReturnValue
 	public static boolean isValidFilename(@NotNull String name_)
 	{
 		if (name_.isEmpty() == false)
