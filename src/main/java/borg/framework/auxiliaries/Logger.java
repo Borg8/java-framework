@@ -322,12 +322,12 @@ public final class Logger
 	/**
 	 * assertion log.
 	 *
-	 * @param condition_ condition to test.
-	 * @param message_   message to log if the condition is {@code false}.
+	 * @param trueCondition_ condition that should be {@code true}.
+	 * @param message_   message to log if the condition is not {@code false}.
 	 */
-	public static void assertLog(boolean condition_, @NotNull String message_)
+	public static void assertLog(@Nullable Boolean trueCondition_, @NotNull String message_)
 	{
-		if (condition_ == false)
+		if (Boolean.TRUE.equals(trueCondition_) != true)
 		{
 			buildStack();
 			log(Level.SEVERE, message_);
