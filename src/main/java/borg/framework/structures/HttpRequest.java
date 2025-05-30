@@ -28,7 +28,6 @@ public class HttpRequest implements Serializable
 	public final URI uri;
 
 	/** response headers **/
-	@Nullable
 	public final Map<String, String> headers;
 
 	/** received data **/
@@ -42,7 +41,7 @@ public class HttpRequest implements Serializable
 	{
 		method = method_;
 		uri = uri_;
-		headers = headers_;
+		headers = headers_ == null? new HashMap<>() : headers_;
 		content = content_;
 	}
 

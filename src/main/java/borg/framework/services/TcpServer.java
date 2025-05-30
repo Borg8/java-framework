@@ -30,7 +30,7 @@ public class TcpServer
 		/**
 		 * connection accepted.
 		 *
-		 * @param socket_ connected socket, or {@code null} if no socket connected.
+		 * @param socket_ connected socket, or {@code null} if the socket closed.
 		 */
 		void onAccept(@Nullable Socket socket_);
 	}

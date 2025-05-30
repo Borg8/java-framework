@@ -164,7 +164,6 @@ public abstract class Serialized implements Serializable
 	 *
 	 * @return {@code true} if the state was saved successfully, {@code false} otherwise.
 	 */
-	@SuppressWarnings("null") // compiler issues
 	public boolean saveState()
 	{
 		// if transaction is closed
