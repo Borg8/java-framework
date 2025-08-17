@@ -1,10 +1,12 @@
 package borg.framework.auxiliaries;
 
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
+
 
 /**
  * @author Borg
@@ -22,12 +24,15 @@ public final class Event<T>
 	@FunctionalInterface
 	public interface Observer<T>
 	{
-		boolean action(T param_);
+		boolean action(Object sender_, T param_);
 	}
 
 	/*************************************************************************************************
 	 * Fields
 	 ************************************************************************************************/
+
+	/** owner of the event  **/
+	private final Object mOwner;
 
 	/** list of observers attached to the event **/
 	private final Set<Observer<T>> mObservers;
@@ -45,8 +50,9 @@ public final class Event<T>
 	 * Methods
 	 ************************************************************************************************/
 
-	public Event()
+	public Event(@Nullable Object owner_)
 	{
+		mOwner = owner_;
 		mObservers = new HashSet<>();
 		mObserversClone = new HashSet<>();
 		mIsObserversDirty = false;
@@ -56,6 +62,7 @@ public final class Event<T>
 	/**
 	 * @return number of observers that observe that event.
 	 */
+	@CheckReturnValue
 	public int getSize()
 	{
 		return mObservers.size();
@@ -164,7 +171,7 @@ public final class Event<T>
 				// invoke method
 				try
 				{
-					if (observer.action(param_) == false)
+					if (observer.action(mOwner, param_) == false)
 					{
 						detach(observer);
 					}

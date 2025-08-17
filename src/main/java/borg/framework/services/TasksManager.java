@@ -182,7 +182,7 @@ public class TasksManager
 	}
 
 	/**
-	 * run task on main thread. If called from main thread, then the task will executed synchronously.
+	 * run task on main thread. If called from main thread, then the task will be executed synchronously.
 	 *
 	 * @param task_ task to run.
 	 */

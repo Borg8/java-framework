@@ -81,7 +81,7 @@ public class HttpRequest implements Serializable
 					header = NetworkTools.parseHeader(line);
 					if (header != null)
 					{
-						headers.put(header.key, header.value);
+						headers.put(header.key.toLowerCase(), header.value.toLowerCase());
 					}
 					else
 					{
@@ -141,20 +141,17 @@ public class HttpRequest implements Serializable
 			buffer.push(bytes, 0, bytes.length);
 
 			// write headers
-			if (headers != null)
+			separator = ":".getBytes();
+			for (Map.Entry<String, String> header : headers.entrySet())
 			{
-				separator = ":".getBytes();
-				for (Map.Entry<String, String> header : headers.entrySet())
-				{
-					bytes = header.getKey().getBytes();
-					buffer.push(bytes, 0, bytes.length);
-					buffer.push(separator, 0, separator.length);
-					bytes = header.getValue().getBytes();
-					buffer.push(bytes, 0, bytes.length);
-					buffer.push(eol, 0, eol.length);
-				}
+				bytes = header.getKey().getBytes();
+				buffer.push(bytes, 0, bytes.length);
+				buffer.push(separator, 0, separator.length);
+				bytes = header.getValue().getBytes();
+				buffer.push(bytes, 0, bytes.length);
 				buffer.push(eol, 0, eol.length);
 			}
+			buffer.push(eol, 0, eol.length);
 
 			// write content
 			if (content != null)

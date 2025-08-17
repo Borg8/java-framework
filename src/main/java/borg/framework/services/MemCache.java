@@ -67,12 +67,15 @@ public class MemCache<K, V>
 	 */
 	@CheckReturnValue
 	@Nullable
-	public synchronized V get(@NotNull K key_)
+	public V get(@NotNull K key_)
 	{
 		Entry entry = mCache.get(key_);
 		if (entry != null)
 		{
-			_moveToTail(entry);
+			synchronized (mCache)
+			{
+				_moveToTail(entry);
+			}
 			return entry.value;
 		}
 
@@ -85,30 +88,33 @@ public class MemCache<K, V>
 	 * @param key_   key to associate with the value.
 	 * @param value_ value to store in the cache.
 	 */
-	public synchronized void set(@NotNull K key_, @NotNull V value_)
+	public void set(@NotNull K key_, @NotNull V value_)
 	{
-		// if entry already exists
-		Entry entry = mCache.get(key_);
-		if (entry != null)
+		synchronized (mCache)
 		{
-			// update value and move to tail
-			entry.value = value_;
-			_moveToTail(entry);
-		}
-		else
-		{
-			// if cache is full
-			if (mCache.size() >= mSize)
+			// if entry already exists
+			Entry entry = mCache.get(key_);
+			if (entry != null)
 			{
-				// evict the oldest entry
-				_evictOldest();
+				// update value and move to tail
+				entry.value = value_;
+				_moveToTail(entry);
 			}
+			else
+			{
+				// if cache is full
+				if (mCache.size() >= mSize)
+				{
+					// evict the oldest entry
+					_evictOldest();
+				}
 
-			// create new entry
-			entry = new Entry(key_);
-			entry.value = value_;
-			mCache.put(key_, entry);
-			_addToTail(entry);
+				// create new entry
+				entry = new Entry(key_);
+				entry.value = value_;
+				mCache.put(key_, entry);
+				_addToTail(entry);
+			}
 		}
 	}
 

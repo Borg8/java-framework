@@ -354,7 +354,7 @@ public final class Logger
 	public static void log(@NotNull Level level_, @NotNull String message_)
 	{
 		buildStack();
-		log(level_, message_, null);
+		log(level_, message_, null, 0);
 	}
 
 	/**
@@ -366,7 +366,7 @@ public final class Logger
 	public static void log(@NotNull Level level_, @NotNull Throwable e_)
 	{
 		buildStack();
-		log(level_, null, e_);
+		log(level_, null, e_, 0);
 	}
 
 	/**
@@ -389,7 +389,7 @@ public final class Logger
 	public static void log(@Nullable String message_, @NotNull Throwable e_)
 	{
 		buildStack();
-		log(Level.SEVERE, message_, e_);
+		log(Level.SEVERE, message_, e_, 0);
 	}
 
 	/**
@@ -410,11 +410,15 @@ public final class Logger
 	/**
 	 * log message.
 	 *
-	 * @param level_   log level.
-	 * @param message_ message to log.
-	 * @param e_       exception to log.
+	 * @param level_       log level.
+	 * @param message_     message to log.
+	 * @param e_           exception to log.
+	 * @param stackOffset_ offset in the stack trace to start from.
 	 */
-	public static void log(@NotNull Level level_, @Nullable String message_, @Nullable Throwable e_)
+	public static void log(@NotNull Level level_,
+		@Nullable String message_,
+		@Nullable Throwable e_,
+		int stackOffset_)
 	{
 		if (message_ == null)
 		{
@@ -423,7 +427,7 @@ public final class Logger
 
 		// add stack title to the log
 		buildStack();
-		StackTraceElement element = sStackHolder.getStackTrace()[2];
+		StackTraceElement element = sStackHolder.getStackTrace()[2 + stackOffset_];
 		long now = TimeManager.getRealTime();
 		String message = String.format("%s: (%s) %s:%d (%s)\n%s",
 			TIME_FORMAT.format(now),
