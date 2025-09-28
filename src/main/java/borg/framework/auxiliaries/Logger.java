@@ -7,15 +7,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import borg.framework.services.Lock;
 import borg.framework.services.TimeManager;
 
 import static java.util.logging.Logger.getLogger;
@@ -26,21 +30,43 @@ public final class Logger
 	 * Constants
 	 ************************************************************************************************/
 
+	/** logs date formatter **/
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+	/** logs time formatter **/
 	public static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	/*************************************************************************************************
-	 * LogsFormatter
+	 * FileFormatter
 	 ************************************************************************************************/
 
-	public static final class LogsFormatter extends Formatter
+	public static final class FileFormatter extends Formatter
 	{
 		@Override
 		@NotNull
 		public String format(@NotNull LogRecord record_)
 		{
-			return String.format("%s%s\n\n",
+			Object[] params = record_.getParameters();
+			long time = (long)params[0];
+			Throwable e = (Throwable)params[1];
+			return String.format("%s %s%s",
+				DATE_FORMAT.format(time),
 				record_.getMessage(),
-				record_.getThrown() == null? "": exceptionLog(record_.getThrown()));
+				e == null? "": exceptionLog(e));
+		}
+	}
+
+	/*************************************************************************************************
+	 * ConsoleFormatter
+	 ************************************************************************************************/
+
+	public static final class ConsoleFormatter extends Formatter
+	{
+		@Override
+		@NotNull
+		public String format(@NotNull LogRecord record_)
+		{
+			return record_.getMessage();
 		}
 	}
 
@@ -67,17 +93,17 @@ public final class Logger
 	/** logger instance **/
 	private static final java.util.logging.Logger sLogger = getLogger("borg.framework");
 
-	/** stack holder **/
-	private static final Throwable sStackHolder = new Throwable();
+	/** stack holders **/
+	private static final Map<Long, Throwable> sStackHolders = new HashMap<>();
+
+	/** stack holders lock **/
+	private static final Lock sLock = new Lock();
 
 	/** root class to log **/
 	private static Set<String> sRoots = null;
 
 	/** maximum stack log depth **/
 	private static int sDepth = 10;
-
-	/** is stack ready **/
-	private static boolean sStackReady = false;
 
 	/** logs listeners **/
 	private static final List<Listener> sListeners = new ArrayList<>();
@@ -88,11 +114,12 @@ public final class Logger
 
 	static
 	{
+		DATE_FORMAT.setTimeZone(TimeZone.getDefault());
 		TIME_FORMAT.setTimeZone(TimeZone.getDefault());
 
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.ALL);
-		handler.setFormatter(new LogsFormatter());
+		handler.setFormatter(new FileFormatter());
 		sLogger.addHandler(handler);
 		sLogger.setUseParentHandlers(false);
 	}
@@ -131,9 +158,20 @@ public final class Logger
 		{
 			try
 			{
-				FileHandler handler = new FileHandler(file_);
+				sLogger.setUseParentHandlers(false);
+				for (Handler handler : sLogger.getHandlers())
+				{
+					sLogger.removeHandler(handler);
+				}
+
+				Handler handler = new FileHandler(file_);
 				handler.setLevel(level_);
-				handler.setFormatter(new LogsFormatter());
+				handler.setFormatter(new FileFormatter());
+				sLogger.addHandler(handler);
+
+				handler = new ConsoleHandler();
+				handler.setLevel(level_);
+				handler.setFormatter(new ConsoleFormatter());
 				sLogger.addHandler(handler);
 			}
 			catch (Exception e)
@@ -304,19 +342,22 @@ public final class Logger
 		}
 
 		// build stack trace
-		buildStack();
-		StackTraceElement[] stackTrace = sStackHolder.getStackTrace();
+		_buildStack();
+		StackTraceElement[] stackTrace = _getStack();
 		String stack = stackTrace(stackTrace, 2);
 
 		// create message
-		String message = String.format("%s\n%s\n\n%s\n%s",
+		long now = TimeManager.getRealTime();
+		String message = String.format("%s: (%s) %s\n%s\n%s\n%s\n\n",
+			TIME_FORMAT.format(now),
+			level_,
+			_systemDetails(),
 			message_,
 			state == null? "": state,
-			_systemDetails(),
 			stack);
 
 		// log
-		_log(level_, message, null);
+		_log(level_, now, message, null);
 	}
 
 	/**
@@ -329,7 +370,7 @@ public final class Logger
 	{
 		if (Boolean.TRUE.equals(expected_) != true)
 		{
-			buildStack();
+			_buildStack();
 			log(Level.SEVERE, String.format("assertion failed (%s): %s", expected_, message_));
 		}
 	}
@@ -341,7 +382,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull String message_)
 	{
-		buildStack();
+		_buildStack();
 		log(Level.ALL, message_);
 	}
 
@@ -353,7 +394,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Level level_, @NotNull String message_)
 	{
-		buildStack();
+		_buildStack();
 		log(level_, message_, null, 0);
 	}
 
@@ -365,7 +406,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Level level_, @NotNull Throwable e_)
 	{
-		buildStack();
+		_buildStack();
 		log(level_, null, e_, 0);
 	}
 
@@ -376,7 +417,7 @@ public final class Logger
 	 */
 	public static void log(@NotNull Throwable e_)
 	{
-		buildStack();
+		_buildStack();
 		log(Level.SEVERE, e_);
 	}
 
@@ -388,7 +429,7 @@ public final class Logger
 	 */
 	public static void log(@Nullable String message_, @NotNull Throwable e_)
 	{
-		buildStack();
+		_buildStack();
 		log(Level.SEVERE, message_, e_, 0);
 	}
 
@@ -402,7 +443,7 @@ public final class Logger
 	{
 		if (condition_ == false)
 		{
-			buildStack();
+			_buildStack();
 			log(Level.SEVERE, message_);
 		}
 	}
@@ -426,10 +467,10 @@ public final class Logger
 		}
 
 		// add stack title to the log
-		buildStack();
-		StackTraceElement element = sStackHolder.getStackTrace()[2 + stackOffset_];
+		_buildStack();
+		StackTraceElement element = _getStack()[2 + stackOffset_];
 		long now = TimeManager.getRealTime();
-		String message = String.format("%s: (%s) %s:%d (%s)\n%s",
+		String message = String.format("%s: (%s) %s:%d (%s)\n%s\n\n",
 			TIME_FORMAT.format(now),
 			level_.getName(),
 			element.getFileName(),
@@ -438,14 +479,17 @@ public final class Logger
 			message_);
 
 		// log
-		_log(level_, message, e_);
+		_log(level_, now, message, e_);
 	}
 
-	private static void _log(@NotNull Level level_, @NotNull String message_, @Nullable Throwable e_)
+	private static void _log(@NotNull Level level_,
+		long time_,
+		@NotNull String message_,
+		@Nullable Throwable e_)
 	{
-		sStackReady = false;
+		sLogger.log(level_, message_, new Object[] { time_, e_ });
 
-		sLogger.log(level_, message_, e_);
+		sStackHolders.remove(Thread.currentThread().threadId());
 
 		for (Listener listener : sListeners)
 		{
@@ -453,12 +497,23 @@ public final class Logger
 		}
 	}
 
-	private static void buildStack()
+	private static void _buildStack()
 	{
-		if (sStackReady == false)
+		sLock.readLock();
+
+		Throwable throwable = sStackHolders.get(Thread.currentThread().threadId());
+		if (throwable == null)
 		{
-			sStackHolder.fillInStackTrace();
-			sStackReady = true;
+			throwable = new Throwable();
+			throwable.fillInStackTrace();
+
+			sLock.upgradeToWriteLock();
+			sStackHolders.put(Thread.currentThread().threadId(), throwable);
+			sLock.writeUnlock();
+		}
+		else
+		{
+			sLock.readUnlock();
 		}
 	}
 
@@ -485,5 +540,14 @@ public final class Logger
 			TimeManager.getTick() - GlobalsHolder.START_TIME,
 			Thread.currentThread().getName(),
 			TextParser.timestampToTime(GlobalsHolder.getUptime()));
+	}
+
+	@NotNull
+	@CheckReturnValue
+	private static StackTraceElement[] _getStack()
+	{
+		Throwable throwable = sStackHolders.get(Thread.currentThread().threadId());
+		assert throwable != null;
+		return throwable.getStackTrace();
 	}
 }

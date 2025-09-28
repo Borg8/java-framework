@@ -97,7 +97,20 @@ public class WebSocket
 		PING,
 
 		/** 10: pong **/
-		PONG
+		PONG;
+
+		@NotNull
+		@CheckReturnValue
+		public static String get(int code_)
+		{
+			code_ &= 0x0f;
+			if (code_ < values().length)
+			{
+				return values()[code_].name();
+			}
+
+			return "UNKNOWN: " + code_;
+		}
 	}
 
 	public interface Listener
@@ -530,6 +543,7 @@ public class WebSocket
 					{
 						break;
 					}
+
 					mSocket.setSoTimeout(NetworkTools.TIMEOUT_READ);
 					byte[] data = _readData(input);
 					if (data == null)
@@ -548,6 +562,8 @@ public class WebSocket
 								case PONG -> mLastPong = 0;
 								case CLOSE ->
 								{
+									Logger.log("Websocket: closed: " + new String(data));
+
 									// send 1000
 									write(new byte[] { 3, (byte)232 }, Opcode.CLOSE);
 									mListener.close(this, data);

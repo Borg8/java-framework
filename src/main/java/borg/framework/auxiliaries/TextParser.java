@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -13,10 +14,31 @@ import borg.framework.services.TimeManager;
 
 public final class TextParser
 {
-
 	/*************************************************************************************************
 	 * Public Constants
 	 ************************************************************************************************/
+
+	/** date formatter with day accuracy **/
+	public static final SimpleDateFormat DATE_FORMAT_DAY = new SimpleDateFormat("yyyy-MM-dd");
+
+	/** date formatter with minutes accuracy **/
+	public static final SimpleDateFormat DATE_FORMAT_MIN = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+	/** date formatter with seconds accuracy **/
+	public static final SimpleDateFormat DATE_FORMAT_SEC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	/** date formatter with milliseconds accuracy **/
+	public static final SimpleDateFormat DATE_FORMAT_MILL = new SimpleDateFormat(
+		"yyyy-MM-dd HH:mm:ss.SSS");
+
+	/** time formatter with minutes accuracy **/
+	public static final SimpleDateFormat TIME_FORMAT_MIN = new SimpleDateFormat("HH:mm");
+
+	/** time formatter with seconds accuracy **/
+	public static final SimpleDateFormat TIME_FORMAT_SEC = new SimpleDateFormat("HH:mm:ss");
+
+	/** time formatter with milliseconds accuracy **/
+	public static final SimpleDateFormat TIME_FORMAT_MILL = new SimpleDateFormat("HH:mm:ss.SSS");
 
 	/*************************************************************************************************
 	 * Constants
@@ -52,6 +74,22 @@ public final class TextParser
 	private TextParser()
 	{
 		// private constructor to prevent instantiation
+	}
+
+	/**
+	 * set current time zone.
+	 *
+	 * @param timezone_ time zone to set.
+	 */
+	public static void setTimezone(@NotNull TimeZone timezone_)
+	{
+		DATE_FORMAT_DAY.setTimeZone(timezone_);
+		DATE_FORMAT_MIN.setTimeZone(timezone_);
+		DATE_FORMAT_SEC.setTimeZone(timezone_);
+		DATE_FORMAT_MILL.setTimeZone(timezone_);
+		TIME_FORMAT_MIN.setTimeZone(timezone_);
+		TIME_FORMAT_SEC.setTimeZone(timezone_);
+		TIME_FORMAT_MILL.setTimeZone(timezone_);
 	}
 
 	/**

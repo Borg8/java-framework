@@ -69,14 +69,14 @@ public class MemCache<K, V>
 	@Nullable
 	public V get(@NotNull K key_)
 	{
-		Entry entry = mCache.get(key_);
-		if (entry != null)
+		synchronized (mCache)
 		{
-			synchronized (mCache)
+			Entry entry = mCache.get(key_);
+			if (entry != null)
 			{
 				_moveToTail(entry);
+				return entry.value;
 			}
-			return entry.value;
 		}
 
 		return null;
