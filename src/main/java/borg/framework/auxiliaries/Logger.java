@@ -66,7 +66,13 @@ public final class Logger
 		@NotNull
 		public String format(@NotNull LogRecord record_)
 		{
-			return record_.getMessage();
+			String message = record_.getMessage();
+			Throwable e = (Throwable)record_.getParameters()[1];
+			if (e != null)
+			{
+				message += exceptionLog(e);
+			}
+			return message;
 		}
 	}
 
@@ -536,10 +542,13 @@ public final class Logger
 	@CheckReturnValue
 	private static String _systemDetails()
 	{
-		return String.format("%d-%s | %s",
+		Runtime runtime = Runtime.getRuntime();
+		return String.format("%d-%s | %s | %d MB of %d MB",
 			TimeManager.getTick() - GlobalsHolder.START_TIME,
 			Thread.currentThread().getName(),
-			TextParser.timestampToTime(GlobalsHolder.getUptime()));
+			TextParser.timestampToTime(GlobalsHolder.getUptime()),
+			runtime.freeMemory() / 1048576,
+			runtime.totalMemory() / 1048576);
 	}
 
 	@NotNull
