@@ -144,6 +144,16 @@ public class TasksManager
 	 * execute multiple tasks. The function will return after all tasks are completed.
 	 *
 	 * @param tasks_ tasks to run.
+	 */
+	public static void executeTasks(@NotNull Collection<Runnable> tasks_)
+	{
+		executeTasks(tasks_, Runtime.getRuntime().availableProcessors());
+	}
+
+	/**
+	 * execute multiple tasks. The function will return after all tasks are completed.
+	 *
+	 * @param tasks_ tasks to run.
 	 * @param pool_  number of threads to run the tasks on.
 	 */
 	public static void executeTasks(@NotNull Collection<Runnable> tasks_, int pool_)
