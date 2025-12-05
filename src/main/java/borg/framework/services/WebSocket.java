@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
-import java.net.URL;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +24,7 @@ import borg.framework.structures.HttpRequest;
 import borg.framework.structures.HttpResponse;
 import borg.framework.structures.NetworkResult;
 
-public class WebSocket
+public class WebSocket extends Socket
 {
 	/*************************************************************************************************
 	 * Public Constants
@@ -35,10 +34,10 @@ public class WebSocket
 	public static final String VERSION_PROTOCOL = "ocpp1.6";
 
 	/** websocket version **/
-	static final int VERSION_WEBSOCKET = 13;
+	public static final int VERSION_WEBSOCKET = 13;
 
 	/** protocol version **/
-	static final String AGENT_WEBSOCKET = "borg_socket/1.0";
+	public static final String AGENT_WEBSOCKET = "borg_socket/1.0";
 
 	/*************************************************************************************************
 	 * Constants
@@ -59,6 +58,8 @@ public class WebSocket
 	private static final String HEADER_UPGRADE = "upgrade";
 
 	private static final String HEADER_AGENT = "user-agent";
+
+	private static final int TIMEOUT_READ = 500;
 
 	/*************************************************************************************************
 	 * Definitions
@@ -97,20 +98,7 @@ public class WebSocket
 		PING,
 
 		/** 10: pong **/
-		PONG;
-
-		@NotNull
-		@CheckReturnValue
-		public static String get(int code_)
-		{
-			code_ &= 0x0f;
-			if (code_ < values().length)
-			{
-				return values()[code_].name();
-			}
-
-			return "UNKNOWN: " + code_;
-		}
+		PONG
 	}
 
 	public interface Listener
@@ -144,11 +132,10 @@ public class WebSocket
 		/**
 		 * keepalive failed.
 		 *
-		 * @param this_     websocket.
-		 * @param interval_ time since last pong.
+		 * @param this_ websocket.
 		 */
 		@SuppressWarnings("unused")
-		default void keepaliveFailed(@NotNull WebSocket this_, long interval_)
+		default void keepaliveFailed(@NotNull WebSocket this_)
 		{
 		}
 	}
@@ -158,16 +145,13 @@ public class WebSocket
 	 ************************************************************************************************/
 
 	/** websocket URL **/
-	public final URL url;
+	public final URI uri;
 
 	/** socket events listener **/
 	private final Listener mListener;
 
 	/** communication socket **/
 	private Socket mSocket;
-
-	/** current socket key **/
-	private String mKey;
 
 	/** keepalive interval **/
 	private long mKeepalive;
@@ -181,12 +165,12 @@ public class WebSocket
 
 	public WebSocket(@NotNull String url_, @NotNull Listener listener_)
 	{
-		this(createUrl(url_), listener_);
+		this(createUri(url_), listener_);
 	}
 
-	public WebSocket(@NotNull URL url_, @NotNull Listener listener_)
+	public WebSocket(@NotNull URI uri_, @NotNull Listener listener_)
 	{
-		url = url_;
+		uri = uri_;
 		mListener = listener_;
 
 		mSocket = null;
@@ -213,6 +197,8 @@ public class WebSocket
 	@NotNull
 	public synchronized HttpResponse connect(long timeout_, @Nullable Map<String, String> headers_)
 	{
+		Logger.log("websocket: connect to " + uri.toString());
+
 		// prepare
 		int code = -1;
 		NetworkResult result;
@@ -225,27 +211,36 @@ public class WebSocket
 			try
 			{
 				// create connection
-				if (url.getProtocol().equals("https"))
+				int port = uri.getPort();
+				if (uri.getScheme().equals("wss"))
 				{
 					mSocket = SSLSocketFactory.getDefault().createSocket();
+					if (port < 0)
+					{
+						port = 443;
+					}
 				}
 				else
 				{
 					mSocket = new Socket();
+					if (port < 0)
+					{
+						port = 80;
+					}
 				}
 				mSocket.setSoTimeout(NetworkTools.TIMEOUT_CONNECT);
-				mSocket.connect(new InetSocketAddress(url.getHost(), url.getPort()), (int)timeout_);
+				mSocket.connect(new InetSocketAddress(uri.getHost(), port), (int)timeout_);
 
 				// generate key
-				mKey = generateKey();
+				String key = generateKey();
 
 				// build request
 				Map<String, String> requestHeaders = new HashMap<>();
-				requestHeaders.put(HEADER_HOST, url.getHost());
+				requestHeaders.put(HEADER_HOST, uri.getHost());
 				requestHeaders.put(HEADER_CONNECTION, "Upgrade");
 				requestHeaders.put(HEADER_PROTOCOL, VERSION_PROTOCOL);
 				requestHeaders.put(HEADER_VERSION, Integer.toString(VERSION_WEBSOCKET));
-				requestHeaders.put(HEADER_KEY, mKey);
+				requestHeaders.put(HEADER_KEY, key);
 				requestHeaders.put(HEADER_UPGRADE, "websocket");
 				requestHeaders.put(HEADER_AGENT, AGENT_WEBSOCKET);
 				if (headers_ != null)
@@ -253,7 +248,8 @@ public class WebSocket
 					requestHeaders.putAll(headers_);
 				}
 
-				HttpRequest request = new HttpRequest("GET", new URI(url.getPath()), requestHeaders, null);
+				// build request
+				HttpRequest request = new HttpRequest("GET", uri, requestHeaders, null);
 
 				// write request
 				OutputStream output = mSocket.getOutputStream();
@@ -261,7 +257,10 @@ public class WebSocket
 
 				// read response
 				long now = TimeManager.getRealTime();
-				mSocket.setSoTimeout((int)(timeout_ - (now - start)));
+				if (timeout_ > 0)
+				{
+					mSocket.setSoTimeout((int)(timeout_ - (now - start)));
+				}
 				HttpResponse response = HttpResponse.readResponse(mSocket.getInputStream());
 				code = response.code;
 				headers = response.headers;
@@ -282,14 +281,14 @@ public class WebSocket
 					}
 					else
 					{
-						Logger.log(Level.WARNING, "unexpected response: " + code);
+						Logger.log(Level.WARNING, "websocket: unexpected response: " + code);
 						result = NetworkResult.UNEXPECTED_RESPONSE;
 						disconnect();
 					}
 				}
 				else
 				{
-					Logger.log(Level.WARNING, "unable to parse code");
+					Logger.log(Level.WARNING, "websocket: unable to parse code");
 					result = NetworkResult.UNEXPECTED_RESPONSE;
 					disconnect();
 				}
@@ -303,7 +302,7 @@ public class WebSocket
 		}
 		else
 		{
-			Logger.log(Level.WARNING, "already connected");
+			Logger.log(Level.WARNING, "websocket: already connected");
 			result = NetworkResult.BUSY;
 			disconnect();
 		}
@@ -344,7 +343,7 @@ public class WebSocket
 	public void setKeepalive(long interval_)
 	{
 		mKeepalive = interval_;
-		mLastPong = 0;
+		mLastPong = TimeManager.getRealTime();
 
 		// if connected
 		if ((isConnected() == true) && (mKeepalive > 0))
@@ -527,7 +526,7 @@ public class WebSocket
 	{
 		return new Thread(() ->
 		{
-			Thread.currentThread().setName("websocket reader from " + url);
+			Thread.currentThread().setName("websocket reader: " + uri);
 
 			for (; ; )
 			{
@@ -544,27 +543,21 @@ public class WebSocket
 						break;
 					}
 
-					mSocket.setSoTimeout(NetworkTools.TIMEOUT_READ);
-					byte[] data = _readData(input);
-					if (data == null)
-					{
-						data = new byte[0];
-					}
-
 					try
 					{
 						code = code & 0x0f;
 						if (code < Opcode.values().length)
 						{
+							// read frame data
+							mSocket.setSoTimeout(TIMEOUT_READ);
+							byte[] data = _readData(input);
+
 							switch (Opcode.values()[code])
 							{
 								case PING -> write(new byte[0], Opcode.PONG);
-								case PONG -> mLastPong = 0;
+								case PONG -> mLastPong = TimeManager.getRealTime();
 								case CLOSE ->
 								{
-									Logger.log("Websocket: closed: " + new String(data));
-
-									// send 1000
 									write(new byte[] { 3, (byte)232 }, Opcode.CLOSE);
 									mListener.close(this, data);
 								}
@@ -573,10 +566,7 @@ public class WebSocket
 						}
 						else
 						{
-							Logger.log(Level.WARNING, "invalid opcode: " + code);
-
-							// invoke observers
-							mListener.dataReceived(this, data);
+							Logger.log(Level.WARNING, "websocket: invalid opcode: " + code);
 						}
 					}
 					catch (Exception e)
@@ -604,13 +594,11 @@ public class WebSocket
 
 	@NotNull
 	@CheckReturnValue
-	private static URL createUrl(@NotNull String url_)
+	private static URI createUri(@NotNull String uri_)
 	{
-		url_ = url_.replace("wss://", "https://");
-		url_ = url_.replace("ws://", "http://");
 		try
 		{
-			return new URL(url_);
+			return new URI(uri_);
 		}
 		catch (Throwable e)
 		{
@@ -619,7 +607,7 @@ public class WebSocket
 	}
 
 	@CheckReturnValue
-	private static byte @Nullable [] _readData(@NotNull InputStream stream_)
+	private static byte @NotNull [] _readData(@NotNull InputStream stream_)
 	{
 		try
 		{
@@ -634,10 +622,14 @@ public class WebSocket
 
 			// read data
 			byte[] data = new byte[length];
-			int res = stream_.read(data);
-			if (res != length)
+			if (length > 0)
 			{
-				Logger.log(Level.WARNING, String.format("unable to read: %d of %d bytes", res, length));
+				int res = stream_.read(data);
+				if (res != length)
+				{
+					Logger.log(Level.WARNING,
+						String.format("websocket: unable to read: %d of %d bytes", res, length));
+				}
 			}
 
 			return data;
@@ -647,7 +639,7 @@ public class WebSocket
 			Logger.log(e);
 		}
 
-		return null;
+		return new byte[0];
 	}
 
 	private final TimeManager.Handler<Void> _keepaliveWatchdog = new TimeManager.Handler<>()
@@ -658,20 +650,18 @@ public class WebSocket
 			if ((isConnected() == true) && (mKeepalive > 0))
 			{
 				// if pong wasn't received
-				if (mLastPong > 0)
+				if (mLastPong == 0)
 				{
-					long now = TimeManager.getRealTime();
-					long interval = now - mLastPong;
-					Logger.log(Level.WARNING, "no pong received after: " + interval + "ms");
-					mListener.keepaliveFailed(WebSocket.this, interval);
+					Logger.log(Level.WARNING, "websocket: no pong received");
+					mListener.keepaliveFailed(WebSocket.this);
 				}
 
 				// send keepalive
-				write(new byte[0], Opcode.PING);
+				TasksManager.runOnThread("websocket write", (p_) -> write(new byte[0], Opcode.PING));
 
 				// reschedule
-				mLastPong = TimeManager.getRealTime();
-				TimeManager.asyncExecute((long)(mKeepalive * 1.1), _keepaliveWatchdog);
+				mLastPong = 0;
+				TimeManager.asyncExecute(mKeepalive, _keepaliveWatchdog);
 			}
 		}
 	};

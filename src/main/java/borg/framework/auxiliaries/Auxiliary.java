@@ -107,6 +107,34 @@ public final class Auxiliary
 	 * @param min_ minimum value.
 	 * @param max_ maximum value.
 	 *
+	 * @return random long number in the given range.
+	 */
+	@CheckReturnValue
+	public static long random(long min_, long max_)
+	{
+		// TODO test for nextLong produces negative numbers
+		return ((random.nextLong() & 0x7fffffffffffffffL) % (max_ - min_)) + min_;
+	}
+
+	/**
+	 * get random number in range.
+	 *
+	 * @param max_ maximum value.
+	 *
+	 * @return random long number in range 0 to given max.
+	 */
+	@CheckReturnValue
+	public static long random(long max_)
+	{
+		return (random.nextLong() & 0x7fffffffffffffffL) % max_;
+	}
+
+	/**
+	 * get random in range.
+	 *
+	 * @param min_ minimum value.
+	 * @param max_ maximum value.
+	 *
 	 * @return random real number in the given range.
 	 */
 	@CheckReturnValue
@@ -114,6 +142,7 @@ public final class Auxiliary
 	{
 		return random.nextDouble() * (max_ - min_) + min_;
 	}
+
 
 	/**
 	 * get random number in range.
