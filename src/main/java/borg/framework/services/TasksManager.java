@@ -132,7 +132,7 @@ public class TasksManager
 		Thread thread = new Thread(() ->
 		{
 			// run the task
-			Thread.currentThread().setName(name_);
+			Thread.currentThread().setName(buildThreadName(name_));
 			task_.run(param_);
 		});
 
@@ -484,6 +484,20 @@ public class TasksManager
 	public static void wakeLoop()
 	{
 		sSleep = false;
+	}
+
+	/**
+	 * build thread name.
+	 *
+	 * @param message_ message to add to the thread name.
+	 *
+	 * @return built string.
+	 */
+	@NotNull
+	@CheckReturnValue
+	public static String buildThreadName(@NotNull String message_)
+	{
+		return String.format("%d-%s", TimeManager.getTick(), message_);
 	}
 
 	private static boolean _runTask()

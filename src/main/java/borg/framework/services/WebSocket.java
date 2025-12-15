@@ -30,9 +30,6 @@ public class WebSocket extends Socket
 	 * Public Constants
 	 ************************************************************************************************/
 
-	/** protocol version **/
-	public static final String VERSION_PROTOCOL = "ocpp1.6";
-
 	/** websocket version **/
 	public static final int VERSION_WEBSOCKET = 13;
 
@@ -45,19 +42,19 @@ public class WebSocket extends Socket
 
 	private static final int LENGTH_KEY = 16;
 
-	private static final String HEADER_HOST = "host";
+	private static final String HEADER_HOST = "Host";
 
-	private static final String HEADER_CONNECTION = "connection";
+	private static final String HEADER_CONNECTION = "Connection";
 
-	private static final String HEADER_PROTOCOL = "sec-websocket-protocol";
+	private static final String HEADER_PROTOCOL = "Sec-WebSocket-Protocol";
 
-	private static final String HEADER_KEY = "sec-websocket-key";
+	private static final String HEADER_KEY = "Sec-WebSocket-Key";
 
-	private static final String HEADER_VERSION = "sec-websocket-version";
+	private static final String HEADER_VERSION = "Sec-WebSocket-Version";
 
-	private static final String HEADER_UPGRADE = "upgrade";
+	private static final String HEADER_UPGRADE = "Upgrade";
 
-	private static final String HEADER_AGENT = "user-agent";
+	private static final String HEADER_AGENT = "User-Agent";
 
 	private static final int TIMEOUT_READ = 500;
 
@@ -189,13 +186,16 @@ public class WebSocket extends Socket
 	/**
 	 * connect websocket. Blocking operation.
 	 *
-	 * @param timeout_ connection timeout, 0 for infinite.
-	 * @param headers_ headers to send with the connection.
+	 * @param timeout_  connection timeout, 0 for infinite.
+	 * @param protocol_ sub-protocol to use.
+	 * @param headers_  headers to send with the connection.
 	 *
 	 * @return operation response.
 	 */
 	@NotNull
-	public synchronized HttpResponse connect(long timeout_, @Nullable Map<String, String> headers_)
+	public synchronized HttpResponse connect(long timeout_,
+		@NotNull String protocol_,
+		@Nullable Map<String, String> headers_)
 	{
 		Logger.log("websocket: connect to " + uri.toString());
 
@@ -238,7 +238,7 @@ public class WebSocket extends Socket
 				Map<String, String> requestHeaders = new HashMap<>();
 				requestHeaders.put(HEADER_HOST, uri.getHost());
 				requestHeaders.put(HEADER_CONNECTION, "Upgrade");
-				requestHeaders.put(HEADER_PROTOCOL, VERSION_PROTOCOL);
+				requestHeaders.put(HEADER_PROTOCOL, protocol_);
 				requestHeaders.put(HEADER_VERSION, Integer.toString(VERSION_WEBSOCKET));
 				requestHeaders.put(HEADER_KEY, key);
 				requestHeaders.put(HEADER_UPGRADE, "websocket");
@@ -327,6 +327,8 @@ public class WebSocket extends Socket
 
 				// disable watchdog
 				TimeManager.cancel(_keepaliveWatchdog);
+
+				mListener.disconnected(this);
 			}
 			catch (Exception e)
 			{
@@ -526,7 +528,7 @@ public class WebSocket extends Socket
 	{
 		return new Thread(() ->
 		{
-			Thread.currentThread().setName("websocket reader: " + uri);
+			Thread.currentThread().setName(TasksManager.buildThreadName("websocket reader: " + uri));
 
 			for (; ; )
 			{
@@ -588,7 +590,6 @@ public class WebSocket extends Socket
 
 			// disconnect
 			disconnect();
-			mListener.disconnected(this);
 		});
 	}
 
