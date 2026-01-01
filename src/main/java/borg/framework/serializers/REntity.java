@@ -452,10 +452,26 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 
 			if (map != null)
 			{
+				Constructor<T> constructor;
+				try
+				{
+					constructor = class_.getConstructor(HashMap.class);
+				}
+				catch (Exception e1_)
+				{
+					try
+					{
+						constructor = class_.getDeclaredConstructor(HashMap.class);
+					}
+					catch (Exception e2_)
+					{
+						throw new Error(e2_);
+					}
+				}
+
 				try
 				{
 					// get constructor
-					Constructor<T> constructor = class_.getConstructor(HashMap.class);
 					constructor.setAccessible(true);
 
 					// return instance

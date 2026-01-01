@@ -1,17 +1,16 @@
 package borg.framework.auxiliaries;
 
-import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
 
 /**
  * @author Borg
  */
-public final class Event<T>
+public final class Event<T, S>
 {
 	/*************************************************************************************************
 	 * Constants
@@ -22,47 +21,34 @@ public final class Event<T>
 	 ************************************************************************************************/
 
 	@FunctionalInterface
-	public interface Observer<T>
+	public interface Observer<T, S>
 	{
-		boolean action(Object sender_, T param_);
+		boolean action(T sender_, S param_);
 	}
 
 	/*************************************************************************************************
 	 * Fields
 	 ************************************************************************************************/
 
-	/** owner of the event  **/
-	private final Object mOwner;
+	/** owner of the event **/
+	private final T mOwner;
 
 	/** list of observers attached to the event **/
-	private final Set<Observer<T>> mObservers;
-
-	/** clone list of observers to maintain the main list **/
-	private final Set<Observer<T>> mObserversClone;
-
-	/** sign whether observers list is dirty **/
-	private boolean mIsObserversDirty;
-
-	/** sign whether observers invocation is executed **/
-	private boolean mIsDuringInvocation;
+	private final Set<Observer<T, S>> mObservers;
 
 	/*************************************************************************************************
 	 * Methods
 	 ************************************************************************************************/
 
-	public Event(@Nullable Object owner_)
+	public Event(@Nullable T owner_)
 	{
 		mOwner = owner_;
 		mObservers = new HashSet<>();
-		mObserversClone = new HashSet<>();
-		mIsObserversDirty = false;
-		mIsDuringInvocation = false;
 	}
 
 	/**
 	 * @return number of observers that observe that event.
 	 */
-	@CheckReturnValue
 	public int getSize()
 	{
 		return mObservers.size();
@@ -73,25 +59,11 @@ public final class Event<T>
 	 *
 	 * @param observer_ the attached observer.
 	 */
-	public void attach(@NotNull Event.Observer<T> observer_)
+	public void attach(@NotNull Event.Observer<T, S> observer_)
 	{
 		synchronized (this)
 		{
-			// if new observer was attached
-			if (mObservers.add(observer_) == true)
-			{
-				// if invocation is not executed
-				if (mIsDuringInvocation == false)
-				{
-					// add observer to observers clone list
-					mObserversClone.add(observer_);
-				}
-				else
-				{
-					// sign observers list as dirty
-					mIsObserversDirty = true;
-				}
-			}
+			mObservers.add(observer_);
 		}
 	}
 
@@ -100,25 +72,11 @@ public final class Event<T>
 	 *
 	 * @param observer_ detached observer.
 	 */
-	public void detach(@NotNull Observer<T> observer_)
+	public void detach(@NotNull Observer<T, S> observer_)
 	{
 		synchronized (this)
 		{
-			// if observer was removed
-			if (mObservers.remove(observer_) == true)
-			{
-				// if invocation is not executed
-				if (mIsDuringInvocation == false)
-				{
-					// remove observer from observers clone list
-					mObserversClone.remove(observer_);
-				}
-				else
-				{
-					// sign observers list as dirty
-					mIsObserversDirty = true;
-				}
-			}
+			mObservers.remove(observer_);
 		}
 	}
 
@@ -130,18 +88,6 @@ public final class Event<T>
 		synchronized (this)
 		{
 			mObservers.clear();
-
-			// if invocation is not executed
-			if (mIsDuringInvocation == false)
-			{
-				// remove all observers
-				mObserversClone.clear();
-			}
-			else
-			{
-				// sign observers list as dirty
-				mIsObserversDirty = true;
-			}
 		}
 	}
 
@@ -154,19 +100,14 @@ public final class Event<T>
 	 * invocation.
 	 */
 	@Nullable
-	public Throwable invoke(@Nullable T param_)
+	public Throwable invoke(@Nullable S param_)
 	{
 		Throwable exception = null;
 
 		synchronized (this)
 		{
-			boolean prevDuringInvocation = mIsDuringInvocation;
-
-			// set that invocation is executed
-			mIsDuringInvocation = true;
-
 			// invokes attached observers
-			for (Observer<T> observer : mObserversClone)
+			for (Observer<T, S> observer : new ArrayList<>(mObservers)) // TODO optimize
 			{
 				// invoke method
 				try
@@ -185,18 +126,6 @@ public final class Event<T>
 					Logger.log(e);
 				}
 			}
-
-			// if observers list was changed
-			if (mIsObserversDirty == true)
-			{
-				mObserversClone.clear();
-
-				// build new observer clone list
-				mObserversClone.addAll(mObservers);
-			}
-
-			// roll back during invocation flag
-			mIsDuringInvocation = prevDuringInvocation;
 		}
 
 		return exception;
