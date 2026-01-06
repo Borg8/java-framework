@@ -440,21 +440,6 @@ public final class Logger
 	}
 
 	/**
-	 * assertion log.
-	 *
-	 * @param condition_ condition to test.
-	 * @param message_   message to log if the condition is {@code false}.
-	 */
-	public static void log(boolean condition_, @NotNull String message_)
-	{
-		if (condition_ == false)
-		{
-			_buildStack();
-			log(Level.SEVERE, message_);
-		}
-	}
-
-	/**
 	 * log message.
 	 *
 	 * @param level_       log level.
