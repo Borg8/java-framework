@@ -470,10 +470,9 @@ public class TasksManager
 	 */
 	public static void exit()
 	{
-		sDone = true;
-
 		synchronized (sTasks)
 		{
+			sDone = true;
 			sTasks.notify();
 		}
 	}
@@ -483,7 +482,11 @@ public class TasksManager
 	 */
 	public static void wakeLoop()
 	{
-		sSleep = false;
+		synchronized (sTasks)
+		{
+			sSleep = false;
+			sTasks.notify();
+		}
 	}
 
 	/**
