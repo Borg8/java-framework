@@ -311,7 +311,7 @@ public abstract class REntity implements BinaryParser.BinarySerializable
 	{
 		if ((array_ != null) && (array_.length > 0))
 		{
-			return ArraysManager.getArrayAsHex(array_);
+			return ArraysManager.getArrayAsHex(array_, "");
 		}
 
 		return null;

@@ -83,46 +83,49 @@ public final class ArraysManager
 	}
 
 	/**
-	 * convert byte array to it hex representation. After conversion each byte in the array will be
-	 * represented as two digit hexadecimal number, when each byte in the array is an unsigned byte.
+	 * convert byte array to it hex representation. After conversion all byte in array will be represented as
+	 * two digit hexadecimal number, when all byte in array is an unsigned byte.
 	 *
-	 * @param array_ given array.
+	 * @param array_     given array.
+	 * @param separator_ separator between bytes.
 	 *
 	 * @return string of hex representation of array.
 	 */
 	@NotNull
 	@CheckReturnValue
-	public static String getArrayAsHex(byte @NotNull [] array_)
+	public static String getArrayAsHex(byte @NotNull [] array_, @NotNull String separator_)
 	{
-		StringBuilder builder = new StringBuilder();
+		// clear builder
+		StringBuilder cBuilder = new StringBuilder();
 
 		// convert to string
 		for (byte b : array_)
 		{
 			// append 4 MSB
-			int i = (b & 0xf0) >> 4;
+			int i = (b & 0xf0) >>> 4;
 			if (i < 10)
 			{
-				builder.append((char)('0' + i));
+				cBuilder.append((char)('0' + i));
 			}
 			else
 			{
-				builder.append((char)('a' + i - 10));
+				cBuilder.append((char)('a' + i - 10));
 			}
 
 			// append 4 LSB
 			i = b & 0xf;
 			if (i < 10)
 			{
-				builder.append((char)('0' + i));
+				cBuilder.append((char)('0' + i));
 			}
 			else
 			{
-				builder.append((char)('a' + i - 10));
+				cBuilder.append((char)('a' + i - 10));
 			}
+			cBuilder.append(separator_);
 		}
 
-		return builder.toString();
+		return cBuilder.toString();
 	}
 
 	/**
