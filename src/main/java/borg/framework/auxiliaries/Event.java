@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public final class Event<T, S>
 	public Event(@Nullable T owner_)
 	{
 		mOwner = owner_;
-		mObservers = new HashSet<>();
+		mObservers = Collections.synchronizedSet(new HashSet<>());
 	}
 
 	/**
@@ -61,10 +62,7 @@ public final class Event<T, S>
 	 */
 	public void attach(@NotNull Event.Observer<T, S> observer_)
 	{
-		synchronized (this)
-		{
-			mObservers.add(observer_);
-		}
+		mObservers.add(observer_);
 	}
 
 	/**
@@ -74,10 +72,7 @@ public final class Event<T, S>
 	 */
 	public void detach(@NotNull Observer<T, S> observer_)
 	{
-		synchronized (this)
-		{
-			mObservers.remove(observer_);
-		}
+		mObservers.remove(observer_);
 	}
 
 	/**
@@ -85,10 +80,7 @@ public final class Event<T, S>
 	 */
 	public void detachAll()
 	{
-		synchronized (this)
-		{
-			mObservers.clear();
-		}
+		mObservers.clear();
 	}
 
 	/**
@@ -104,27 +96,24 @@ public final class Event<T, S>
 	{
 		Throwable exception = null;
 
-		synchronized (this)
+		// invokes attached observers
+		for (Observer<T, S> observer : new ArrayList<>(mObservers)) // TODO optimize
 		{
-			// invokes attached observers
-			for (Observer<T, S> observer : new ArrayList<>(mObservers)) // TODO optimize
+			// invoke method
+			try
 			{
-				// invoke method
-				try
+				if (observer.action(mOwner, param_) == false)
 				{
-					if (observer.action(mOwner, param_) == false)
-					{
-						detach(observer);
-					}
+					detach(observer);
 				}
-				catch (Throwable e)
+			}
+			catch (Throwable e)
+			{
+				if (exception == null)
 				{
-					if (exception == null)
-					{
-						exception = e;
-					}
-					Logger.log(e);
+					exception = e;
 				}
+				Logger.log(e);
 			}
 		}
 
