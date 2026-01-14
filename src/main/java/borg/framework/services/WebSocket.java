@@ -625,11 +625,17 @@ public class WebSocket extends Socket
 			byte[] data = new byte[length];
 			if (length > 0)
 			{
-				int res = stream_.read(data);
-				if (res != length)
+				// read data
+				int count = 0;
+				while (count < length)
 				{
-					Logger.log(Level.WARNING,
-						String.format("websocket: unable to read: %d of %d bytes", res, length));
+					int size = stream_.read(data, count, length - count);
+					if (size < 0)
+					{
+						Logger.log(Level.WARNING,
+							String.format("Websocket: unabld to read all data: %d of %d", count, length));
+					}
+					count += size;
 				}
 			}
 
