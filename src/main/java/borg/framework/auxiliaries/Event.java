@@ -3,10 +3,8 @@ package borg.framework.auxiliaries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * @author Borg
@@ -24,7 +22,20 @@ public final class Event<T, S>
 	@FunctionalInterface
 	public interface Observer<T, S>
 	{
+		/**
+		 * @return {@code true} to continue listening, {@code false} to auto-detach.
+		 */
 		boolean action(T sender_, S param_);
+	}
+
+	/*************************************************************************************************
+	 * Disposable
+	 ************************************************************************************************/
+
+	@FunctionalInterface
+	public interface Disposable
+	{
+		void dispose();
 	}
 
 	/*************************************************************************************************
@@ -44,7 +55,7 @@ public final class Event<T, S>
 	public Event(@Nullable T owner_)
 	{
 		mOwner = owner_;
-		mObservers = Collections.synchronizedSet(new HashSet<>());
+		mObservers = new CopyOnWriteArraySet<>();
 	}
 
 	/**
@@ -60,9 +71,11 @@ public final class Event<T, S>
 	 *
 	 * @param observer_ the attached observer.
 	 */
-	public void attach(@NotNull Event.Observer<T, S> observer_)
+	@NotNull
+	public Disposable attach(@NotNull Event.Observer<T, S> observer_)
 	{
 		mObservers.add(observer_);
+		return () -> detach(observer_);
 	}
 
 	/**
@@ -73,14 +86,6 @@ public final class Event<T, S>
 	public void detach(@NotNull Observer<T, S> observer_)
 	{
 		mObservers.remove(observer_);
-	}
-
-	/**
-	 * detaches all observers from the event.
-	 */
-	public void detachAll()
-	{
-		mObservers.clear();
 	}
 
 	/**
@@ -97,7 +102,7 @@ public final class Event<T, S>
 		Throwable exception = null;
 
 		// invokes attached observers
-		for (Observer<T, S> observer : new ArrayList<>(mObservers)) // TODO optimize
+		for (Observer<T, S> observer : mObservers)
 		{
 			// invoke method
 			try

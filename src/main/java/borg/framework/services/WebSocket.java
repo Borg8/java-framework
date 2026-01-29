@@ -633,7 +633,7 @@ public class WebSocket extends Socket
 					if (size < 0)
 					{
 						Logger.log(Level.WARNING,
-							String.format("Websocket: unabld to read all data: %d of %d", count, length));
+							String.format("Websocket: unable to read all data: %d of %d", count, length));
 					}
 					count += size;
 				}

@@ -500,7 +500,7 @@ public class TasksManager
 	@CheckReturnValue
 	public static String buildThreadName(@NotNull String message_)
 	{
-		return String.format("%d-%s", TimeManager.getTick(), message_);
+		return message_;
 	}
 
 	private static boolean _runTask()
